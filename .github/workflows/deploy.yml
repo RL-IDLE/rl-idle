@@ -80,13 +80,13 @@ jobs:
       - name: Build the api docker image
         run: |
           # Api
-          docker build -t rg.fr-par.scw.cloud/rl-idle/api-${{ steps.extract-env.outputs.env }}:latest ./backend
+          # docker build -t rg.fr-par.scw.cloud/rl-idle/api-${{ steps.extract-env.outputs.env }}:latest -f ./backend/Dockerfile .
           docker push rg.fr-par.scw.cloud/rl-idle/api-${{ steps.extract-env.outputs.env }}:latest
 
       - name: Build the app docker image
         run: |
           # App
-          docker build -t rg.fr-par.scw.cloud/rl-idle/app-${{ steps.extract-env.outputs.env }}:latest ./frontend
+          docker build -t rg.fr-par.scw.cloud/rl-idle/app-${{ steps.extract-env.outputs.env }}:latest -f ./frontend/Dockerfile .
           docker push rg.fr-par.scw.cloud/rl-idle/app-${{ steps.extract-env.outputs.env }}:latest
 
       - name: Push docker compose
