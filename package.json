@@ -1,7 +1,7 @@
 {
   "name": "@backhealth/rl-idle",
   "private": true,
-  "version": "1.1.0-rec.3",
+  "version": "1.1.0-rec.4",
   "description": "",
   "main": "index.js",
   "scripts": {
