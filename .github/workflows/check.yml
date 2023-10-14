@@ -13,7 +13,10 @@ jobs:
   backend-check:
     env:
       node_version: 18
-    name: Check
+    defaults:
+      run:
+        working-directory: backend
+    name: Backend Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,8 +25,6 @@ jobs:
         with:
           node-version: "18.x"
           cache: "npm"
-      - name: Change directory
-        run: cd backend
       - name: Install dependencies
         run: npm install
       - name: Set example env
@@ -39,7 +40,10 @@ jobs:
   frontend-check:
     env:
       node_version: 18
-    name: Check
+    defaults:
+      run:
+        working-directory: frontend
+    name: Frontend Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
