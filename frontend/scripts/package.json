@@ -1,0 +1,13 @@
+{
+  "name": "scripts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "depcheck": "npx tsx depcheck.ts"
+  },
+  "type": "module",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "depcheck": "^1.4.6"
+  }
+}
