@@ -17,12 +17,14 @@ RUN cd frontend/scripts && npm ci
 
 COPY . .
 
-RUN npm run build
+RUN npm run build -w frontend
 
 
 FROM nginx as frontend
 
-COPY --from=build /usr/src/app/frontend/dist /var/www/html/
+COPY --from=build /usr/src/app/frontend/dist /var/www/html
+
+WORKDIR /var/www/html
 
 EXPOSE 80
 

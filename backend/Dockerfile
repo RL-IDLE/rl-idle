@@ -17,11 +17,13 @@ RUN cd backend/scripts && npm ci
 
 COPY . .
 
-RUN npm run build
+RUN npm run buildc -w backend
 
 FROM node:18-alpine as backend
 
 COPY --from=build /usr/src/app/backend /usr/src/app/backend
+
+WORKDIR /usr/src/app/backend
 
 EXPOSE 3000
 
