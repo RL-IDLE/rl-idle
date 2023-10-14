@@ -1,30 +1,30 @@
-version: '3.8'
+version: "3.8"
 
 services:
   api:
-    image: rg.fr-par.scw.cloud/rl-idle/api:latest
+    image: rg.fr-par.scw.cloud/rl-idle/api-production:latest
     container_name: rl-idle_api
     restart: unless-stopped
     logging:
-      driver: 'json-file'
+      driver: "json-file"
       options:
-        max-size: '50m'
+        max-size: "50m"
     ports:
-      - '10061:3000'
+      - "10061:3000"
     networks:
       - backend
       - frontend
 
   app:
-    image: rg.fr-par.scw.cloud/rl-idle/app:latest
+    image: rg.fr-par.scw.cloud/rl-idle/app-production:latest
     container_name: rl-idle_app
     restart: unless-stopped
     logging:
-      driver: 'json-file'
+      driver: "json-file"
       options:
-        max-size: '50m'
+        max-size: "50m"
     ports:
-      - '10062:3000'
+      - "10062:3000"
     networks:
       - frontend
 
@@ -33,18 +33,18 @@ services:
     container_name: rl-idle_db
     restart: unless-stopped
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - rl-idle-postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASS}
       POSTGRES_DB: ${DATABASE_NAME}
 
     logging:
-      driver: 'json-file'
+      driver: "json-file"
       options:
-        max-size: '50m'
-    ports:
-      - '10063:5432'
+        max-size: "50m"
+    # ports:
+    #   - '10063:5432'
     networks:
       - backend
 
@@ -54,19 +54,19 @@ services:
     image: redis:latest
     command: /bin/sh -c "redis-server --requirepass ${REDIS_PASSWORD}"
     logging:
-      driver: 'json-file'
+      driver: "json-file"
       options:
-        max-size: '50m'
+        max-size: "50m"
     volumes:
-      - redis-data:/data
-    ports:
-      - '10064:6379'
+      - rl-idle-redis-data:/data
+    # ports:
+    #   - '10064:6379'
     networks:
       - backend
 
 volumes:
-  postgres-data:
-  redis-data:
+  rl-idle-postgres-data:
+  rl-idle-redis-data:
 
 networks:
   backend:
