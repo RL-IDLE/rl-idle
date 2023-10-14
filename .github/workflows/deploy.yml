@@ -77,12 +77,14 @@ jobs:
           password: ${{ secrets.REGISTRY_KEY }}
           registry: rg.fr-par.scw.cloud/rl-idle
 
-      - name: Build the docker image
+      - name: Build the api docker image
         run: |
           # Api
           docker build -t rg.fr-par.scw.cloud/rl-idle/api-${{ steps.extract-env.outputs.env }}:latest ./backend
           docker push rg.fr-par.scw.cloud/rl-idle/api-${{ steps.extract-env.outputs.env }}:latest
 
+      - name: Build the app docker image
+        run: |
           # App
           docker build -t rg.fr-par.scw.cloud/rl-idle/app-${{ steps.extract-env.outputs.env }}:latest ./frontend
           docker push rg.fr-par.scw.cloud/rl-idle/app-${{ steps.extract-env.outputs.env }}:latest
