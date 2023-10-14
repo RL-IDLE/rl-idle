@@ -8,6 +8,7 @@ ENV NODE_ENV production
 
 COPY package.json .
 COPY package-lock.json .
+COPY frontend/package.json ./frontend/
 RUN npm ci
 
 COPY . .
@@ -15,9 +16,9 @@ COPY . .
 RUN npm run build
 
 
-FROM nginx
+FROM nginx as frontend
 
-COPY --from=build /usr/src/app/dist /var/www/html/
+COPY --from=build /usr/src/app/frontend/dist /var/www/html/
 
 EXPOSE 80
 
