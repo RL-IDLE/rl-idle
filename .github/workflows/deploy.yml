@@ -26,6 +26,7 @@ jobs:
           extra_args: --debug --only-verified
 
   run:
+    needs: security
     environment:
       name: "${{ github.ref_name }}"
     runs-on: ubuntu-latest
@@ -38,7 +39,7 @@ jobs:
         run: |
           BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
           GENV=$([[ $BRANCH == 'main' ]] && echo 'production' || [[ $BRANCH == 'rec' ]] && echo 'stagging' || echo 'unknown')
-          echo "env=$GENV" >> $GITHUB_ENV
+          echo "::set-output name=env::$GENV"
           echo "env=$GENV"
         id: extract-env
 
