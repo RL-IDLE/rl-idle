@@ -39,7 +39,7 @@ jobs:
         run: |
           BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
           GENV=$([[ $BRANCH == 'main' ]] && echo 'production' || [[ $BRANCH == 'rec' ]] && echo 'stagging' || echo 'unknown')
-          echo "::set-output name=env::$GENV"
+          echo "env=$GENV" >> $GITHUB_OUTPUT
           echo "env=$GENV"
         id: extract-env
 
@@ -80,13 +80,13 @@ jobs:
       - name: Build the api docker image
         run: |
           # Api
-          # docker build -t rg.fr-par.scw.cloud/rl-idle/api-${{ steps.extract-env.outputs.env }}:latest -f ./backend/Dockerfile .
+          # docker build . -t rg.fr-par.scw.cloud/rl-idle/api-${{ steps.extract-env.outputs.env }}:latest -f ./backend/Dockerfile 
           docker push rg.fr-par.scw.cloud/rl-idle/api-${{ steps.extract-env.outputs.env }}:latest
 
       - name: Build the app docker image
         run: |
           # App
-          docker build -t rg.fr-par.scw.cloud/rl-idle/app-${{ steps.extract-env.outputs.env }}:latest -f ./frontend/Dockerfile .
+          docker build . -t rg.fr-par.scw.cloud/rl-idle/app-${{ steps.extract-env.outputs.env }}:latest -f ./frontend/Dockerfile 
           docker push rg.fr-par.scw.cloud/rl-idle/app-${{ steps.extract-env.outputs.env }}:latest
 
       - name: Push docker compose
