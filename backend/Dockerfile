@@ -17,7 +17,7 @@ RUN cd backend/scripts && npm ci
 
 COPY . .
 
-RUN npm run buildc -w backend
+RUN npm run build -w backend
 
 FROM node:18-alpine as backend
 
