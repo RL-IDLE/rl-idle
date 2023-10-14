@@ -39,6 +39,7 @@ jobs:
           BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
           GENV=$([[ $BRANCH == 'main' ]] && echo 'production' || [[ $BRANCH == 'rec' ]] && echo 'stagging' || echo 'unknown')
           echo "env=$GENV" >> $GITHUB_ENV
+          echo "env=$GENV"
         id: extract-env
 
       - name: Create docker env
