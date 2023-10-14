@@ -13,7 +13,7 @@ RUN npm ci
 
 COPY backend/scripts/package.json ./backend/scripts/
 COPY backend/scripts/package-lock.json ./backend/scripts/
-RUN cd scripts && npm ci
+RUN cd backend/scripts && npm ci
 
 COPY . .
 
