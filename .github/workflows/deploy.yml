@@ -39,7 +39,7 @@ jobs:
         run: |
           BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
           GENV=$([[ $BRANCH == 'main' ]] && echo 'production' || echo 'unknown')
-          GENV=$([[ $BRANCH == 'rec' ]] && [[ $GENV == 'unknown' ]] && echo 'rec' || echo $GENV)
+          GENV=$([[ $BRANCH == 'rec' ]] && [[ $GENV == 'unknown' ]] && echo 'stagging' || echo $GENV)
           echo "env=$GENV" >> $GITHUB_OUTPUT
           echo "env=$GENV"
         id: extract-env
