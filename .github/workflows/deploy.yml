@@ -38,7 +38,8 @@ jobs:
       - name: Extract environment
         run: |
           BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
-          GENV=$([[ $BRANCH == 'main' ]] && echo 'production' || [[ $BRANCH == 'rec' ]] && echo 'stagging' || echo 'unknown')
+          GENV=$([[ $BRANCH == 'main' ]] && echo 'production' || echo 'unknown')
+          GENV=$([[ $BRANCH == 'rec' ]] && $GENV='unknown' && echo 'rec' || echo $GENV)
           echo "env=$GENV" >> $GITHUB_OUTPUT
           echo "env=$GENV"
         id: extract-env
