@@ -21,7 +21,7 @@ RUN npm run build -w backend
 
 FROM node:18-alpine as backend
 
-COPY --from=build /usr/src/app/backend /usr/src/app/backend
+COPY --from=build /usr/src/app /usr/src/app
 
 WORKDIR /usr/src/app/backend
 
