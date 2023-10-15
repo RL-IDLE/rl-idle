@@ -10,7 +10,7 @@ services:
       options:
         max-size: "50m"
     ports:
-      - "10061:3000"
+      - "10057:3000"
     networks:
       - backend
       - frontend
@@ -24,7 +24,7 @@ services:
       options:
         max-size: "50m"
     ports:
-      - "10062:3000"
+      - "10058:3000"
     networks:
       - frontend
 
@@ -44,7 +44,7 @@ services:
       options:
         max-size: "50m"
     ports:
-      - "10063:5432"
+      - "10059:5432"
     networks:
       - backend
 
@@ -60,7 +60,7 @@ services:
     volumes:
       - rl-idle-redis-data:/data
     ports:
-      - "10064:6379"
+      - "10060:6379"
     networks:
       - backend
 
