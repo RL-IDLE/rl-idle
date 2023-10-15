@@ -40,4 +40,4 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
-        run: npx semantic-release
+        run: npx multi-semantic-release

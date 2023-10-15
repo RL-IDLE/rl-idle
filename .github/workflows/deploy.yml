@@ -1,9 +1,10 @@
-name: deployment workflow main
+name: deployment workflow
 
 on:
   push:
     branches:
       - main
+      - rec
 
   workflow_dispatch:
 
@@ -25,21 +26,37 @@ jobs:
           extra_args: --debug --only-verified
 
   run:
-    environment: main
+    needs: security
+    environment:
+      name: "${{ github.ref_name }}"
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create env
+      - name: Extract environment
+        run: |
+          BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+          GENV=$([[ $BRANCH == 'main' ]] && echo 'production' || [[ $BRANCH == 'rec' ]] && echo 'stagging' || echo 'unknown')
+          echo "env=$GENV" >> $GITHUB_OUTPUT
+          echo "env=$GENV"
+        id: extract-env
+
+      - name: Create docker env
+        run: |
+          touch .env
+          echo DATABASE_USER=${{ vars.DATABASE_USER }} >> .env
+          echo DATABASE_PASS=${{ secrets.DATABASE_PASS }} >> .env
+          echo DATABASE_NAME=${{ vars.DATABASE_NAME }} >> .env
+          echo REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} >> .env
+
+      - name: Create backend env
+        working-directory: ./backend
         run: |
           touch .env
           echo ENV=production >> .env
           echo DATABASE_URL="postgresql://${{ vars.DATABASE_USER }}:${{ secrets.DATABASE_PASS }}@db:5432/${{ vars.DATABASE_NAME }}?schema=public" >> .env
-          echo DATABASE_USER=${{ vars.DATABASE_USER }} >> .env
-          echo DATABASE_PASS=${{ secrets.DATABASE_PASS }} >> .env
-          echo DATABASE_NAME=${{ vars.DATABASE_NAME }} >> .env
           echo REDIS_HOST=localhost >> .env
           echo REDIS_USERNAME= >> .env
           echo REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} >> .env
@@ -47,6 +64,12 @@ jobs:
           echo REDIS_URL=redis://redis:6379 >> .env
           echo REDIS_USE_TLS=false >> .env
 
+      - name: Create frontend env
+        working-directory: frontend
+        run: |
+          touch .env
+          echo VITE_ENV=production >> .env
+          echo VITE_API_URL=http://api:3000 >> .env
       - name: Login to docker
         uses: docker/login-action@v3
         with:
@@ -54,11 +77,17 @@ jobs:
           password: ${{ secrets.REGISTRY_KEY }}
           registry: rg.fr-par.scw.cloud/rl-idle
 
-      - name: Build the docker image
+      - name: Build the api docker image
         run: |
           # Api
-          docker build -t rg.fr-par.scw.cloud/rl-idle/api:latest .
-          docker push rg.fr-par.scw.cloud/rl-idle/api:latest
+          docker build . -t rg.fr-par.scw.cloud/rl-idle/api-${{ steps.extract-env.outputs.env }}:latest -f ./backend/Dockerfile 
+          docker push rg.fr-par.scw.cloud/rl-idle/api-${{ steps.extract-env.outputs.env }}:latest
+
+      - name: Build the app docker image
+        run: |
+          # App
+          docker build . -t rg.fr-par.scw.cloud/rl-idle/app-${{ steps.extract-env.outputs.env }}:latest -f ./frontend/Dockerfile 
+          docker push rg.fr-par.scw.cloud/rl-idle/app-${{ steps.extract-env.outputs.env }}:latest
 
       - name: Push docker compose
         run: |
@@ -70,9 +99,7 @@ jobs:
           chmod 644 ~/.ssh/known_hosts
 
           ssh -p ${{ vars.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "mkdir -p ${{ secrets.SOURCE_PATH }}"
-          mkdir -p tmp/rl-idle-devops
-          git clone https://github.com/RL-IDLE/rl-idle-devops.git tmp/rl-idle-devops
-          scp -P ${{ vars.SSH_PORT }} tmp/rl-idle-devops/docker/docker-compose.production.yml ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ secrets.SOURCE_PATH }}/docker-compose.yml
+          scp -P ${{ vars.SSH_PORT }} docker/docker-compose.${{ steps.extract-env.outputs.env }}.yml ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ secrets.SOURCE_PATH }}/docker-compose.yml
           scp -P ${{ vars.SSH_PORT }} .env ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ secrets.SOURCE_PATH }}/.env
 
       - name: Deploy to production

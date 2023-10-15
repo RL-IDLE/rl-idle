@@ -1,7 +1,7 @@
 {
   "name": "@backhealth/rl-idle",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0-rec.14",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -16,6 +16,14 @@
     "frontend"
   ],
   "devDependencies": {
-    "concurrently": "^8.2.1"
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^11.0.0",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^9.0.4",
+    "@semantic-release/npm": "^11.0.0",
+    "@semantic-release/release-notes-generator": "^12.0.0",
+    "concurrently": "^8.2.1",
+    "multi-semantic-release": "^3.0.2",
+    "semantic-release": "^22.0.5"
   }
 }
