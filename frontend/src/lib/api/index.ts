@@ -29,7 +29,8 @@ export const api = {
       body: JSON.stringify(body),
     });
     if (!result.ok) {
-      throw new Error(result.statusText);
+      const json = await result.json().catch(() => null);
+      throw { json, status: result.status, statusText: result.statusText };
     }
     const json = await result.json();
     return json;

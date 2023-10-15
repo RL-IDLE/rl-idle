@@ -1,6 +1,8 @@
+import { z } from 'zod';
 import { unknown } from '.';
 import { IHttpMethod } from './http';
 import { ILoadUser, IUser } from './user';
+import { clickSchema } from './events';
 
 export type IRoute = {
   method: IHttpMethod;
@@ -27,3 +29,9 @@ export const api = IApiType({
   },
 });
 export type IApi = typeof api;
+
+export type IWsEvent = {
+  click: {
+    body: z.infer<typeof clickSchema>;
+  };
+};

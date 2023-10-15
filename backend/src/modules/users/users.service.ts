@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -23,9 +23,11 @@ export class UsersService {
     }
     //? Otherwise, load the user
     else {
-      user = await this.usersRepository.findOneOrFail({
+      const dbUser = await this.usersRepository.findOne({
         where: { id: loadUser.id },
       });
+      if (!dbUser) throw new HttpException('User not found', 404);
+      user = dbUser;
     }
     return user;
   }

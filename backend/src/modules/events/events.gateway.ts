@@ -3,11 +3,10 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsResponse,
 } from '@nestjs/websockets';
-import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { Server } from 'socket.io';
+import { EventsService } from './events.service';
+import { IWsEvent } from 'src/types/api';
 
 @WebSocketGateway({
   cors: {
@@ -15,18 +14,13 @@ import { Server } from 'socket.io';
   },
 })
 export class EventsGateway {
+  constructor(private readonly eventsService: EventsService) {}
+
   @WebSocketServer()
   server: Server;
 
   @SubscribeMessage('events')
-  findAll(@MessageBody() data: any): Observable<WsResponse<any>> {
-    return from([1, 2, 3]).pipe(
-      map((item) => ({ event: 'events', data: item })),
-    );
-  }
-
-  @SubscribeMessage('identity')
-  async identity(@MessageBody() data: any): Promise<any> {
-    return data;
+  findAll(@MessageBody() data: IWsEvent['click']['body']) {
+    return this.eventsService.click(data);
   }
 }
