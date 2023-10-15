@@ -39,7 +39,7 @@ jobs:
         run: |
           BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
           GENV=$([[ $BRANCH == 'main' ]] && echo 'production' || echo 'unknown')
-          GENV=$([[ $BRANCH == 'rec' ]] && $GENV='unknown' && echo 'rec' || echo $GENV)
+          GENV=$([[ $BRANCH == 'rec' ]] && [[ $GENV == 'unknown' ]] && echo 'rec' || echo $GENV)
           echo "env=$GENV" >> $GITHUB_OUTPUT
           echo "env=$GENV"
         id: extract-env
@@ -103,7 +103,7 @@ jobs:
           scp -P ${{ vars.SSH_PORT }} docker/docker-compose.${{ steps.extract-env.outputs.env }}.yml ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ secrets.SOURCE_PATH }}/docker-compose.yml
           scp -P ${{ vars.SSH_PORT }} .env ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ secrets.SOURCE_PATH }}/.env
 
-      - name: Deploy to production
+      - name: Deploy to ${{ steps.extract-env.outputs.env }}
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
