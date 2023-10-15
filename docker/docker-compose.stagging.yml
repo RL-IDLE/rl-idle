@@ -24,7 +24,7 @@ services:
       options:
         max-size: "50m"
     ports:
-      - "10058:3000"
+      - "10058:80"
     networks:
       - frontend
 

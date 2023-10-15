@@ -21,9 +21,9 @@ RUN npm run build -w frontend
 
 FROM nginx as frontend
 
-COPY --from=build /usr/src/app/frontend/dist /var/www/html
+COPY --from=build /usr/src/app/frontend/dist /usr/share/nginx/html
 
-WORKDIR /var/www/html
+WORKDIR /usr/share/nginx/html
 
 EXPOSE 80
 
