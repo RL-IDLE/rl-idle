@@ -14,6 +14,7 @@ const options = {
     'i18n-config',
     'sharp',
     '@nestjs/mapped-types',
+    'src',
   ],
 };
 
