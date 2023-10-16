@@ -31,6 +31,7 @@ export const useGameStore = create<GameState>()(
             user.money = user.money.add(user.moneyPerClick);
             setUser(user);
             const eventBody: IWsEvent['click']['body'] = {
+              type: 'click',
               userId: user.id,
             };
             socket.emit('events', eventBody);
