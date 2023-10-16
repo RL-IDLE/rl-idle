@@ -4,6 +4,7 @@ import { IWsEvent } from 'src/types/api';
 import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import Decimal from 'break_infinity.js';
+import { getOneData, saveOneData } from 'src/lib/storage';
 
 @Injectable()
 export class EventsService {
@@ -13,16 +14,17 @@ export class EventsService {
   ) {}
 
   async click(data: IWsEvent['click']['body']) {
-    const user = await this.usersRepository.findOne({
-      where: { id: data.userId },
+    const user = await getOneData({
+      databaseRepository: this.usersRepository,
+      key: 'users',
+      id: data.userId,
     });
     if (!user) throw new HttpException('User not found', 404);
-    //TODO Save in redis instead
     const money = Decimal.fromString(user.money);
     const moneyPerClick = Decimal.fromString(user.moneyPerClick);
     const newMoney = money.add(moneyPerClick);
     user.money = newMoney.toString();
-    await this.usersRepository.save(user);
+    await saveOneData({ key: 'users', id: data.userId, data: user });
     return user;
   }
 }

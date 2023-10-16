@@ -20,7 +20,8 @@ export class EventsGateway {
   server: Server;
 
   @SubscribeMessage('events')
-  findAll(@MessageBody() data: IWsEvent['click']['body']) {
-    return this.eventsService.click(data);
+  findAll(@MessageBody() data: IWsEvent[keyof IWsEvent]['body']) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (data.type === 'click') return this.eventsService.click(data);
   }
 }
