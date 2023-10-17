@@ -5,6 +5,8 @@ import Game from './app/components/Game';
 import { useGameStore } from './contexts/game.store';
 import Navbar from './components/Navbar';
 import 'swiper/css';
+import { logger } from './lib/logger';
+import Loading from './components/Loading';
 
 function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
@@ -12,21 +14,29 @@ function App() {
 
   useEffect(() => {
     function onConnect() {
+      logger.debug('Connected to server');
       setIsConnected(true);
     }
 
     function onDisconnect() {
+      logger.debug('Disconnected from server');
       setIsConnected(false);
+      //? Try reconnecting to the server every 5 seconds
+      setTimeout(() => {
+        socket.connect();
+      }, 3000);
     }
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
+    socket.on('reconnect', onConnect);
 
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
+      socket.off('reconnect', onConnect);
     };
-  }, [loadUser]);
+  }, []);
 
   useEffect(() => {
     loadUser();
@@ -36,11 +46,7 @@ function App() {
     <div className="flex flex-col flex-1 w-screen">
       <Game />
       <Navbar />
-      {!isConnected && (
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <p>Connexion en cours</p>
-        </div>
-      )}
+      {!isConnected && <Loading />}
     </div>
   );
 }
