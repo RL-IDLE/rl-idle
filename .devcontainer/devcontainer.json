@@ -1,5 +1,5 @@
 {
-  "name": "next-boilerplate",
+  "name": "rl-idle",
 
   // Update the 'dockerComposeFile' list if you have more compose files or use different names.
   // The .devcontainer/docker-compose.yml file contains any overrides you need/want to make.
@@ -19,10 +19,7 @@
 
   "portsAttributes": {
     "3000": {
-      "label": "backend"
-    },
-    "3001": {
-      "label": "web"
+      "label": "nextjs"
     },
     "5432": {
       "label": "postgres"
@@ -36,37 +33,41 @@
   },
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "./scripts/install-zsh10k.sh && ./scripts/install-bun.sh && ./scripts/git-hooks.sh && npm install",
+  "postCreateCommand": "bash ./scripts/install/install.sh",
 
   // Configure tool-specific properties.
   "customizations": {
-    "postCreateCommand": "./scripts/install-zsh10k.sh && ./scripts/install-bun.sh && ./scripts/git-hooks.sh && npm install",
+    "postCreateCommand": "bash ./scripts/install/install.sh",
     "vscode": {
       "extensions": [
-		"aaron-bond.better-comments",
-		"WallabyJs.console-ninja",
-		"EditorConfig.EditorConfig",
-		"dbaeumer.vscode-eslint",
-		"tombonnike.vscode-status-bar-format-toggle",
-		"github.vscode-github-actions",
-		"GitHub.copilot",
-		"GitHub.copilot-chat",
-		"GitHub.copilot-labs",
-		"eamodio.gitlens",
-		"yzhang.markdown-all-in-one",
-		"esbenp.prettier-vscode",
-		"rvest.vs-code-prettier-eslint",
-		"Prisma.prisma",
-		"donjayamanne.githistory",
-		"ms-azuretools.vscode-docker",
-		"ftonato.password-generator",
-		"adamhartford.vscode-base64",
-		"ChakrounAnas.turbo-console-log",
-		"yoavbls.pretty-ts-errors",
-		"humao.rest-client",
-		"ambar.bundle-size",
-		"bradlc.vscode-tailwindcss"
-	]
+        "formulahendry.auto-rename-tag",
+        "aaron-bond.better-comments",
+        "WallabyJs.console-ninja",
+        "EditorConfig.EditorConfig",
+        "dsznajder.es7-react-js-snippets",
+        "dbaeumer.vscode-eslint",
+        "tombonnike.vscode-status-bar-format-toggle",
+        "github.vscode-github-actions",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "GitHub.copilot-labs",
+        "eamodio.gitlens",
+        "ecmel.vscode-html-css",
+        "Zignd.html-css-class-completion",
+        "yzhang.markdown-all-in-one",
+        "esbenp.prettier-vscode",
+        "rvest.vs-code-prettier-eslint",
+        "Prisma.prisma",
+        "bradlc.vscode-tailwindcss",
+        "donjayamanne.githistory",
+        "ms-azuretools.vscode-docker",
+        "ftonato.password-generator",
+        "adamhartford.vscode-base64",
+        "ChakrounAnas.turbo-console-log",
+        "yoavbls.pretty-ts-errors",
+        "humao.rest-client",
+        "ambar.bundle-size"
+      ]
     }
   },
   "features": {
