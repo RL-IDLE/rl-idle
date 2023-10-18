@@ -17,21 +17,20 @@ export class UsersService {
   ): Promise<typeof api.user.load.response> {
     // await sleep(10000);
 
-    let user: User;
     //? If no user id is set, create a new user
+    let userId: string | undefined;
     if (!('id' in loadUser)) {
-      user = await this.usersRepository.save({});
+      const newUser = await this.usersRepository.save({});
+      userId = newUser.id;
     }
     //? Otherwise, load the user
-    else {
-      const dbUser = await getOneData({
-        databaseRepository: this.usersRepository,
-        key: 'users',
-        id: loadUser.id,
-      });
-      if (!dbUser) throw new HttpException('User not found', 404);
-      user = dbUser;
-    }
+    const dbUser = await getOneData({
+      databaseRepository: this.usersRepository,
+      key: 'users',
+      id: 'id' in loadUser ? loadUser.id : (userId as string),
+    });
+    if (!dbUser) throw new HttpException('User not found', 404);
+    const user = dbUser;
     return user;
   }
 }

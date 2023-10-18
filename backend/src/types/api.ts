@@ -2,7 +2,8 @@ import { z } from 'zod';
 import { unknown } from '.';
 import { IHttpMethod } from './http';
 import { ILoadUser, IUser } from './user';
-import { clickSchema } from './events';
+import { buyItemSchema, clickSchema } from './events';
+import { IItem } from './item';
 
 export type IRoute = {
   method: IHttpMethod;
@@ -27,11 +28,22 @@ export const api = IApiType({
       response: unknown as IUser,
     },
   },
+  items: {
+    findAll: {
+      method: 'GET',
+      url: '/items',
+      body: undefined,
+      response: unknown as IItem[],
+    },
+  },
 });
 export type IApi = typeof api;
 
 export type IWsEvent = {
   click: {
     body: z.infer<typeof clickSchema>;
+  };
+  buyItem: {
+    body: z.infer<typeof buyItemSchema>;
   };
 };

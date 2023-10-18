@@ -1,6 +1,7 @@
 import { IUser } from 'src/types/user';
 import { Timestamp } from '../../generic/timestamp.entity';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { ItemBought } from '../../../modules/items/entities/item.entity';
 
 @Entity('user')
 export class User extends Timestamp implements IUser {
@@ -8,8 +9,16 @@ export class User extends Timestamp implements IUser {
   id: string;
 
   @Column({ type: 'varchar', default: '0' })
-  money: string;
+  moneyFromClick: string;
 
   @Column({ type: 'varchar', default: '1' })
   moneyPerClick: string;
+
+  @Column({ type: 'varchar', default: '0' })
+  moneyUsed: string;
+
+  @OneToMany(() => ItemBought, (itemBought) => itemBought.user, {
+    eager: true,
+  })
+  itemsBought: ItemBought[];
 }
