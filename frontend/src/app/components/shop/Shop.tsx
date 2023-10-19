@@ -10,11 +10,14 @@ import { cn } from '@/lib/utils';
 import Balance from '../balance';
 import Decimal from 'break_infinity.js';
 import { logger } from '@/lib/logger';
+import { useEffect, useState } from 'react';
+
+const refreshInterval = 500;
 
 export default function Shop() {
   const buyItem = useGameStore((state) => state.actions.buyItem);
   const user = useUserStore((state) => state.user);
-  const balance = getUserBalance(user);
+  const [balance, setBalance] = useState<Decimal>(Decimal.fromString('0'));
   const items = useItemsStore((state) => state.items);
   const itemsLevels: {
     [id: string]: Decimal | undefined;
@@ -48,6 +51,13 @@ export default function Shop() {
             itemsLevels[item.id] || Decimal.fromString('0'),
           ),
   }));
+
+  useEffect(() => {
+    const refreshBalance = () => setBalance(getUserBalance(user));
+    refreshBalance();
+    const interval = setInterval(refreshBalance, refreshInterval);
+    return () => clearInterval(interval);
+  }, [user]);
 
   const handleBuy = (id: string) => {
     buyItem(id);
