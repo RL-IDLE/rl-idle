@@ -8,6 +8,10 @@ import { Swiper as SwiperComponent, SwiperSlide } from 'swiper/react';
 import { useEffect, useState } from 'react';
 import { IPages, pages } from '@/lib/navigation';
 import Swiper from 'swiper';
+import { useUserStore } from '@/contexts/user.store';
+import { socket } from '@/lib/socket';
+import { logger } from '@/lib/logger';
+import { useGameStore } from '@/contexts/game.store';
 
 const getPageIndex = (page: IPages) => {
   return pages.filter((p) => !p.disabled).findIndex((p) => p.name === page);
@@ -20,6 +24,22 @@ const indexToPage = (index: number, withoutDisabled: boolean = false) => {
 export default function Game() {
   const navigationStore = useNavigationStore();
   const [swiper, setSwiper] = useState<Swiper>();
+  const userId = useUserStore((state) => state.user?.id);
+  const loadUser = useGameStore((state) => state.actions.loadUser);
+
+  useEffect(() => {
+    const handleError = (data: unknown) => {
+      logger.error(data);
+      //? Reload the user
+      loadUser();
+    };
+
+    socket.on(`error:${userId}`, handleError);
+
+    return () => {
+      socket.off(`error:${userId}`, handleError);
+    };
+  }, [userId]);
 
   useEffect(() => {
     if (!swiper || swiper.destroyed) return;

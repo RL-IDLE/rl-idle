@@ -13,6 +13,7 @@ import {
 } from 'src/lib/game';
 import { Item, ItemBought } from '../items/entities/item.entity';
 import { randomUUID } from 'crypto';
+import { Server } from 'socket.io';
 
 @Injectable()
 export class EventsService {
@@ -41,7 +42,7 @@ export class EventsService {
     return user;
   }
 
-  async buyItem(data: IWsEvent['buyItem']['body']) {
+  async buyItem(data: IWsEvent['buyItem']['body'], server: Server) {
     const parsedData = await buyItemSchema.parseAsync(data);
     const user = await getOneData({
       databaseRepository: this.usersRepository,
@@ -74,7 +75,9 @@ export class EventsService {
             Decimal.fromNumber(alreadyBought),
           );
     if (userBalance.lt(itemPrice)) {
-      throw new HttpException('Not enough money', 400);
+      //? Emit the exception for the correspondig user
+      server.emit(`error:${user.id}`, 'Not enough money');
+      return;
     }
 
     //* Is click boost
