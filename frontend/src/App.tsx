@@ -11,6 +11,7 @@ import Loading from './components/Loading';
 function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const loadUser = useGameStore((state) => state.actions.loadUser);
+  const loadShop = useGameStore((state) => state.actions.loadShop);
 
   useEffect(() => {
     function onConnect() {
@@ -40,7 +41,8 @@ function App() {
 
   useEffect(() => {
     loadUser();
-  }, [loadUser]);
+    loadShop();
+  }, [loadUser, loadShop]);
 
   return (
     <div className="flex flex-col flex-1 w-screen">

@@ -1,10 +1,9 @@
 import { useGameStore } from '@/contexts/game.store';
-import { useUserStore } from '@/contexts/user.store';
 import { env } from '@/env';
+import Balance from '../balance';
 
 export default function Home() {
   const click = useGameStore((state) => state.actions.click);
-  const money = useUserStore((state) => state.user?.money);
 
   const handleClick = () => {
     click();
@@ -12,7 +11,7 @@ export default function Home() {
 
   return (
     <section>
-      <h2>{money?.toString()}</h2>
+      <Balance />
       <button onClick={handleClick}>
         <img
           src={env.VITE_API_URL + '/public/cars/animus-gp--blue.png'}

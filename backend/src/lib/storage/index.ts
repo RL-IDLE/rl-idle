@@ -19,12 +19,15 @@ export const getOneData = async <DBClass extends ObjectLiteral>({
   databaseRepository,
   key,
   id,
-  options = { redisOnly: false },
+  options = { redisOnly: false, noSync: false },
 }: {
   databaseRepository: Repository<DBClass>;
   key: string;
   id: string;
-  options?: { redisOnly?: boolean };
+  options?: {
+    redisOnly?: boolean;
+    noSync?: boolean;
+  };
 }): Promise<DBClass | null> => {
   const data = await redis.get(`${redisNamespace}:${key}:${id}`);
   if (data) return JSON.parse(data);
@@ -33,7 +36,16 @@ export const getOneData = async <DBClass extends ObjectLiteral>({
     where: { id } as unknown as DBClass,
   })) as DBClass | null;
   if (!newData) return null;
-  await redis.set(`${redisNamespace}:${key}:${id}`, JSON.stringify(newData));
+  if (!options.noSync) {
+    await redis.set(`${redisNamespace}:${key}:${id}`, JSON.stringify(newData));
+  } else {
+    await redis.set(
+      `${key}:${id}`,
+      JSON.stringify(newData),
+      'EX',
+      60 * 60, // 1 hour
+    );
+  }
   return newData;
 };
 
