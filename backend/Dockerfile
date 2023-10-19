@@ -27,4 +27,4 @@ WORKDIR /usr/src/app/backend
 
 EXPOSE 3000
 
-CMD [ "npm", "run", "seed", "npm", "run", "start" ]
+CMD [ "bash", "-c", "./scripts/start-docker.sh" ]
