@@ -64,11 +64,10 @@ jobs:
           echo DATABASE_NAME=${{ vars.DATABASE_NAME }} >> .env
           echo DATABASE_USER=${{ vars.DATABASE_USER }} >> .env
           echo DATABASE_PASS=${{ secrets.DATABASE_PASS }} >> .env
-          echo REDIS_HOST=localhost >> .env
+          echo REDIS_HOST=redis >> .env
           echo REDIS_USERNAME= >> .env
           echo REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} >> .env
           echo REDIS_PORT=6379 >> .env
-          echo REDIS_URL=redis://redis:6379 >> .env
           echo REDIS_USE_TLS=false >> .env
           echo BASE_URL=${{ vars.BASE_URL }} >> .env
 

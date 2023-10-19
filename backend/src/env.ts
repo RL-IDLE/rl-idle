@@ -17,7 +17,6 @@ export const env = createEnv({
     REDIS_USERNAME: z.string(),
     REDIS_PASSWORD: z.string(),
     REDIS_PORT: z.string(),
-    REDIS_URL: z.string(),
     REDIS_USE_TLS: z.coerce.boolean(),
     BASE_URL: z.string(),
   },
