@@ -21,3 +21,10 @@ export const getMoneyFromInvestmentsPerSeconds = (user: IUser | null) => {
   }, Decimal.fromString('0'));
   return moneyFromInvestments;
 };
+
+export const getPriceOfItem = (basePrice: Decimal, step: Decimal) =>
+  Decimal.fromString('0.9')
+    .mul(step.pow(2))
+    .add(Decimal.fromString('2').mul(step))
+    .add(basePrice)
+    .round();

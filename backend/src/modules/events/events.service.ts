@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import Decimal from 'break_infinity.js';
 import { getOneData, saveOneData } from 'src/lib/storage';
 import { buyItemSchema, clickSchema } from 'src/types/events';
-import { getUserBalance } from 'src/lib/game';
+import { getPriceOfItem, getUserBalance } from 'src/lib/game';
 import { Item, ItemBought } from '../items/entities/item.entity';
 import { randomUUID } from 'crypto';
 
@@ -53,10 +53,30 @@ export class EventsService {
     });
     if (!item) throw new HttpException('Item not found', 404);
     const userBalance = getUserBalance(user);
-    const itemPrice = Decimal.fromString(item.price);
+    const alreadyBought = await this.itemsBoughtRepository
+      .createQueryBuilder('itemBought')
+      .where('itemBought.item = :itemId', { itemId: item.id })
+      .andWhere('itemBought.user = :userId', { userId: user.id })
+      .getCount();
+
+    const itemPrice = getPriceOfItem(
+      Decimal.fromString(item.price),
+      Decimal.fromNumber(alreadyBought),
+    );
     if (userBalance.lt(itemPrice)) {
       throw new HttpException('Not enough money', 400);
     }
+
+    //* Is click boost
+    if (item.name === 'Click') {
+      //? Update user moneyPerClick
+      const userMoneyPerClick = Decimal.fromString(user.moneyPerClick);
+      const newUserMoneyPerClick = userMoneyPerClick.times(
+        Decimal.fromString(item.moneyPerClickMult),
+      );
+      user.moneyPerClick = newUserMoneyPerClick.toString();
+    }
+
     //* Mutate
     const userMoneyUsed = Decimal.fromString(user.moneyUsed);
     const newUserMoneyUsed = userMoneyUsed.add(itemPrice);

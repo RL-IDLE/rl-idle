@@ -28,7 +28,7 @@ export default function Home() {
 
   return (
     <section className={styles.home}>
-      <img src={homeBgLarge} alt="background" />
+      <img src={homeBgLarge} alt="background" className="h-screen w-screen" />
       <Balance />
       <button onClick={(e) => handleClick(e)} className="active:scale-[0.99]">
         <img
