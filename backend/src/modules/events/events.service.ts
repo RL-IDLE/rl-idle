@@ -61,17 +61,6 @@ export class EventsService {
     const userMoneyUsed = Decimal.fromString(user.moneyUsed);
     const newUserMoneyUsed = userMoneyUsed.add(itemPrice);
     user.moneyUsed = newUserMoneyUsed.toString();
-    const itemBoughtForRedis: Omit<ItemBought, 'item' | 'user'> & {
-      itemId: string;
-      userId: string;
-    } = {
-      id: randomUUID(),
-      itemId: item.id,
-      userId: user.id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      deletedAt: null as unknown as Date,
-    };
     const itemBought: ItemBought = {
       id: randomUUID(),
       item: item,
