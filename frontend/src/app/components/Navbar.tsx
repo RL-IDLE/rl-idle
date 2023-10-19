@@ -1,5 +1,5 @@
+import { useNavigationStore } from '@/contexts/navigation.store';
 import { pages } from '@/lib/navigation';
-import { useNavigationStore } from '../../contexts/navigation.store';
 import { cn } from '../../lib/utils';
 
 function Item({
