@@ -21,3 +21,7 @@ up:
 down:
 	@echo "Stopping the containers..."
 	$(DOCKER_COMPOSE) -f docker/docker-compose.local.yml down
+
+start:
+	@echo "Starting the application..."
+	npm run dev
