@@ -45,7 +45,7 @@ function App() {
   }, [loadUser, loadShop]);
 
   return (
-    <div className="flex flex-col flex-1 w-screen">
+    <div className="flex flex-col flex-1 w-screen max-h-screen">
       <Game />
       <Navbar />
       {!isConnected && <Loading />}

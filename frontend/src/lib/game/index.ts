@@ -21,3 +21,19 @@ export const getMoneyFromInvestmentsPerSeconds = (user: IUser | null) => {
   }, Decimal.fromString('0'));
   return moneyFromInvestments;
 };
+
+export const getPriceOfItem = (basePrice: Decimal, step: Decimal) =>
+  Decimal.fromString('0.9')
+    .mul(step.pow(2))
+    .add(Decimal.fromString('2').mul(step))
+    .add(basePrice)
+    .round();
+
+export const getPriceForClickItem = (basePrice: Decimal, step: Decimal) => {
+  return basePrice
+    .times(Decimal.fromString('2').pow(step))
+    .times(
+      step.times('3.5').eq('0') ? Decimal.fromString('1') : step.times('3.5'),
+    )
+    .round();
+};

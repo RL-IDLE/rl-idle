@@ -12,7 +12,7 @@ const insertUser = async () => {
   const items: Omit<IItem, 'id'>[] = [
     {
       image: env.BASE_URL + '/public/cars/endo--blue.png',
-      moneyPerClickMult: '1.5',
+      moneyPerClickMult: '2',
       moneyPerSecond: '0',
       name: 'Click',
       price: Decimal.fromString('20').toString(),
@@ -341,7 +341,22 @@ const insertUser = async () => {
     },
   ];
   for (const item of items) {
-    await connection.manager.save('item', item);
+    try {
+      await connection.manager.save('item', item);
+    } catch (error) {
+      if (error.code !== '23505') {
+        Logger.error(error.code);
+      } else {
+        //? Update
+        await connection.manager.update(
+          'item',
+          {
+            name: item.name,
+          },
+          item,
+        );
+      }
+    }
   }
 
   Logger.log('Items created');
