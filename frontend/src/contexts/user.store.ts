@@ -11,8 +11,9 @@ import { IWsEvent } from '../../../backend/src/types/api';
 import { useItemsStore } from './items.store';
 import { getPriceForClickItem, getPriceOfItem } from '@/lib/game';
 
+type IUserOrNull = IUser | null;
 interface UserState {
-  user: IUser | null;
+  user: IUserOrNull;
   click: () => void;
   buyItem: (id: string) => void;
   loadUser: () => Promise<string | undefined>;
@@ -38,16 +39,14 @@ export const useUserStore = create<UserState>()(
         },
         buyItem(id) {
           set((state) => {
-            const user = state.user;
-            if (!user) {
-              logger.error('User not found');
-              return;
+            if (!state.user) {
+              throw 'User not found';
             }
+            const user = state.user;
             const items = useItemsStore.getState().items;
             const item = items.find((item) => item.id === id);
             if (!item) {
-              logger.error('Item not found');
-              return;
+              throw 'Item not found';
             }
             logger.debug('buyItem');
             if (item.name === 'Click') {
@@ -89,18 +88,21 @@ export const useUserStore = create<UserState>()(
                     itemsLevels[item.id] || Decimal.fromString('0'),
                   );
             user.moneyUsed = user.moneyUsed.add(price);
-            user.itemsBought.push({
-              id: Math.random().toString(),
-              item: {
-                id: item.id,
-                name: item.name,
-                price: item.price,
-                moneyPerSecond: item.moneyPerSecond,
-                moneyPerClickMult: item.moneyPerClickMult,
-                image: item.image,
+            user.itemsBought = [
+              ...user.itemsBought,
+              {
+                id: Math.random().toString(),
+                item: {
+                  id: item.id,
+                  name: item.name,
+                  price: item.price,
+                  moneyPerSecond: item.moneyPerSecond,
+                  moneyPerClickMult: item.moneyPerClickMult,
+                  image: item.image,
+                },
+                createdAt: new Date(),
               },
-              createdAt: new Date(),
-            });
+            ];
             const eventBody: IWsEvent['buyItem']['body'] = {
               type: 'buyItem',
               userId: user.id,
@@ -159,7 +161,7 @@ export const useUserStore = create<UserState>()(
       })),
       {
         name: 'user',
-        version: 1.3,
+        version: 1.12,
         merge: (_, persisted) => {
           return {
             ...persisted,

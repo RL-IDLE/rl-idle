@@ -6,10 +6,10 @@ import {
   getPriceOfItem,
   getUserBalance,
 } from '@/lib/game';
-import { logger } from '@/lib/logger';
 import { cn } from '@/lib/utils';
 import Balance from '../balance';
 import Decimal from 'break_infinity.js';
+import { logger } from '@/lib/logger';
 
 export default function Shop() {
   const buyItem = useGameStore((state) => state.actions.buyItem);
