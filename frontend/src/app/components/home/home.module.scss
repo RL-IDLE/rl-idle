@@ -1,3 +1,31 @@
+.home {
+    height: 100%;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    // background: url(../../../assets/home-bg-large.webp);
+    // background-position: center;
+    // background-repeat: no-repeat;
+    // background-size: cover;
+
+    >img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        height: 100%;
+        z-index: -1;
+        object-fit: cover;
+        overflow: visible;
+        filter: brightness(0.8);
+    }
+
+    button {
+        margin: auto;
+    }
+}
+
 .mouse {
     animation: mouse 1s;
     animation-fill-mode: forwards;

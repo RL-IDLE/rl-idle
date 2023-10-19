@@ -2,13 +2,14 @@ import { useGameStore } from '@/contexts/game.store';
 import { useUserStore } from '@/contexts/user.store';
 import { env } from '@/env';
 import Balance from '../balance';
-import styles from './home.module.scss';
+import styles from './home.module.scss'
+import homeBgLarge from '../../../assets/home-bg-large.webp'
 
 export default function Home() {
   const click = useGameStore((state) => state.actions.click);
   const user = useUserStore((state) => state.user);
 
-  const handleClick = (e: any) => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     click();
 
     let xAlea = Math.floor(Math.random() * 25);
@@ -27,7 +28,8 @@ export default function Home() {
   };
 
   return (
-    <section>
+    <section className={styles.home}>
+      <img src={homeBgLarge} alt="background" />
       <Balance />
       <button
         onClick={e => handleClick(e)}
