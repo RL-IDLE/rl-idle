@@ -11,6 +11,7 @@ export const env = createEnv({
     DATABASE_PORT: z.string(),
     DATABASE_USER: z.string(),
     DATABASE_PASS: z.string(),
+    DATABASE_NAME: z.string(),
     DATABASE_KIND: z.string(),
     REDIS_HOST: z.string(),
     REDIS_USERNAME: z.string(),

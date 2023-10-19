@@ -15,6 +15,7 @@ const options = {
     'sharp',
     'postcss',
     'tailwindcss',
+    'autoprefixer',
   ],
 };
 
