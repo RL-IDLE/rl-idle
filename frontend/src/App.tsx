@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react';
 import { socket } from './lib/socket';
 import Game from './app/components/Game';
 import { useGameStore } from './contexts/game.store';
-import Navbar from './components/Navbar';
+import Navbar from './app/components/Navbar';
 import 'swiper/css';
 import { logger } from './lib/logger';
-import Loading from './components/Loading';
+import Loading from './app/components/Loading';
 
 function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
