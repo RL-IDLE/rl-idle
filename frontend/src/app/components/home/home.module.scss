@@ -1,0 +1,55 @@
+.home {
+    height: 100%;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    // background: url(../../../assets/home-bg-large.webp);
+    // background-position: center;
+    // background-repeat: no-repeat;
+    // background-size: cover;
+
+    >img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        height: 100%;
+        z-index: -1;
+        object-fit: cover;
+        overflow: visible;
+        filter: brightness(0.8);
+    }
+
+    button {
+        margin: auto;
+    }
+}
+
+.mouse {
+    animation: mouse 1s;
+    animation-fill-mode: forwards;
+    position: fixed;
+    z-index: 1000;
+    transition: all 0.3s ease-in-out;
+    opacity: 0.5;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 0 #000;
+    user-select: none;
+    pointer-events: none;
+}
+
+@keyframes mouse {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+}
