@@ -1,12 +1,55 @@
-import './App.css';
-import { env } from './env';
+import { useEffect, useState } from 'react';
+
+import { socket } from './lib/socket';
+import Game from './app/components/Game';
+import { useGameStore } from './contexts/game.store';
+import 'swiper/css';
+import { logger } from './lib/logger';
+import Loading from './app/components/Loading';
+import Navbar from './app/components/Navbar';
 
 function App() {
+  const [isConnected, setIsConnected] = useState(socket.connected);
+  const loadUser = useGameStore((state) => state.actions.loadUser);
+  const loadShop = useGameStore((state) => state.actions.loadShop);
+
+  useEffect(() => {
+    function onConnect() {
+      logger.debug('Connected to server');
+      setIsConnected(true);
+    }
+
+    function onDisconnect() {
+      logger.debug('Disconnected from server');
+      setIsConnected(false);
+      //? Try reconnecting to the server every 5 seconds
+      setTimeout(() => {
+        socket.connect();
+      }, 3000);
+    }
+
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+    socket.on('reconnect', onConnect);
+
+    return () => {
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+      socket.off('reconnect', onConnect);
+    };
+  }, []);
+
+  useEffect(() => {
+    loadUser();
+    loadShop();
+  }, [loadUser, loadShop]);
+
   return (
-    <>
-      <p>Hello</p>
-      <p>api url: {env.VITE_API_URL}</p>
-    </>
+    <div className="flex flex-col flex-1 w-screen max-h-screen">
+      <Game />
+      <Navbar />
+      {!isConnected && <Loading />}
+    </div>
   );
 }
 
