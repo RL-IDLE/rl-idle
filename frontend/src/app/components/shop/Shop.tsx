@@ -1,7 +1,11 @@
 import { useGameStore } from '@/contexts/game.store';
 import { useItemsStore } from '@/contexts/items.store';
 import { useUserStore } from '@/contexts/user.store';
-import { getPriceOfItem, getUserBalance } from '@/lib/game';
+import {
+  getPriceForClickItem,
+  getPriceOfItem,
+  getUserBalance,
+} from '@/lib/game';
 import { logger } from '@/lib/logger';
 import { cn } from '@/lib/utils';
 import Balance from '../balance';
@@ -30,17 +34,19 @@ export default function Shop() {
         [id: string]: Decimal;
       },
     ) ?? {};
-  console.log(
-    '🚀 ~ file: events.service.ts:61 ~ EventsService ~ buyItem ~ alreadyBought:',
-    itemsLevels,
-  );
 
   const itemsWithPrice = items.map((item) => ({
     ...item,
-    price: getPriceOfItem(
-      item.price,
-      itemsLevels[item.id] || Decimal.fromString('0'),
-    ),
+    price:
+      item.name === 'Click'
+        ? getPriceForClickItem(
+            item.price,
+            itemsLevels[item.id] || Decimal.fromString('0'),
+          )
+        : getPriceOfItem(
+            item.price,
+            itemsLevels[item.id] || Decimal.fromString('0'),
+          ),
   }));
 
   const handleBuy = (id: string) => {

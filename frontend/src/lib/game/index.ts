@@ -28,3 +28,12 @@ export const getPriceOfItem = (basePrice: Decimal, step: Decimal) =>
     .add(Decimal.fromString('2').mul(step))
     .add(basePrice)
     .round();
+
+export const getPriceForClickItem = (basePrice: Decimal, step: Decimal) => {
+  return basePrice
+    .times(Decimal.fromString('2').pow(step))
+    .times(
+      step.times('3.5').eq('0') ? Decimal.fromString('1') : step.times('3.5'),
+    )
+    .round();
+};

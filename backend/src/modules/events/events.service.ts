@@ -6,7 +6,11 @@ import { Repository } from 'typeorm';
 import Decimal from 'break_infinity.js';
 import { getOneData, saveOneData } from 'src/lib/storage';
 import { buyItemSchema, clickSchema } from 'src/types/events';
-import { getPriceOfItem, getUserBalance } from 'src/lib/game';
+import {
+  getPriceForClickItem,
+  getPriceOfItem,
+  getUserBalance,
+} from 'src/lib/game';
 import { Item, ItemBought } from '../items/entities/item.entity';
 import { randomUUID } from 'crypto';
 
@@ -59,10 +63,16 @@ export class EventsService {
       .andWhere('itemBought.user = :userId', { userId: user.id })
       .getCount();
 
-    const itemPrice = getPriceOfItem(
-      Decimal.fromString(item.price),
-      Decimal.fromNumber(alreadyBought),
-    );
+    const itemPrice =
+      item.name === 'Click'
+        ? getPriceForClickItem(
+            Decimal.fromString(item.price),
+            Decimal.fromNumber(alreadyBought),
+          )
+        : getPriceOfItem(
+            Decimal.fromString(item.price),
+            Decimal.fromNumber(alreadyBought),
+          );
     if (userBalance.lt(itemPrice)) {
       throw new HttpException('Not enough money', 400);
     }
