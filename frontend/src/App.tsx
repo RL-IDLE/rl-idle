@@ -7,6 +7,7 @@ import 'swiper/css';
 import { logger } from './lib/logger';
 import Loading from './app/components/Loading';
 import Navbar from './app/components/Navbar';
+import Balance from './app/components/balance';
 
 function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
@@ -46,6 +47,7 @@ function App() {
 
   return (
     <div className="flex flex-col flex-1 w-screen">
+      <Balance />
       <Game />
       <Navbar />
       {!isConnected && <Loading />}

@@ -4,7 +4,6 @@ import { useUserStore } from '@/contexts/user.store';
 import { getUserBalance } from '@/lib/game';
 import { logger } from '@/lib/logger';
 import { cn } from '@/lib/utils';
-import Balance from '../balance';
 
 export default function Shop() {
   const buyItem = useGameStore((state) => state.actions.buyItem);
@@ -17,8 +16,7 @@ export default function Shop() {
   };
 
   return (
-    <section>
-      <Balance />
+    <section className="bg-white">
       <ul className="flex flex-col gap-2">
         {items.map((item) => (
           <li

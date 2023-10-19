@@ -42,7 +42,7 @@ export default function Game() {
           <Prestige />
         </SwiperSlide>
       )}
-      <SwiperSlide>
+      <SwiperSlide className="overflow-y-auto h-screen z-10">
         <Shop />
       </SwiperSlide>
       <SwiperSlide>

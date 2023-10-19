@@ -1,13 +1,9 @@
 .home {
-    height: 100%;
+    height: 100vh;
     position: relative;
     overflow: visible;
     display: flex;
     flex-direction: column;
-    // background: url(../../../assets/home-bg-large.webp);
-    // background-position: center;
-    // background-repeat: no-repeat;
-    // background-size: cover;
 
     >img {
         position: absolute;
