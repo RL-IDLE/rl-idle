@@ -1,6 +1,8 @@
 import { useGameStore } from '@/contexts/game.store';
 import { env } from '@/env';
 import Balance from '../balance';
+import styles from './home.module.scss'
+import homeBgLarge from '../../../assets/home-bg-large.webp'
 
 export default function Home() {
   const click = useGameStore((state) => state.actions.click);
@@ -10,7 +12,8 @@ export default function Home() {
   };
 
   return (
-    <section>
+    <section className={styles.home}>
+      <img src={homeBgLarge} alt="background" />
       <Balance />
       <button onClick={handleClick}>
         <img
