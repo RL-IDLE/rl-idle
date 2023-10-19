@@ -8,6 +8,7 @@ import { getOneData, saveOneData } from 'src/lib/storage';
 import { buyItemSchema, clickSchema } from 'src/types/events';
 import { getUserBalance } from 'src/lib/game';
 import { Item, ItemBought } from '../items/entities/item.entity';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class EventsService {
@@ -60,9 +61,29 @@ export class EventsService {
     const userMoneyUsed = Decimal.fromString(user.moneyUsed);
     const newUserMoneyUsed = userMoneyUsed.add(itemPrice);
     user.moneyUsed = newUserMoneyUsed.toString();
-    const itemBought = await this.itemsBoughtRepository.save({
-      item,
-      user,
+    const itemBoughtForRedis: Omit<ItemBought, 'item' | 'user'> & {
+      itemId: string;
+      userId: string;
+    } = {
+      id: randomUUID(),
+      itemId: item.id,
+      userId: user.id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null as unknown as Date,
+    };
+    const itemBought: ItemBought = {
+      id: randomUUID(),
+      item: item,
+      user: user,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null as unknown as Date,
+    };
+    await saveOneData({
+      key: 'itemsBought',
+      data: itemBought,
+      id: itemBought.id,
     });
     user.itemsBought.push({
       ...itemBought,
