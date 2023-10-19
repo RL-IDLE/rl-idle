@@ -17,11 +17,11 @@ export default function Shop() {
 
   return (
     <section className="bg-white">
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-col gap-2 mt-32 overflow-y-auto h-screen">
         {items.map((item) => (
           <li
             key={item.id}
-            className={cn('flex flex-col gap-2 border p-2', {
+            className={cn('flex flex-col gap-2 border p-2 cursor-pointer', {
               'border-red-500': item.price.gt(balance),
             })}
             onClick={() => {

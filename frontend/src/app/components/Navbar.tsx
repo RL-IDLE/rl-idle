@@ -33,7 +33,7 @@ function Item({
 export default function Navbar() {
   const navigationStore = useNavigationStore();
   return (
-    <nav className="absolute bottom-0 left-0 min-w-full z-50">
+    <nav className="absolute bottom-0 left-0 min-w-full z-50 bg-white">
       <ul className={cn('flex flex-row justify-between')}>
         {pages.map((page) => (
           <Item
