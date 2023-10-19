@@ -341,7 +341,13 @@ const insertUser = async () => {
     },
   ];
   for (const item of items) {
-    await connection.manager.save('item', item);
+    try {
+      await connection.manager.save('item', item);
+    } catch (error) {
+      if (error.code !== '23505') {
+        Logger.error(error.code);
+      }
+    }
   }
 
   Logger.log('Items created');
