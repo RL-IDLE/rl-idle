@@ -27,4 +27,7 @@ WORKDIR /usr/src/app/backend
 
 EXPOSE 3000
 
-CMD [ "bash", "-c", "./scripts/start-docker.sh" ]
+COPY --from=build /usr/src/app/backend/scripts/start-docker.sh ./
+RUN chmod 775 ./start-docker.sh
+
+ENTRYPOINT [ "./start-docker.sh" ]
