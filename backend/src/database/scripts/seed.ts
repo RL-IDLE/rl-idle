@@ -339,10 +339,6 @@ const insertUser = async () => {
       name: 'Dominus',
       price: Decimal.fromString('2500').toString(),
     },
-
-
-
-
   ];
   for (const item of items) {
     await connection.manager.save('item', item);
