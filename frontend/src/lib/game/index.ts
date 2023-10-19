@@ -23,9 +23,10 @@ export const getMoneyFromInvestmentsPerSeconds = (user: IUser | null) => {
 };
 
 export const getPriceOfItem = (basePrice: Decimal, step: Decimal) =>
-  Decimal.fromString('0.9')
+  Decimal.fromString('0.1')
+    .mul(basePrice)
     .mul(step.pow(2))
-    .add(Decimal.fromString('2').mul(step))
+    .add(Decimal.fromString('0.4').mul(step).mul(basePrice))
     .add(basePrice)
     .round();
 
