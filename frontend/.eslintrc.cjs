@@ -42,5 +42,6 @@ module.exports = {
     ],
     'max-params': ['error', 4],
     '@typescript-eslint/no-unnecessary-condition': 'error',
+    'linebreak-style': ['error', process.platform === 'win32' ? 'windows' : 'unix'],
   },
 };
