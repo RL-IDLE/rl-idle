@@ -165,6 +165,7 @@ export const useUserStore = create<UserState>()(
             logger.error('User not found');
             return;
           }
+          console.log(router.user);
           const user = await router.user.reset({ id });
           //? Set the user
           set({
@@ -196,7 +197,7 @@ export const useUserStore = create<UserState>()(
       })),
       {
         name: 'user',
-        version: 1.12,
+        version: 1.13,
         merge: (_, persisted) => {
           return {
             ...persisted,
