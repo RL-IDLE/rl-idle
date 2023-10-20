@@ -69,7 +69,7 @@ export default function Game() {
           <Prestige />
         </SwiperSlide>
       )}
-      <SwiperSlide>
+      <SwiperSlide className="z-10">
         <Shop />
       </SwiperSlide>
       <SwiperSlide>

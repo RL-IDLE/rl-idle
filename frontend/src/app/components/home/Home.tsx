@@ -1,7 +1,6 @@
 import { useGameStore } from '@/contexts/game.store';
 import { useUserStore } from '@/contexts/user.store';
 import { env } from '@/env';
-import Balance from '../balance';
 import styles from './home.module.scss';
 import homeBgLarge from '../../../assets/home-bg-large.webp';
 
@@ -28,12 +27,8 @@ export default function Home() {
 
   return (
     <section className={styles.home}>
-      <img src={homeBgLarge} alt="background" className="h-screen w-screen" />
-      <Balance />
-      <button
-        onClick={(e) => handleClick(e)}
-        className="active:scale-[0.97] transition-all duration-100 no-highlight"
-      >
+      <img src={homeBgLarge} alt="background" />
+      <button onClick={(e) => handleClick(e)} className="active:scale-[0.99]">
         <img
           src={env.VITE_API_URL + '/public/cars/animus-gp--blue.png'}
           alt="animus-gp--blue"
