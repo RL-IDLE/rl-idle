@@ -87,7 +87,7 @@ export default function Shop() {
             <p>
               {item.moneyPerSecond.eq(0)
                 ? `x${item.moneyPerClickMult.toString()} per click`
-                : `+${item.moneyPerSecond.toString()} per second`}
+                : `+${decimalToHumanReadable(item.moneyPerSecond)} per second`}
             </p>
           </li>
         ))}
