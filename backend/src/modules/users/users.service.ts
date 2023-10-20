@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { api } from 'src/types/api';
-import { getOneData } from 'src/lib/storage';
+import { getOneData, saveOneData } from 'src/lib/storage';
 
 @Injectable()
 export class UsersService {
@@ -31,6 +31,28 @@ export class UsersService {
     });
     if (!dbUser) throw new HttpException('User not found', 404);
     const user = dbUser;
+    return user;
+  }
+
+  async reset(
+    resetUser: typeof api.user.reset.body,
+  ): Promise<typeof api.user.reset.response> {
+    const dbUser = await getOneData({
+      databaseRepository: this.usersRepository,
+      key: 'users',
+      id: resetUser.id,
+    });
+    if (!dbUser) throw new HttpException('User not found', 404);
+    const user = dbUser;
+    user.moneyFromClick = '0';
+    user.moneyPerClick = '1';
+    user.moneyUsed = '0';
+    user.itemsBought = [];
+    await saveOneData({
+      key: 'users',
+      id: user.id,
+      data: user,
+    });
     return user;
   }
 }
