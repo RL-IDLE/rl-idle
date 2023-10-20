@@ -1,4 +1,4 @@
-FROM node:18-alpine as build
+FROM node:21-alpine as build
 
 RUN mkdir -p /usr/src/app
 
@@ -19,7 +19,7 @@ COPY . .
 
 RUN npm run build -w backend
 
-FROM node:18-alpine as backend
+FROM node:21-alpine as backend
 
 COPY --from=build /usr/src/app /usr/src/app
 
@@ -27,4 +27,7 @@ WORKDIR /usr/src/app/backend
 
 EXPOSE 3000
 
-CMD [ "npm", "start" ]
+COPY --from=build /usr/src/app/backend/scripts/start-docker.sh ./
+RUN chmod 775 ./start-docker.sh
+
+ENTRYPOINT [ "./start-docker.sh" ]

@@ -22,7 +22,6 @@ export default [
       database: configService.getOrThrow<string>('db_name'),
       entities: [],
       autoLoadEntities: true,
-      synchronize: process.env.NODE_ENV !== 'production',
     }),
   }),
   ScheduleModule.forRoot(),
