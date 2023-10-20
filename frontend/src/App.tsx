@@ -8,7 +8,7 @@ import { logger } from './lib/logger';
 import Loading from './app/components/Loading';
 import Navbar from './app/components/Navbar';
 import Balance from './app/components/balance';
-import './app.scss'
+import './app.scss';
 
 function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);

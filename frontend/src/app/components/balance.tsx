@@ -22,12 +22,17 @@ export default function Balance() {
   }, [user]);
 
   return (
-    <div className={styles.balance + " absolute top-0 left-0 z-50 mt-5 ml-5 p-3 flex items-center justify-center rounded-xl flex-wrap"}>
+    <div
+      className={
+        styles.balance +
+        ' absolute top-0 left-0 z-50 mt-5 ml-5 p-3 flex items-center justify-center rounded-xl flex-wrap'
+      }
+    >
       <h2 className="text-center relative w-fit text-white flex flex-col">
-        {balance.toString().replace(/(\.\d).*/, '$1')} 
+        {balance.toString().replace(/(\.\d).*/, '$1')}
         <span>+{moneyPerSecond} /s</span>
       </h2>
-      <img width='45' height='45' src={CreditLogo} alt="" />
+      <img width="45" height="45" src={CreditLogo} alt="" />
     </div>
   );
 }
