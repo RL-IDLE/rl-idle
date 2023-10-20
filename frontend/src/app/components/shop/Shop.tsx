@@ -11,6 +11,7 @@ import Decimal from 'break_infinity.js';
 import { logger } from '@/lib/logger';
 import { useEffect, useState } from 'react';
 import { decimalToHumanReadable } from '@/lib/bignumber';
+import styles from "./shop.module.scss"
 
 const refreshInterval = 500;
 
@@ -64,8 +65,8 @@ export default function Shop() {
   };
 
   return (
-    <section className="flex flex-col h-full mt-32 pb-28">
-      <ul className="flex flex-col gap-2 overflow-auto touch-pan-y bg-white pb-28">
+    <section className={styles.shop + " flex flex-col mt-32 rounded-2xl"}>
+      <ul className="flex flex-col gap-2 overflow-auto touch-pan-y pt-7 items-center">
         {itemsWithPrice.map((item) => (
           <li
             key={item.id}
@@ -81,10 +82,10 @@ export default function Shop() {
             }}
           >
             <img src={item.image} alt={item.name} className="w-12 h-12" />
-            <p>
+            <p className="text-white">
               {item.name} - {decimalToHumanReadable(item.price)}
             </p>
-            <p>
+            <p className="text-white">
               {item.moneyPerSecond.eq(0)
                 ? `x${item.moneyPerClickMult.toString()} per click`
                 : `+${item.moneyPerSecond.toString()} per second`}
