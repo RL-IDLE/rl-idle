@@ -12,6 +12,7 @@ interface GameState {
     buyItem: (id: string) => void;
     loadUser: () => Promise<void>;
     loadShop: () => Promise<void>;
+    reset: () => Promise<void>;
   };
 }
 
@@ -38,6 +39,10 @@ export const useGameStore = create<GameState>()(
         loadShop: async () => {
           const { loadItems } = useItemsStore.getState();
           await loadItems();
+        },
+        reset: async () => {
+          const { reset } = useUserStore.getState();
+          await reset();
         },
       },
     })),
