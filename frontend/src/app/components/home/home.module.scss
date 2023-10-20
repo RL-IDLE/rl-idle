@@ -1,5 +1,5 @@
 .home {
-    height: 100%;
+    height: 100vh;
     position: relative;
     overflow: visible;
     display: flex;
@@ -12,6 +12,8 @@
         z-index: -1;
         object-fit: cover;
         filter: brightness(0.8);
+        height: 100vh;
+        overflow: visible;
     }
 
     button {
@@ -44,5 +46,6 @@
     100% {
         opacity: 0;
         transform: translateY(-100%);
+        opacity: 0;
     }
 }

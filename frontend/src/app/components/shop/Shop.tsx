@@ -7,10 +7,10 @@ import {
   getUserBalance,
 } from '@/lib/game';
 import { cn } from '@/lib/utils';
-import Balance from '../balance';
 import Decimal from 'break_infinity.js';
 import { logger } from '@/lib/logger';
 import { useEffect, useState } from 'react';
+import { decimalToHumanReadable } from '@/lib/bignumber';
 
 const refreshInterval = 500;
 
@@ -64,13 +64,12 @@ export default function Shop() {
   };
 
   return (
-    <section className="flex flex-col h-full">
-      <Balance />
-      <ul className="flex flex-col gap-2 overflow-auto touch-pan-y">
+    <section className="flex flex-col h-full mt-32 pb-28">
+      <ul className="flex flex-col gap-2 overflow-auto touch-pan-y bg-white pb-28">
         {itemsWithPrice.map((item) => (
           <li
             key={item.id}
-            className={cn('flex flex-col gap-2 border p-2', {
+            className={cn('flex flex-col gap-2 border p-2 cursor-pointer', {
               'border-red-500': item.price.gt(balance),
             })}
             onClick={() => {
@@ -83,7 +82,7 @@ export default function Shop() {
           >
             <img src={item.image} alt={item.name} className="w-12 h-12" />
             <p>
-              {item.name} - {item.price.toString()}
+              {item.name} - {decimalToHumanReadable(item.price)}
             </p>
             <p>
               {item.moneyPerSecond.eq(0)

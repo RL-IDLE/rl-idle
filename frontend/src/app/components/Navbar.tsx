@@ -34,12 +34,8 @@ function Item({
 export default function Navbar() {
   const navigationStore = useNavigationStore();
   return (
-    <nav className="">
-      <ul
-        className={cn(
-          'flex flex-row justify-between border-t-2 border-blue-400',
-        )}
-      >
+    <nav className="absolute bottom-0 left-0 min-w-full z-50 bg-white">
+      <ul className={cn('flex flex-row justify-between')}>
         {pages.map((page) => (
           <Item
             active={navigationStore.page === page.name}
