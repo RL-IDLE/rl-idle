@@ -1,28 +1,34 @@
+import Boost from '@/app/components/icons/Boost';
+import Home from '@/app/components/icons/Home';
+import Ranking from '@/app/components/icons/Ranking';
+import Reset from '@/app/components/icons/Reset';
+import Shop from '@/app/components/icons/Shop';
+
 export const pages = [
   {
     name: 'prestige',
     disabled: true,
-    label: 'Prestige',
+    label: <Reset />,
   },
   {
     name: 'shop',
     disabled: false,
-    label: 'Shop',
+    label: <Shop />,
   },
   {
     name: 'home',
     disabled: false,
-    label: 'Home',
+    label: <Home />,
   },
   {
     name: 'boost',
     disabled: true,
-    label: 'Boost',
+    label: <Boost />,
   },
   {
     name: 'ranking',
     disabled: true,
-    label: 'Ranks',
+    label: <Ranking />,
   },
 ] as const;
 export type IPages = (typeof pages)[number]['name'];
