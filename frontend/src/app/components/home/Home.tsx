@@ -3,7 +3,8 @@ import { useUserStore } from '@/contexts/user.store';
 import { env } from '@/env';
 import styles from './home.module.scss';
 import homeBgLarge from '../../../assets/home-bg-large.webp';
-
+import { decimalToHumanReadable } from '@/lib/bignumber';
+import Decimal from 'break_infinity.js';
 export default function Home() {
   const click = useGameStore((state) => state.actions.click);
   const user = useUserStore((state) => state.user);
@@ -16,7 +17,8 @@ export default function Home() {
     const y = e.clientY - 30;
     const mouse = document.createElement('div');
     mouse.classList.add(styles.mouse);
-    mouse.innerHTML = '+' + user?.moneyPerClick;
+    mouse.innerHTML =
+      '+' + decimalToHumanReadable(new Decimal(user?.moneyPerClick));
     mouse.style.top = y + 'px';
     mouse.style.left = x + 'px';
     document.body.appendChild(mouse);

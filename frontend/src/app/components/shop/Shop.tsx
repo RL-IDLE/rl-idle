@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import Decimal from 'break_infinity.js';
 import { logger } from '@/lib/logger';
 import { useEffect, useState } from 'react';
+import { decimalToHumanReadable } from '@/lib/bignumber';
 
 const refreshInterval = 500;
 
@@ -81,7 +82,7 @@ export default function Shop() {
           >
             <img src={item.image} alt={item.name} className="w-12 h-12" />
             <p>
-              {item.name} - {item.price.toString()}
+              {item.name} - {decimalToHumanReadable(item.price)}
             </p>
             <p>
               {item.moneyPerSecond.eq(0)

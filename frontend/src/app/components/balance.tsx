@@ -3,16 +3,15 @@ import { getMoneyFromInvestmentsPerSeconds, getUserBalance } from '@/lib/game';
 import Decimal from 'break_infinity.js';
 import { useEffect, useState } from 'react';
 import styles from './balance.module.scss';
+import { decimalToHumanReadable } from '@/lib/bignumber';
 import CreditLogo from '@/assets/credits_icon.webp';
 
 const refreshInterval = 200;
 
 export default function Balance() {
   const user = useUserStore((state) => state.user);
-  const [balance, setBalance] = useState<Decimal>(Decimal.fromString('0'));
-  const moneyPerSecond = getMoneyFromInvestmentsPerSeconds(user)
-    .toString()
-    .replace(/(\.\d).*/, '$1');
+  const [balance, setBalance] = useState<Decimal>(getUserBalance(user));
+  const moneyPerSecond = getMoneyFromInvestmentsPerSeconds(user);
 
   useEffect(() => {
     const refreshBalance = () => setBalance(getUserBalance(user));
@@ -29,8 +28,8 @@ export default function Balance() {
       }
     >
       <h2 className="text-center relative w-fit text-white flex flex-col">
-        {balance.toString().replace(/(\.\d).*/, '$1')}
-        <span>+{moneyPerSecond} /s</span>
+        {decimalToHumanReadable(balance)}
+        <span>+{decimalToHumanReadable(moneyPerSecond)} /s</span>
       </h2>
       <img width="45" height="45" src={CreditLogo} alt="" />
     </div>
