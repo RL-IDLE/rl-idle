@@ -35,7 +35,7 @@ export const useItemsStore = create<ItemsState>()(
       })),
       {
         name: 'items',
-        version: 1,
+        version: 1.1,
         merge: (_, persisted) => {
           return {
             ...persisted,
