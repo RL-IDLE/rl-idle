@@ -4,6 +4,7 @@ import { IHttpMethod } from './http';
 import { ILoadUser, IUser } from './user';
 import { buyItemSchema, clickSchema } from './events';
 import { IItem } from './item';
+import { IPrestige } from './prestige';
 
 export type IRoute = {
   method: IHttpMethod;
@@ -34,6 +35,14 @@ export const api = IApiType({
       url: '/items',
       body: undefined,
       response: unknown as IItem[],
+    },
+  },
+  prestiges: {
+    findAll: {
+      method: 'GET',
+      url: '/prestige',
+      body: undefined,
+      response: unknown as IPrestige[],
     },
   },
 });
