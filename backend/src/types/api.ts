@@ -27,6 +27,12 @@ export const api = IApiType({
       body: unknown as ILoadUser,
       response: unknown as IUser,
     },
+    reset: {
+      method: 'POST',
+      url: '/users/reset',
+      body: unknown as { id: string },
+      response: unknown as IUser,
+    },
   },
   items: {
     findAll: {

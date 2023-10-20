@@ -67,7 +67,7 @@ export default function Shop() {
   return (
     <section className="flex flex-col h-full">
       <Balance />
-      <ul className="flex flex-col gap-2 overflow-auto">
+      <ul className="flex flex-col gap-2 overflow-auto touch-pan-y">
         {itemsWithPrice.map((item) => (
           <li
             key={item.id}

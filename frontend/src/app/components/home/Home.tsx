@@ -32,7 +32,10 @@ export default function Home() {
     <section className={styles.home}>
       <img src={homeBgLarge} alt="background" className="h-screen w-screen" />
       <Balance />
-      <button onClick={(e) => handleClick(e)} className="active:scale-[0.99]">
+      <button
+        onClick={(e) => handleClick(e)}
+        className="active:scale-[0.97] transition-all duration-100 no-highlight"
+      >
         <img
           src={env.VITE_API_URL + '/public/cars/animus-gp--blue.png'}
           alt="animus-gp--blue"
