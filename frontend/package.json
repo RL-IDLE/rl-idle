@@ -33,6 +33,7 @@
     "tailwind-merge": "^1.14.0",
     "tailwindcss": "^3.3.3",
     "vite": "^4.4.5",
+    "vite-plugin-pwa": "^0.16.5",
     "zod": "^3.22.4",
     "zustand": "^4.4.3"
   },
@@ -48,7 +49,6 @@
     "eslint-plugin-react-refresh": "^0.4.3",
     "eslint-plugin-unused-imports": "^3.0.0",
     "typescript": "^5.0.2",
-    "vite-plugin-pwa": "^0.16.5",
     "workbox-window": "^7.0.0"
   }
 }
