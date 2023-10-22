@@ -11,6 +11,9 @@ export default defineConfig({
     port: 3001,
   },
   resolve: {
-    alias: [{ find: '@', replacement: path.resolve(__dirname, 'src') }],
+    alias: [
+      { find: '@', replacement: path.resolve(__dirname, 'src') },
+      { find: '$fonts', replacement: path.resolve('./src/fonts') },
+    ],
   },
 });
