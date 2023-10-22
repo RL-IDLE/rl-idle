@@ -5,12 +5,16 @@ import styles from './home.module.scss';
 import homeBgLarge from '../../../assets/home-bg-large.webp';
 import { decimalToHumanReadable } from '@/lib/bignumber';
 import Decimal from 'break_infinity.js';
+import clickSound from '@/assets/audio/click.ogg';
+
 export default function Home() {
   const click = useGameStore((state) => state.actions.click);
   const user = useUserStore((state) => state.user);
+  const audio = new Audio(clickSound);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     click();
+    audio.play();
 
     const xAlea = Math.floor(Math.random() * 25);
     const x = e.clientX - xAlea;

@@ -5,16 +5,25 @@ import { useEffect, useState } from 'react';
 import styles from './balance.module.scss';
 import { decimalToHumanReadable } from '@/lib/bignumber';
 import CreditLogo from '@/assets/credits_icon.webp';
-
-const refreshInterval = 200;
+import { refreshInterval } from '@/lib/constant';
 
 export default function Balance() {
   const user = useUserStore((state) => state.user);
-  const [balance, setBalance] = useState<Decimal>(getUserBalance(user));
+  const [balance, setBalance] = useState<Decimal>(new Decimal(0));
   const moneyPerSecond = getMoneyFromInvestmentsPerSeconds(user);
 
   useEffect(() => {
-    const refreshBalance = () => setBalance(getUserBalance(user));
+    let lastTimeSaved = Date.now();
+    const refreshBalance = () => {
+      const newBalance = getUserBalance(user);
+      setBalance(newBalance);
+      //? Save balance to local storage every 5 seconds
+      if (Date.now() - lastTimeSaved > 5000) {
+        localStorage.setItem('lastBalance', newBalance.toString());
+        localStorage.setItem('lastBalanceTime', Date.now().toString());
+        lastTimeSaved = Date.now();
+      }
+    };
     refreshBalance();
     const interval = setInterval(refreshBalance, refreshInterval);
     return () => clearInterval(interval);
@@ -31,7 +40,7 @@ export default function Balance() {
         {decimalToHumanReadable(balance, true)}
         <span>+{decimalToHumanReadable(moneyPerSecond)} /s</span>
       </h2>
-      <img width="45" height="45" src={CreditLogo} alt="" />
+      <img width="45" height="45" src={CreditLogo} alt="credit" />
     </div>
   );
 }
