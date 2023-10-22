@@ -7,8 +7,9 @@ import 'swiper/css';
 import { logger } from './lib/logger';
 import Loading from './app/components/Loading';
 import Navbar from './app/components/Navbar';
-import Balance from './app/components/balance';
+import Balance from './app/components/Balance';
 import './app.scss';
+import PassivePopup from './app/components/PassivePopup';
 
 function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
@@ -51,6 +52,7 @@ function App() {
       <Balance />
       <Game />
       <Navbar />
+      <PassivePopup />
       {!isConnected && <Loading />}
     </div>
   );
