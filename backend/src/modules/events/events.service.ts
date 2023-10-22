@@ -14,6 +14,7 @@ import {
 import { Item, ItemBought } from '../items/entities/item.entity';
 import { randomUUID } from 'crypto';
 import { Server } from 'socket.io';
+import { redis } from 'src/lib/redis';
 
 @Injectable()
 export class EventsService {
@@ -26,7 +27,7 @@ export class EventsService {
     private readonly itemsBoughtRepository: Repository<ItemBought>,
   ) {}
 
-  async click(data: IWsEvent['click']['body']) {
+  async click(data: IWsEvent['click']['body'], server: Server) {
     const parsedData = await clickSchema.parseAsync(data);
     const user = await getOneData({
       databaseRepository: this.usersRepository,
@@ -34,11 +35,21 @@ export class EventsService {
       id: parsedData.userId,
     });
     if (!user) throw new HttpException('User not found', 404);
+    const clicks = await redis.get(`clicks:${user.id}`);
+    const maxPerSecond = 20;
+    if (clicks && parseInt(clicks) >= maxPerSecond * 30) {
+      //? Emit the exception for the correspondig user
+      server.emit(`error:${user.id}`, 'You have reached the limit of clicks');
+      return;
+    }
     const moneyFromClick = Decimal.fromString(user.moneyFromClick);
     const moneyPerClick = Decimal.fromString(user.moneyPerClick);
     const newMoneyFromClick = moneyFromClick.add(moneyPerClick);
     user.moneyFromClick = newMoneyFromClick.toString();
     await saveOneData({ key: 'users', id: parsedData.userId, data: user });
+    //? Add a click to the redis click counter
+    if (!clicks) await redis.setex(`clicks:${user.id}`, 30, 1);
+    else await redis.incr(`clicks:${user.id}`);
     return user;
   }
 
