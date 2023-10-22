@@ -11,6 +11,7 @@ import Decimal from 'break_infinity.js';
 import { logger } from '@/lib/logger';
 import { useEffect, useState } from 'react';
 import { decimalToHumanReadable } from '@/lib/bignumber';
+import clickSound from '@/assets/audio/buy-item.wav';
 
 const refreshInterval = 500;
 
@@ -19,6 +20,7 @@ export default function Shop() {
   const user = useUserStore((state) => state.user);
   const [balance, setBalance] = useState<Decimal>(Decimal.fromString('0'));
   const items = useItemsStore((state) => state.items);
+  const audio = new Audio(clickSound);
   const itemsLevels: {
     [id: string]: Decimal | undefined;
   } =
@@ -61,6 +63,7 @@ export default function Shop() {
 
   const handleBuy = (id: string) => {
     buyItem(id);
+    audio.play();
   };
 
   return (
