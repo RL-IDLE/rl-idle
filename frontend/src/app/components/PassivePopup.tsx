@@ -11,8 +11,11 @@ export default function PassivePopup() {
   const user = useUserStore((state) => state.user);
   const [inactiveTime, setInactiveTime] = useState<Date | null>(null);
   const [showPopup, setShowPopup] = useState<false | Decimal>(false);
+  const [alreadyShown, setAlreadyShown] = useState(false);
 
   useEffect(() => {
+    if (!user || alreadyShown) return;
+
     const lastBalance = localStorage.getItem('lastBalance');
     const lastBalanceTime = localStorage.getItem('lastBalanceTime');
     const now = Date.now();
@@ -28,10 +31,10 @@ export default function PassivePopup() {
       const difference = newBalance.minus(lastBalanceDecimal);
       if (difference.greaterThan(0)) {
         setShowPopup(difference);
+        setAlreadyShown(true);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user, alreadyShown]);
 
   return (
     <div
@@ -39,6 +42,7 @@ export default function PassivePopup() {
         'fixed bottom-0 left-0 z-50 w-full h-full bg-black bg-opacity-50 flex items-center justify-center',
         showPopup ? 'visible' : 'invisible',
       )}
+      onClick={() => setShowPopup(false)}
     >
       {typeof showPopup === 'object' && (
         <div className="rounded-xl p-5 flex flex-col items-center rounded-t-2xl overflow-hidden border-2 border-[#245184] bg-gradient-to-t from-[#111429] to-[#1F3358] text-white">
