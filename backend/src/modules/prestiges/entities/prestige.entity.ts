@@ -36,10 +36,19 @@ export class PrestigeBought extends Timestamp implements IPrestigeBought {
 
   @ManyToOne(() => Prestige, (prestige) => prestige.id, {
     eager: true,
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'RESTRICT',
+    orphanedRowAction: 'delete',
   })
   @JoinColumn()
   prestige: Prestige;
 
-  @ManyToOne(() => User, (user) => user.prestigesBought)
+  @ManyToOne(() => User, (user) => user.prestigesBought, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'RESTRICT',
+    orphanedRowAction: 'delete',
+  })
   user: User;
 }

@@ -3,7 +3,7 @@ import { getMoneyFromInvestmentsPerSeconds } from '@/lib/game';
 import styles from './balance.module.scss';
 import { decimalToHumanReadable } from '@/lib/bignumber';
 import CreditLogo from '@/assets/credits_icon.webp';
-import { useBalance } from '@/contexts/BalanceContext';
+import { useBalance } from '@/contexts/balance/BalanceUtils';
 
 export default function Balance() {
   const user = useUserStore((state) => state.user);

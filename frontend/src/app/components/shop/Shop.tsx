@@ -7,7 +7,7 @@ import Decimal from 'break_infinity.js';
 import { logger } from '@/lib/logger';
 import { decimalToHumanReadable } from '@/lib/bignumber';
 import clickSound from '@/assets/audio/buy-item.wav';
-import { useBalance } from '@/contexts/BalanceContext';
+import { useBalance } from '@/contexts/balance/BalanceUtils';
 
 export default function Shop() {
   const buyItem = useGameStore((state) => state.actions.buyItem);

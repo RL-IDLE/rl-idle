@@ -10,7 +10,7 @@ import Navbar from './app/components/Navbar';
 import Balance from './app/components/Balance';
 import './app.scss';
 import PassivePopup from './app/components/PassivePopup';
-import { BalanceProvider } from './contexts/BalanceProvider';
+import { BalanceProvider } from './contexts/balance/BalanceProvider';
 
 function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);

@@ -1,11 +1,9 @@
 import Decimal from 'break_infinity.js';
-import { createContext, useEffect, useState } from 'react';
-import { useUserStore } from './user.store';
+import { useEffect, useState } from 'react';
+import { useUserStore } from '../user.store';
 import { getUserBalance } from '@/lib/game';
 import { refreshInterval } from '@/lib/constant';
-import { IBalanceContext } from './BalanceContext';
-
-export const BalanceContext = createContext<IBalanceContext>(undefined);
+import { BalanceContext } from './BalanceContext';
 
 export function BalanceProvider({ children }: { children: React.ReactNode }) {
   const user = useUserStore((state) => state.user);

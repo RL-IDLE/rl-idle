@@ -48,6 +48,7 @@ export class UsersService {
     user.moneyPerClick = '1';
     user.moneyUsed = '0';
     user.itemsBought = [];
+    user.prestigesBought = [];
     await saveOneData({
       key: 'users',
       id: user.id,

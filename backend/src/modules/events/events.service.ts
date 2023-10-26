@@ -14,6 +14,7 @@ import {
   getPriceForClickItem,
   getPriceOfItem,
   getUserBalance,
+  getUserMoneyPerClick,
 } from 'src/lib/game';
 import { Item, ItemBought } from '../items/entities/item.entity';
 import { randomUUID } from 'crypto';
@@ -57,7 +58,7 @@ export class EventsService {
       return;
     }
     const moneyFromClick = Decimal.fromString(user.moneyFromClick);
-    const moneyPerClick = Decimal.fromString(user.moneyPerClick);
+    const moneyPerClick = getUserMoneyPerClick(user);
     const newMoneyFromClick = moneyFromClick.add(moneyPerClick);
     user.moneyFromClick = newMoneyFromClick.toString();
     await saveOneData({ key: 'users', id: parsedData.userId, data: user });
@@ -83,11 +84,14 @@ export class EventsService {
     });
     if (!item) throw new HttpException('Item not found', 404);
     const userBalance = getUserBalance(user);
-    const alreadyBought = await this.itemsBoughtRepository
-      .createQueryBuilder('itemBought')
-      .where('itemBought.item = :itemId', { itemId: item.id })
-      .andWhere('itemBought.user = :userId', { userId: user.id })
-      .getCount();
+    // const alreadyBought = await this.itemsBoughtRepository
+    //   .createQueryBuilder('itemBought')
+    //   .where('itemBought.item = :itemId', { itemId: item.id })
+    //   .andWhere('itemBought.user = :userId', { userId: user.id })
+    //   .getCount();
+    const alreadyBought = user.itemsBought.filter(
+      (itemBought) => itemBought.item.id === item.id,
+    ).length;
 
     const itemPrice =
       item.name === 'Click'

@@ -3,8 +3,8 @@ import { useUserStore } from '@/contexts/user.store';
 import { env } from '@/env';
 import styles from './home.module.scss';
 import { decimalToHumanReadable } from '@/lib/bignumber';
-import Decimal from 'break_infinity.js';
 import clickSound from '@/assets/audio/click.ogg';
+import { getUserMoneyPerClick } from '@/lib/game';
 
 export default function Home() {
   const click = useGameStore((state) => state.actions.click);
@@ -20,8 +20,7 @@ export default function Home() {
     const y = e.clientY - 30;
     const mouse = document.createElement('div');
     mouse.classList.add(styles.mouse);
-    mouse.innerHTML =
-      '+' + decimalToHumanReadable(new Decimal(user?.moneyPerClick));
+    mouse.innerHTML = '+' + decimalToHumanReadable(getUserMoneyPerClick(user));
     mouse.style.top = y + 'px';
     mouse.style.left = x + 'px';
     document.body.appendChild(mouse);

@@ -1,12 +1,5 @@
-import Decimal from 'break_infinity.js';
 import { useContext } from 'react';
-import { BalanceContext } from './BalanceProvider';
-
-export type IBalanceContext =
-  | {
-      balance: Decimal;
-    }
-  | undefined;
+import { BalanceContext } from './BalanceContext';
 
 export const useBalance = () => {
   const context = useContext(BalanceContext);

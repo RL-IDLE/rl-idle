@@ -10,7 +10,11 @@ import { socket } from '@/lib/socket';
 import { IWsEvent } from '../../../backend/src/types/api';
 import { useItemsStore } from './items.store';
 import { usePrestigeStore } from './prestiges.store';
-import { getPriceForClickItem, getPriceOfItem } from '@/lib/game';
+import {
+  getPriceForClickItem,
+  getPriceOfItem,
+  getUserMoneyPerClick,
+} from '@/lib/game';
 
 interface UserState {
   user: IUser | null;
@@ -31,7 +35,9 @@ export const useUserStore = create<UserState>()(
             const user = state.user;
             if (!user) return;
             logger.debug('click');
-            user.moneyFromClick = user.moneyFromClick.add(user.moneyPerClick);
+            user.moneyFromClick = user.moneyFromClick.add(
+              getUserMoneyPerClick(user),
+            );
             const eventBody: IWsEvent['click']['body'] = {
               type: 'click',
               userId: user.id,
@@ -139,6 +145,10 @@ export const useUserStore = create<UserState>()(
               },
               createdAt: new Date(),
             });
+            user.moneyFromClick = Decimal.fromString('0');
+            user.moneyPerClick = Decimal.fromString('1');
+            user.moneyUsed = Decimal.fromString('0');
+            user.itemsBought = [];
             const eventBody: IWsEvent['buyPrestige']['body'] = {
               type: 'buyPrestige',
               userId: user.id,
@@ -291,6 +301,24 @@ export const useUserStore = create<UserState>()(
                     },
                     createdAt: new Date(itemBought.createdAt),
                   })),
+                  prestigesBought: persisted.user.prestigesBought.map(
+                    (prestigeBought) => ({
+                      id: prestigeBought.id,
+                      prestige: {
+                        id: prestigeBought.prestige.id,
+                        name: prestigeBought.prestige.name,
+                        price: Decimal.fromString(
+                          prestigeBought.prestige.price as unknown as string,
+                        ),
+                        moneyMult: Decimal.fromString(
+                          prestigeBought.prestige
+                            .moneyMult as unknown as string,
+                        ),
+                        image: prestigeBought.prestige.image,
+                      },
+                      createdAt: new Date(prestigeBought.createdAt),
+                    }),
+                  ),
                 }
               : null,
           };

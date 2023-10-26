@@ -5,7 +5,7 @@ import { decimalToHumanReadable } from '@/lib/bignumber';
 import homeBgLarge from '../../../assets/home-bg-large.webp';
 import { cn } from '@/lib/utils';
 import Button from '../ui/Button';
-import { useBalance } from '@/contexts/BalanceContext';
+import { useBalance } from '@/contexts/balance/BalanceUtils';
 
 export default function Prestige() {
   const prestiges = usePrestigeStore((state) => state.prestiges);
@@ -19,12 +19,13 @@ export default function Prestige() {
     return 0;
   });
 
-  const pbSorted =
-    prestigesBought?.sort((a, b) => {
-      if (a.prestige.moneyMult.greaterThan(b.prestige.moneyMult)) return 1;
-      if (a.prestige.moneyMult.lessThan(b.prestige.moneyMult)) return -1;
-      return 0;
-    }) || null;
+  const pbSorted = prestigesBought
+    ? [...prestigesBought].sort((a, b) => {
+        if (a.prestige.moneyMult.greaterThan(b.prestige.moneyMult)) return 1;
+        if (a.prestige.moneyMult.lessThan(b.prestige.moneyMult)) return -1;
+        return 0;
+      })
+    : null;
 
   const currentPrestige = pbSorted?.[0] || null;
   const currentPrestigeIndex = pSorted.findIndex(
