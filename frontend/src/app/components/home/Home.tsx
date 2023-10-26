@@ -36,7 +36,7 @@ export default function Home() {
       <img src={homeBgLarge} alt="background" />
       <button
         onClick={(e) => handleClick(e)}
-        className="active:scale-[0.97] transition-all duration-100 no-highlight"
+        className="active:scale-[0.97] no-highlight"
       >
         <img
           src={env.VITE_API_URL + '/public/cars/animus-gp--blue.png'}

@@ -1,2 +1,2 @@
 export const refreshInterval = 200;
-export const popupMinOfflineTime = 0; //60000;
+export const popupMinOfflineTime = 60000 * 3; //? 3 minutes
