@@ -26,6 +26,7 @@
     "depcheck": "cd scripts && npm i && npm run depcheck",
     "migrate:up": "npm run typeorm:run-migrations",
     "migrate:down": "npm run typeorm:revert-migration",
+    "migrate:dev": "npm run build && npm run migrate:up",
     "make:migration": "npm run typeorm:generate-migration",
     "create:migration": "npm run typeorm:create-migration",
     "typeorm": "typeorm-ts-node-commonjs",
