@@ -10,6 +10,7 @@ import { socket } from '@/lib/socket';
 import { IWsEvent } from '../../../backend/src/types/api';
 import { useItemsStore } from './items.store';
 import { usePrestigeStore } from './prestiges.store';
+import { getPriceForClickItem, getPriceOfItem } from '@/lib/game';
 
 interface UserState {
   user: IUser | null;
@@ -52,8 +53,45 @@ export const useUserStore = create<UserState>()(
               return;
             }
             logger.debug('buyItem');
+            if (item.name === 'Click') {
+              //? Update user moneyPerClick
+              const userMoneyPerClick = user.moneyPerClick;
+              const newUserMoneyPerClick = userMoneyPerClick.times(
+                item.moneyPerClickMult,
+              );
+              user.moneyPerClick = newUserMoneyPerClick;
+            }
             //* Mutate
-            user.moneyUsed = user.moneyUsed.add(item.price);
+            const itemsLevels: {
+              [id: string]: Decimal | undefined;
+            } = user.itemsBought.reduce<{
+              [id: string]: Decimal;
+            }>(
+              (prev, cur) => {
+                if (prev[cur.item.id] as Decimal | undefined) {
+                  prev[cur.item.id] = prev[cur.item.id].add(
+                    Decimal.fromString('1'),
+                  );
+                } else {
+                  prev[cur.item.id] = Decimal.fromString('1');
+                }
+                return prev;
+              },
+              {} as {
+                [id: string]: Decimal;
+              },
+            );
+            const price =
+              item.name === 'Click'
+                ? getPriceForClickItem(
+                    item.price,
+                    itemsLevels[item.id] || Decimal.fromString('0'),
+                  )
+                : getPriceOfItem(
+                    item.price,
+                    itemsLevels[item.id] || Decimal.fromString('0'),
+                  );
+            user.moneyUsed = user.moneyUsed.add(price);
             user.itemsBought.push({
               id: Math.random().toString(),
               item: {

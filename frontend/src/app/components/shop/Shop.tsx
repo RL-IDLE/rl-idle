@@ -1,24 +1,18 @@
 import { useGameStore } from '@/contexts/game.store';
 import { useItemsStore } from '@/contexts/items.store';
 import { useUserStore } from '@/contexts/user.store';
-import {
-  getPriceForClickItem,
-  getPriceOfItem,
-  getUserBalance,
-} from '@/lib/game';
+import { getPriceForClickItem, getPriceOfItem } from '@/lib/game';
 import { cn } from '@/lib/utils';
 import Decimal from 'break_infinity.js';
 import { logger } from '@/lib/logger';
-import { useEffect, useState } from 'react';
 import { decimalToHumanReadable } from '@/lib/bignumber';
 import clickSound from '@/assets/audio/buy-item.wav';
-
-const refreshInterval = 500;
+import { useBalance } from '@/contexts/BalanceContext';
 
 export default function Shop() {
   const buyItem = useGameStore((state) => state.actions.buyItem);
   const user = useUserStore((state) => state.user);
-  const [balance, setBalance] = useState<Decimal>(Decimal.fromString('0'));
+  const { balance } = useBalance();
   const items = useItemsStore((state) => state.items);
   const audio = new Audio(clickSound);
   const itemsLevels: {
@@ -53,13 +47,6 @@ export default function Shop() {
             itemsLevels[item.id] || Decimal.fromString('0'),
           ),
   }));
-
-  useEffect(() => {
-    const refreshBalance = () => setBalance(getUserBalance(user));
-    refreshBalance();
-    const interval = setInterval(refreshBalance, refreshInterval);
-    return () => clearInterval(interval);
-  }, [user]);
 
   const handleBuy = (id: string) => {
     buyItem(id);

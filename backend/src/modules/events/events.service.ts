@@ -23,6 +23,7 @@ import {
   Prestige,
   PrestigeBought,
 } from '../prestiges/entities/prestige.entity';
+import { logger } from 'src/lib/logger';
 
 @Injectable()
 export class EventsService {
@@ -101,6 +102,11 @@ export class EventsService {
     if (userBalance.lt(itemPrice)) {
       //? Emit the exception for the correspondig user
       server.emit(`error:${user.id}`, 'Not enough money');
+      logger.warn(
+        `User ${user.id} tried to buy item ${
+          item.name
+        } but didn't have enough money (${userBalance.toString()} < ${itemPrice.toString()})`,
+      );
       return;
     }
 

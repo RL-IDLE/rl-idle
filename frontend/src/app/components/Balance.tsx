@@ -7,7 +7,7 @@ import { useBalance } from '@/contexts/BalanceContext';
 
 export default function Balance() {
   const user = useUserStore((state) => state.user);
-  const balanceContext = useBalance();
+  const { balance } = useBalance();
 
   const moneyPerSecond = getMoneyFromInvestmentsPerSeconds(user);
 
@@ -19,7 +19,7 @@ export default function Balance() {
       }
     >
       <h2 className="text-center relative w-fit text-white flex flex-col">
-        {decimalToHumanReadable(balanceContext.balance, true)}
+        {decimalToHumanReadable(balance, true)}
         <span>+{decimalToHumanReadable(moneyPerSecond)} /s</span>
       </h2>
       <img width="45" height="45" src={CreditLogo} alt="credit" />

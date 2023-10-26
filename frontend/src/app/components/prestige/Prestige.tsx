@@ -38,7 +38,7 @@ export default function Prestige() {
         src={homeBgLarge}
         alt="background"
         className={cn(
-          'absolute left-0 top-0 h-screen object-cover visible min-w-[500vw]',
+          'absolute left-0 top-0 h-screen object-cover visible min-w-[500vw] -z-[1]',
         )}
       />
       {currentPrestige && (
