@@ -182,7 +182,7 @@ export class EventsService {
     };
     await saveOneData({
       key: 'prestigesBought',
-      data: prestige,
+      data: prestigeBought,
       id: prestige.id,
     });
     user.prestigesBought.push({

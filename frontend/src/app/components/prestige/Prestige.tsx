@@ -4,11 +4,14 @@ import { useUserStore } from '@/contexts/user.store';
 import { decimalToHumanReadable } from '@/lib/bignumber';
 import homeBgLarge from '../../../assets/home-bg-large.webp';
 import { cn } from '@/lib/utils';
+import Button from '../ui/Button';
+import { useBalance } from '@/contexts/BalanceContext';
 
 export default function Prestige() {
   const prestiges = usePrestigeStore((state) => state.prestiges);
   const buyPrestige = useGameStore((state) => state.actions.buyPrestige);
   const prestigesBought = useUserStore((state) => state.user?.prestigesBought);
+  const { balance } = useBalance();
 
   const pSorted = prestiges.sort((a, b) => {
     if (a.moneyMult.greaterThan(b.moneyMult)) return 1;
@@ -58,14 +61,14 @@ export default function Prestige() {
           <p>name: {nextPrestige.name}</p>
           <p>moneyMult: {decimalToHumanReadable(nextPrestige.moneyMult)}</p>
           <p>price: {decimalToHumanReadable(nextPrestige.price)}</p>
-          <button
-            className="p-4 rounded-lg"
+          <Button
             onClick={() => {
               buyPrestige(nextPrestige.id);
             }}
+            disabled={balance.lt(nextPrestige.price)}
           >
             Buy
-          </button>
+          </Button>
         </div>
       )}
     </section>
