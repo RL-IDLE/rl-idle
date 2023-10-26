@@ -1,6 +1,7 @@
 import { useGameStore } from '@/contexts/game.store';
 import { usePrestigeStore } from '@/contexts/prestiges.store';
 import { useUserStore } from '@/contexts/user.store';
+import { decimalToHumanReadable } from '@/lib/bignumber';
 
 export default function Prestige() {
   const prestiges = usePrestigeStore((state) => state.prestiges);
@@ -30,21 +31,34 @@ export default function Prestige() {
       : pSorted[currentPrestigeIndex + 1];
 
   return (
-    <section className="flex flex-col h-full">
+    <section className="flex flex-col h-full mt-32 pb-28">
       {currentPrestige && (
         <div>
           <h2>Current prestige</h2>
           <p>name: {currentPrestige.prestige.name}</p>
-          <p>moneyMult: {currentPrestige.prestige.moneyMult.toString()}</p>
-          <p>price: {currentPrestige.prestige.price}</p>
+          <p>
+            moneyMult:{' '}
+            {decimalToHumanReadable(currentPrestige.prestige.moneyMult)}
+          </p>
+          <p>price: {decimalToHumanReadable(currentPrestige.prestige.price)}</p>
         </div>
       )}
-      <div>
-        <h2>Next Prestige</h2>
-        <p>{nextPrestige?.image}</p>
-        <p>next moneyMult : {nextPrestige?.moneyMult.toString()}</p>
-        <p>price : {nextPrestige?.image}</p>
-      </div>
+      {nextPrestige && (
+        <div>
+          <h2>Next prestige</h2>
+          <p>name: {nextPrestige.name}</p>
+          <p>moneyMult: {decimalToHumanReadable(nextPrestige.moneyMult)}</p>
+          <p>price: {decimalToHumanReadable(nextPrestige.price)}</p>
+          <button
+            className="p-4 rounded-lg"
+            onClick={() => {
+              buyPrestige(nextPrestige.id);
+            }}
+          >
+            Buy
+          </button>
+        </div>
+      )}
     </section>
   );
 }

@@ -175,7 +175,7 @@ export class EventsService {
       deletedAt: null as unknown as Date,
     };
     await saveOneData({
-      key: 'prestigeBought',
+      key: 'prestigesBought',
       data: prestige,
       id: prestige.id,
     });
@@ -183,6 +183,11 @@ export class EventsService {
       ...prestigeBought,
       user: undefined as unknown as User,
     });
+    //? Reset user money/items
+    user.moneyFromClick = '0';
+    user.moneyPerClick = '1';
+    user.moneyUsed = '0';
+    user.itemsBought = [];
     await saveOneData({ key: 'users', id: parsedData.userId, data: user });
     return user;
   }
