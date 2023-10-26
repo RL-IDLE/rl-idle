@@ -17,12 +17,13 @@ interface UserState {
   buyItem: (id: string) => void;
   buyPrestige: (id: string) => void;
   loadUser: () => Promise<string | undefined>;
+  reset: () => Promise<void>;
 }
 
 export const useUserStore = create<UserState>()(
   devtools(
     persist(
-      immer((set) => ({
+      immer((set, get) => ({
         user: null,
         click() {
           set((state) => {
@@ -167,6 +168,41 @@ export const useUserStore = create<UserState>()(
             },
           });
           return user.id;
+        },
+        async reset() {
+          const id = get().user?.id;
+          if (!id) {
+            logger.error('User not found');
+            return;
+          }
+          console.log(router.user);
+          const user = await router.user.reset({ id });
+          //? Set the user
+          set({
+            user: {
+              id: user.id,
+              moneyFromClick: Decimal.fromString(user.moneyFromClick),
+              moneyPerClick: Decimal.fromString(user.moneyPerClick),
+              moneyUsed: Decimal.fromString(user.moneyUsed),
+              itemsBought: user.itemsBought.map((itemBought) => ({
+                id: itemBought.id,
+                item: {
+                  id: itemBought.item.id,
+                  name: itemBought.item.name,
+                  price: Decimal.fromString(itemBought.item.price),
+                  moneyPerSecond: Decimal.fromString(
+                    itemBought.item.moneyPerSecond,
+                  ),
+                  moneyPerClickMult: Decimal.fromString(
+                    itemBought.item.moneyPerClickMult,
+                  ),
+                  image: itemBought.item.image,
+                },
+                createdAt: new Date(itemBought.createdAt),
+              })),
+            },
+          });
+          return;
         },
       })),
       {

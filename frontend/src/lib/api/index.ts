@@ -79,7 +79,8 @@ const parseApiRoute = <T extends NestedRoute | IRoute, K extends IRouteGroup>(
 
 const parseApiRoutes = <T extends NestedRoute>(api: T) => {
   const result = {} as IRouterApi;
-  return parseApiRoute(undefined, api, result);
+  const response = parseApiRoute(undefined, api, result);
+  return response;
 };
 
 export const router: IRouterApi = parseApiRoutes(backendApi);

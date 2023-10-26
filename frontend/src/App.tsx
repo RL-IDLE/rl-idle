@@ -7,6 +7,9 @@ import 'swiper/css';
 import { logger } from './lib/logger';
 import Loading from './app/components/Loading';
 import Navbar from './app/components/Navbar';
+import Balance from './app/components/Balance';
+import './app.scss';
+import PassivePopup from './app/components/PassivePopup';
 
 function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
@@ -47,9 +50,11 @@ function App() {
   }, [loadUser, loadShop, loadPrestige]);
 
   return (
-    <div className="flex flex-col flex-1 w-screen max-h-screen">
+    <div className="flex flex-col flex-1 w-full h-screen overflow-hidden">
+      <Balance />
       <Game />
       <Navbar />
+      <PassivePopup />
       {!isConnected && <Loading />}
     </div>
   );

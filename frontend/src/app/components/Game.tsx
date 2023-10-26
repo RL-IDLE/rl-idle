@@ -39,12 +39,18 @@ export default function Game() {
     return () => {
       socket.off(`error:${userId}`, handleError);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   useEffect(() => {
     if (!swiper || swiper.destroyed) return;
     swiper.slideTo(getPageIndex(navigationStore.page));
   }, [navigationStore.page, swiper]);
+
+  useEffect(() => {
+    (window as unknown as { reset: unknown }).reset =
+      useGameStore.getState().actions.reset;
+  }, []);
 
   return (
     <SwiperComponent
@@ -55,6 +61,7 @@ export default function Game() {
         navigationStore.setPage(indexToPage(swiper.activeIndex, true));
       }}
       onSwiper={setSwiper}
+      edgeSwipeThreshold={50}
     >
       {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}
       {!pages[0].disabled && (
@@ -62,7 +69,7 @@ export default function Game() {
           <Prestige />
         </SwiperSlide>
       )}
-      <SwiperSlide>
+      <SwiperSlide className="z-10">
         <Shop />
       </SwiperSlide>
       <SwiperSlide>

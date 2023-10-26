@@ -22,3 +22,9 @@ export const CreateUserSchema = z.object({});
 export type ICreateUser = z.infer<typeof CreateUserSchema>;
 
 export type ILoadUser = IFindUser | ICreateUser;
+
+export const ResetSchema = z.object({
+  id: z.string(),
+});
+
+export type IReset = z.infer<typeof ResetSchema>;
