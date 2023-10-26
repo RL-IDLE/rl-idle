@@ -2,7 +2,6 @@ import { useGameStore } from '@/contexts/game.store';
 import { useUserStore } from '@/contexts/user.store';
 import { env } from '@/env';
 import styles from './home.module.scss';
-import homeBgLarge from '../../../assets/home-bg-large.webp';
 import { decimalToHumanReadable } from '@/lib/bignumber';
 import Decimal from 'break_infinity.js';
 import clickSound from '@/assets/audio/click.ogg';
@@ -33,7 +32,6 @@ export default function Home() {
 
   return (
     <section className={styles.home}>
-      <img src={homeBgLarge} alt="background" />
       <button
         onClick={(e) => handleClick(e)}
         className="active:scale-[0.97] transition-all duration-100 no-highlight"

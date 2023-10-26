@@ -52,41 +52,45 @@ export default function Game() {
       useGameStore.getState().actions.reset;
   }, []);
 
+  const pageIndex = getPageIndex(navigationStore.page);
+
   return (
-    <SwiperComponent
-      slidesPerView={1}
-      className="flex-1 w-screen"
-      initialSlide={getPageIndex(navigationStore.page)}
-      onSlideChange={(swiper) => {
-        navigationStore.setPage(indexToPage(swiper.activeIndex, true));
-      }}
-      onSwiper={setSwiper}
-      edgeSwipeThreshold={50}
-    >
-      {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}
-      {!pages[0].disabled && (
-        <SwiperSlide>
-          <Prestige />
+    <>
+      <SwiperComponent
+        slidesPerView={1}
+        className="flex-1 w-screen"
+        initialSlide={pageIndex}
+        onSlideChange={(swiper) => {
+          navigationStore.setPage(indexToPage(swiper.activeIndex, true));
+        }}
+        onSwiper={setSwiper}
+        edgeSwipeThreshold={50}
+      >
+        {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}
+        {!pages[0].disabled && (
+          <SwiperSlide>
+            <Prestige />
+          </SwiperSlide>
+        )}
+        <SwiperSlide className="z-10">
+          <Shop />
         </SwiperSlide>
-      )}
-      <SwiperSlide className="z-10">
-        <Shop />
-      </SwiperSlide>
-      <SwiperSlide>
-        <Home />
-      </SwiperSlide>
-      {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}
-      {!pages[3].disabled && (
         <SwiperSlide>
-          <Boost />
+          <Home />
         </SwiperSlide>
-      )}
-      {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}
-      {!pages[4].disabled && (
-        <SwiperSlide>
-          <Ranking />
-        </SwiperSlide>
-      )}
-    </SwiperComponent>
+        {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}
+        {!pages[3].disabled && (
+          <SwiperSlide>
+            <Boost />
+          </SwiperSlide>
+        )}
+        {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}
+        {!pages[4].disabled && (
+          <SwiperSlide>
+            <Ranking />
+          </SwiperSlide>
+        )}
+      </SwiperComponent>
+    </>
   );
 }

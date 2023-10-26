@@ -10,6 +10,7 @@ import Navbar from './app/components/Navbar';
 import Balance from './app/components/Balance';
 import './app.scss';
 import PassivePopup from './app/components/PassivePopup';
+import { BalanceProvider } from './contexts/BalanceContext';
 
 function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
@@ -51,11 +52,13 @@ function App() {
 
   return (
     <div className="flex flex-col flex-1 w-full h-screen overflow-hidden">
-      <Balance />
-      <Game />
-      <Navbar />
-      <PassivePopup />
-      {!isConnected && <Loading />}
+      <BalanceProvider>
+        <Balance />
+        <Game />
+        <Navbar />
+        <PassivePopup />
+        {!isConnected && <Loading />}
+      </BalanceProvider>
     </div>
   );
 }

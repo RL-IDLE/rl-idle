@@ -2,6 +2,8 @@ import { useGameStore } from '@/contexts/game.store';
 import { usePrestigeStore } from '@/contexts/prestiges.store';
 import { useUserStore } from '@/contexts/user.store';
 import { decimalToHumanReadable } from '@/lib/bignumber';
+import homeBgLarge from '../../../assets/home-bg-large.webp';
+import { cn } from '@/lib/utils';
 
 export default function Prestige() {
   const prestiges = usePrestigeStore((state) => state.prestiges);
@@ -32,6 +34,13 @@ export default function Prestige() {
 
   return (
     <section className="flex flex-col h-full mt-32 pb-28">
+      <img
+        src={homeBgLarge}
+        alt="background"
+        className={cn(
+          'absolute left-0 top-0 h-screen object-cover visible min-w-[500vw]',
+        )}
+      />
       {currentPrestige && (
         <div>
           <h2>Current prestige</h2>

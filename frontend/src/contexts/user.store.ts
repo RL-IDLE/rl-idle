@@ -175,7 +175,6 @@ export const useUserStore = create<UserState>()(
             logger.error('User not found');
             return;
           }
-          console.log(router.user);
           const user = await router.user.reset({ id });
           //? Set the user
           set({
@@ -200,6 +199,19 @@ export const useUserStore = create<UserState>()(
                 },
                 createdAt: new Date(itemBought.createdAt),
               })),
+              prestigesBought: user.prestigesBought.map((prestigeBought) => ({
+                id: prestigeBought.id,
+                prestige: {
+                  id: prestigeBought.prestige.id,
+                  name: prestigeBought.prestige.name,
+                  price: Decimal.fromString(prestigeBought.prestige.price),
+                  moneyMult: Decimal.fromString(
+                    prestigeBought.prestige.moneyMult,
+                  ),
+                  image: prestigeBought.prestige.image,
+                },
+                createdAt: new Date(prestigeBought.createdAt),
+              })),
             },
           });
           return;
@@ -207,7 +219,7 @@ export const useUserStore = create<UserState>()(
       })),
       {
         name: 'user',
-        version: 1.3,
+        version: 2,
         merge: (_, persisted) => {
           return {
             ...persisted,
