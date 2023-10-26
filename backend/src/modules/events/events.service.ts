@@ -5,7 +5,11 @@ import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import Decimal from 'break_infinity.js';
 import { getOneData, saveOneData } from 'src/lib/storage';
-import { buyItemSchema, clickSchema } from 'src/types/events';
+import {
+  buyItemSchema,
+  buyPrestigeSchema,
+  clickSchema,
+} from 'src/types/events';
 import {
   getPriceForClickItem,
   getPriceOfItem,
@@ -15,9 +19,14 @@ import { Item, ItemBought } from '../items/entities/item.entity';
 import { randomUUID } from 'crypto';
 import { Server } from 'socket.io';
 import { redis } from 'src/lib/redis';
+import {
+  Prestige,
+  PrestigeBought,
+} from '../prestiges/entities/prestige.entity';
 
 @Injectable()
 export class EventsService {
+  // eslint-disable-next-line max-params
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
@@ -25,6 +34,10 @@ export class EventsService {
     private readonly itemsRepository: Repository<Item>,
     @InjectRepository(ItemBought)
     private readonly itemsBoughtRepository: Repository<ItemBought>,
+    @InjectRepository(Prestige)
+    private readonly prestigeRepository: Repository<Prestige>,
+    @InjectRepository(PrestigeBought)
+    private readonly prestigeBoughtRepository: Repository<PrestigeBought>,
   ) {}
 
   async click(data: IWsEvent['click']['body'], server: Server) {
@@ -120,6 +133,54 @@ export class EventsService {
     });
     user.itemsBought.push({
       ...itemBought,
+      user: undefined as unknown as User,
+    });
+    await saveOneData({ key: 'users', id: parsedData.userId, data: user });
+    return user;
+  }
+
+  async buyPrestige(data: IWsEvent['buyPrestige']['body'], server: Server) {
+    const parsedData = await buyPrestigeSchema.parseAsync(data);
+    const user = await getOneData({
+      databaseRepository: this.usersRepository,
+      key: 'users',
+      id: parsedData.userId,
+    });
+    if (!user) throw new HttpException('User not found', 404);
+    const prestige = await getOneData({
+      databaseRepository: this.prestigeRepository,
+      key: 'prestige',
+      id: parsedData.prestigeId,
+      options: { noSync: true },
+    });
+    if (!prestige) throw new HttpException('Prestige not found', 404);
+    const userBalance = getUserBalance(user);
+
+    if (userBalance.lt(prestige.price)) {
+      //? Emit the exception for the correspondig user
+      server.emit(`error:${user.id}`, 'Not enough money to prestige');
+      return;
+    }
+
+    //* Mutate
+    const userMoneyUsed = Decimal.fromString(user.moneyUsed);
+    const newUserMoneyUsed = userMoneyUsed.add(prestige.id);
+    user.moneyUsed = newUserMoneyUsed.toString();
+    const prestigeBought: PrestigeBought = {
+      id: randomUUID(),
+      prestige: prestige,
+      user: user,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null as unknown as Date,
+    };
+    await saveOneData({
+      key: 'prestigeBought',
+      data: prestige,
+      id: prestige.id,
+    });
+    user.prestigesBought.push({
+      ...prestigeBought,
       user: undefined as unknown as User,
     });
     await saveOneData({ key: 'users', id: parsedData.userId, data: user });

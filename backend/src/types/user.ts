@@ -8,7 +8,7 @@ export const UserSchema = z.object({
   moneyPerClick: z.string(),
   moneyUsed: z.string(),
   itemsBought: z.array(ItemBoughtSchema),
-  prestigeBought:z.array(PrestigeBoughtSchema)
+  prestigesBought: z.array(PrestigeBoughtSchema),
 });
 
 export type IUser = z.infer<typeof UserSchema>;

@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import { IItem } from 'src/types/item';
 import { env } from '../../env';
 import Decimal from 'break_infinity.js';
+import { IPrestige } from 'src/types/prestige';
 dotenv.config();
 
 const insertUser = async () => {
@@ -301,14 +302,14 @@ const insertUser = async () => {
       image: env.BASE_URL + '/public/cars/x-devil--blue.png',
       moneyPerClickMult: '0',
       moneyPerSecond: Decimal.fromString('10000000000000').toString(),
-      name: 'X-Devil',
+      name: '-Devil',
       price: Decimal.fromString('80000000000000000000').toString(),
     },
     {
       image: env.BASE_URL + '/public/cars/x-devil-mk2--blue.png',
       moneyPerClickMult: '0',
       moneyPerSecond: Decimal.fromString('15000000000000').toString(),
-      name: 'X-Devil MK2',
+      name: '-Devil MK2',
       price: Decimal.fromString('200000000000000000000').toString(),
     },
     {
@@ -364,4 +365,177 @@ const insertUser = async () => {
   await connection.destroy();
 };
 
-insertUser();
+const insertPrestige = async () => {
+  const connection = await databaseConfiguration.initialize();
+
+  const prestiges: Omit<IPrestige, 'id'>[] = [
+    // {
+    //   image: env.BASE_URL + '/public/prestige/Unranked_icon.webp',
+    //   moneyMult: '1',
+    //   name: 'Unranked',
+    //   price: Decimal.fromString('0').toString(),
+    // },
+    {
+      image: env.BASE_URL + '/public/prestige/Bronze1_rank_icon.webp',
+      moneyMult: '2',
+      name: 'Bronze I',
+      price: Decimal.fromString('1000000').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Bronze2_rank_icon.webp',
+      moneyMult: '4',
+      name: 'Bronze II',
+      price: Decimal.fromString('25000000').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Bronze3_rank_icon.webp',
+      moneyMult: '8',
+      name: 'Bronze III',
+      price: Decimal.fromString('500000000').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Silver1_rank_icon.webp',
+      moneyMult: '16',
+      name: 'Silver I',
+      price: Decimal.fromString('5000000000').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Silver2_rank_icon.webp',
+      moneyMult: '32',
+      name: 'Silver II',
+      price: Decimal.fromString('30000000000').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Silver3_rank_icon.webp',
+      moneyMult: '64',
+      name: 'Silver III',
+      price: Decimal.fromString('150000000000').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Gold1_rank_icon.webp',
+      moneyMult: '128',
+      name: 'Gold I',
+      price: Decimal.fromString('0').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Gold2_rank_icon.webp',
+      moneyMult: '256',
+      name: 'Gold II',
+      price: Decimal.fromString('0').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Gold3_rank_icon.webp',
+      moneyMult: '512',
+      name: 'Gold III',
+      price: Decimal.fromString('0').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Platinium1_rank_icon.webp',
+      moneyMult: '1024',
+      name: 'Platinium I',
+      price: Decimal.fromString('0').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Platinium2_rank_icon.webp',
+      moneyMult: '2048',
+      name: 'Platinium II',
+      price: Decimal.fromString('0').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Platinium3_rank_icon.webp',
+      moneyMult: '4096',
+      name: 'Platinium III',
+      price: Decimal.fromString('0').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Diamond1_rank_icon.webp',
+      moneyMult: '8192',
+      name: 'Diamond I',
+      price: Decimal.fromString('0').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Diamond2_rank_icon.webp',
+      moneyMult: '16384',
+      name: 'Diamond II',
+      price: Decimal.fromString('0').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Diamond3_rank_icon.webp',
+      moneyMult: '32768',
+      name: 'Diamond III',
+      price: Decimal.fromString('0').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Champion1_rank_icon.webp',
+      moneyMult: '65536',
+      name: 'Champion I',
+      price: Decimal.fromString('0').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Champion2_rank_icon.webp',
+      moneyMult: '131072',
+      name: 'Champion II',
+      price: Decimal.fromString('0').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Champion3_rank_icon.webp',
+      moneyMult: '262144',
+      name: 'Champion III',
+      price: Decimal.fromString('0').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Grand_Champion1_rank_icon.webp',
+      moneyMult: '524288',
+      name: 'Grand Champion I',
+      price: Decimal.fromString('0').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Grand_Champion2_rank_icon.webp',
+      moneyMult: '1048576',
+      name: 'Grand Champion II',
+      price: Decimal.fromString('0').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Grand_Champion3_rank_icon.webp',
+      moneyMult: '2097152',
+      name: 'Grand Champion III',
+      price: Decimal.fromString('0').toString(),
+    },
+    {
+      image: env.BASE_URL + '/public/prestige/Supersonic_Legendrank_icon.webp',
+      moneyMult: '4194304',
+      name: 'Supersonic Legend',
+      price: Decimal.fromString('0').toString(),
+    },
+  ];
+
+  for (const prestige of prestiges) {
+    try {
+      await connection.manager.save('prestige', prestige);
+    } catch (error) {
+      if (error.code !== '23505') {
+        Logger.error(error.code);
+      } else {
+        //? Update
+        await connection.manager.update(
+          'prestige',
+          {
+            name: prestige.name,
+          },
+          prestige,
+        );
+      }
+    }
+  }
+
+  Logger.log('Prestiges created');
+
+  await connection.destroy();
+};
+
+const main = async () => {
+  await insertUser();
+  await insertPrestige();
+};
+
+main();

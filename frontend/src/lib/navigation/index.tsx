@@ -1,7 +1,7 @@
 export const pages = [
   {
     name: 'prestige',
-    disabled: true,
+    disabled: false,
     label: 'Prestige',
   },
   {

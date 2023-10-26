@@ -2,7 +2,7 @@ import { IUser } from 'src/types/user';
 import { Timestamp } from '../../generic/timestamp.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ItemBought } from '../../../modules/items/entities/item.entity';
-import { Prestige, PrestigeBought } from 'src/modules/prestige/prestige/prestige.entity';
+import { PrestigeBought } from '../../prestiges/entities/prestige.entity';
 
 @Entity('user')
 export class User extends Timestamp implements IUser {
@@ -23,8 +23,8 @@ export class User extends Timestamp implements IUser {
   })
   itemsBought: ItemBought[];
 
-  @OneToMany(() => PrestigeBought, (prestigeBought) => prestigeBought.user, {
+  @OneToMany(() => PrestigeBought, (prestigesBought) => prestigesBought.user, {
     eager: true,
   })
-  prestigeBought: PrestigeBought[];
+  prestigesBought: PrestigeBought[];
 }

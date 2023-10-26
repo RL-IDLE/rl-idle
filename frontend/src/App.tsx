@@ -12,6 +12,7 @@ function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const loadUser = useGameStore((state) => state.actions.loadUser);
   const loadShop = useGameStore((state) => state.actions.loadShop);
+  const loadPrestige = useGameStore((state) => state.actions.loadPrestige);
 
   useEffect(() => {
     function onConnect() {
@@ -42,7 +43,8 @@ function App() {
   useEffect(() => {
     loadUser();
     loadShop();
-  }, [loadUser, loadShop]);
+    loadPrestige();
+  }, [loadUser, loadShop, loadPrestige]);
 
   return (
     <div className="flex flex-col flex-1 w-screen max-h-screen">

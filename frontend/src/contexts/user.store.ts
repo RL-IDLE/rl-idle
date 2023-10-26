@@ -9,13 +9,13 @@ import Decimal from 'break_infinity.js';
 import { socket } from '@/lib/socket';
 import { IWsEvent } from '../../../backend/src/types/api';
 import { useItemsStore } from './items.store';
-import { getPriceForClickItem, getPriceOfItem } from '@/lib/game';
+import { usePrestigeStore } from './prestiges.store';
 
-type IUserOrNull = IUser | null;
 interface UserState {
-  user: IUserOrNull;
+  user: IUser | null;
   click: () => void;
   buyItem: (id: string) => void;
+  buyPrestige: (id: string) => void;
   loadUser: () => Promise<string | undefined>;
 }
 
@@ -39,74 +39,71 @@ export const useUserStore = create<UserState>()(
         },
         buyItem(id) {
           set((state) => {
-            if (!state.user) {
-              throw 'User not found';
-            }
             const user = state.user;
+            if (!user) {
+              logger.error('User not found');
+              return;
+            }
             const items = useItemsStore.getState().items;
             const item = items.find((item) => item.id === id);
             if (!item) {
-              throw 'Item not found';
+              logger.error('Item not found');
+              return;
             }
             logger.debug('buyItem');
-            if (item.name === 'Click') {
-              //? Update user moneyPerClick
-              const userMoneyPerClick = user.moneyPerClick;
-              const newUserMoneyPerClick = userMoneyPerClick.times(
-                item.moneyPerClickMult,
-              );
-              user.moneyPerClick = newUserMoneyPerClick;
-            }
             //* Mutate
-            const itemsLevels: {
-              [id: string]: Decimal | undefined;
-            } = user.itemsBought.reduce<{
-              [id: string]: Decimal;
-            }>(
-              (prev, cur) => {
-                if (prev[cur.item.id] as Decimal | undefined) {
-                  prev[cur.item.id] = prev[cur.item.id].add(
-                    Decimal.fromString('1'),
-                  );
-                } else {
-                  prev[cur.item.id] = Decimal.fromString('1');
-                }
-                return prev;
+            user.moneyUsed = user.moneyUsed.add(item.price);
+            user.itemsBought.push({
+              id: Math.random().toString(),
+              item: {
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                moneyPerSecond: item.moneyPerSecond,
+                moneyPerClickMult: item.moneyPerClickMult,
+                image: item.image,
               },
-              {} as {
-                [id: string]: Decimal;
-              },
-            );
-            const price =
-              item.name === 'Click'
-                ? getPriceForClickItem(
-                    item.price,
-                    itemsLevels[item.id] || Decimal.fromString('0'),
-                  )
-                : getPriceOfItem(
-                    item.price,
-                    itemsLevels[item.id] || Decimal.fromString('0'),
-                  );
-            user.moneyUsed = user.moneyUsed.add(price);
-            user.itemsBought = [
-              ...user.itemsBought,
-              {
-                id: Math.random().toString(),
-                item: {
-                  id: item.id,
-                  name: item.name,
-                  price: item.price,
-                  moneyPerSecond: item.moneyPerSecond,
-                  moneyPerClickMult: item.moneyPerClickMult,
-                  image: item.image,
-                },
-                createdAt: new Date(),
-              },
-            ];
+              createdAt: new Date(),
+            });
             const eventBody: IWsEvent['buyItem']['body'] = {
               type: 'buyItem',
               userId: user.id,
               itemId: item.id,
+            };
+            socket.emit('events', eventBody);
+          });
+        },
+        buyPrestige(id) {
+          set((state) => {
+            const user = state.user;
+            if (!user) {
+              logger.error('User not found');
+              return;
+            }
+            const prestiges = usePrestigeStore.getState().prestiges;
+            const prestige = prestiges.find((item) => item.id === id);
+            if (!prestige) {
+              logger.error('Prestige not found');
+              return;
+            }
+            logger.debug('buyPrestige !');
+            //* Mutate
+            user.moneyUsed = user.moneyUsed.add(prestige.price);
+            user.prestigesBought.push({
+              id: Math.random().toString(),
+              prestige: {
+                id: prestige.id,
+                name: prestige.name,
+                price: prestige.price,
+                moneyMult: prestige.moneyMult,
+                image: prestige.image,
+              },
+              createdAt: new Date(),
+            });
+            const eventBody: IWsEvent['buyPrestige']['body'] = {
+              type: 'buyPrestige',
+              userId: user.id,
+              prestigeId: prestige.id,
             };
             socket.emit('events', eventBody);
           });
@@ -154,6 +151,19 @@ export const useUserStore = create<UserState>()(
                 },
                 createdAt: new Date(itemBought.createdAt),
               })),
+              prestigesBought: user.prestigesBought.map((prestigeBought) => ({
+                id: prestigeBought.id,
+                prestige: {
+                  id: prestigeBought.prestige.id,
+                  name: prestigeBought.prestige.name,
+                  price: Decimal.fromString(prestigeBought.prestige.price),
+                  moneyMult: Decimal.fromString(
+                    prestigeBought.prestige.moneyMult,
+                  ),
+                  image: prestigeBought.prestige.image,
+                },
+                createdAt: new Date(prestigeBought.createdAt),
+              })),
             },
           });
           return user.id;
@@ -161,7 +171,7 @@ export const useUserStore = create<UserState>()(
       })),
       {
         name: 'user',
-        version: 1.12,
+        version: 1.3,
         merge: (_, persisted) => {
           return {
             ...persisted,

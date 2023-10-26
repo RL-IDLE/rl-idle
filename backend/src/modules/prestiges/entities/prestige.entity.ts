@@ -40,6 +40,6 @@ export class PrestigeBought extends Timestamp implements IPrestigeBought {
   @JoinColumn()
   prestige: Prestige;
 
-  @ManyToOne(() => User, (user) => user.prestigeBought)
+  @ManyToOne(() => User, (user) => user.prestigesBought)
   user: User;
 }

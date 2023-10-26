@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { PrestigesService } from './prestiges.service';
 import { PrestigesController } from './prestiges.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Prestige } from './prestige/prestige.entity';
+import { Prestige, PrestigeBought } from './entities/prestige.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Prestige])],
+  imports: [TypeOrmModule.forFeature([Prestige, PrestigeBought])],
   controllers: [PrestigesController],
   providers: [PrestigesService],
 })

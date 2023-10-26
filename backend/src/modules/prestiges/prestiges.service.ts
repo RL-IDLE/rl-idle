@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { api } from 'src/types/api';
 import Decimal from 'break_infinity.js';
 import memoizeOne from 'memoize-one';
-import { Prestige } from './prestige/prestige.entity';
+import { Prestige } from './entities/prestige.entity';
 
 const sortPrestige = (prestige: Prestige[]) => {
   const sorted = prestige.sort((a, b) => {
