@@ -4,35 +4,21 @@ import Decimal from 'break_infinity.js';
 export const getUserBalance = (user: IUser | null) => {
   if (!user) return Decimal.fromString('0');
   const moneyFromClick = user.moneyFromClick;
-  const moneyFromInvestments = user.itemsBought?.reduce<Decimal>(
-    (acc, item) => {
-      const timeDiff = Date.now() - new Date(item.createdAt).getTime();
-      return acc.plus(item.item.moneyPerSecond.times(timeDiff / 1000));
-    },
-    Decimal.fromString('0'),
-  );
-  const total = moneyFromClick.plus(moneyFromInvestments ?? '0');
+  const moneyFromInvestments = user.itemsBought.reduce<Decimal>((acc, item) => {
+    const timeDiff = Date.now() - new Date(item.createdAt).getTime();
+    return acc.plus(item.item.moneyPerSecond.times(timeDiff / 1000));
+  }, Decimal.fromString('0'));
+  const total = moneyFromClick.plus(moneyFromInvestments);
   const moneyUsed = user.moneyUsed;
-  const highestPrestige = user.prestigesBought?.reduce<Decimal>(
-    (acc, prestige) => {
-      const prestigeValue = prestige.prestige.moneyMult;
-      return prestigeValue.gt(acc) ? prestigeValue : acc;
-    },
-    Decimal.fromString('0'),
-  );
-  const prestigeMultiplier = highestPrestige?.neq('0') ? highestPrestige : '1';
-  const money = total.minus(moneyUsed).times(prestigeMultiplier);
+  const money = total.minus(moneyUsed);
   return money.round();
 };
 
 export const getMoneyFromInvestmentsPerSeconds = (user: IUser | null) => {
   if (!user) return Decimal.fromString('0');
-  const moneyFromInvestments = user.itemsBought?.reduce<Decimal>(
-    (acc, item) => {
-      return acc.plus(item.item.moneyPerSecond);
-    },
-    Decimal.fromString('0'),
-  );
+  const moneyFromInvestments = user.itemsBought.reduce<Decimal>((acc, item) => {
+    return acc.plus(item.item.moneyPerSecond);
+  }, Decimal.fromString('0'));
   return moneyFromInvestments;
 };
 
@@ -51,4 +37,17 @@ export const getPriceForClickItem = (basePrice: Decimal, step: Decimal) => {
       step.times('3.5').eq('0') ? Decimal.fromString('1') : step.times('3.5'),
     )
     .round();
+};
+
+export const getUserMoneyPerClick = (user: IUser | null) => {
+  const clickPower = new Decimal(user?.moneyPerClick);
+  const highestPrestige = user?.prestigesBought.reduce<Decimal>(
+    (acc, prestige) => {
+      const prestigeValue = prestige.prestige.moneyMult;
+      return prestigeValue.gt(acc) ? prestigeValue : acc;
+    },
+    Decimal.fromString('0'),
+  );
+  const prestigeMultiplier = highestPrestige?.neq('0') ? highestPrestige : '1';
+  return clickPower.times(prestigeMultiplier);
 };

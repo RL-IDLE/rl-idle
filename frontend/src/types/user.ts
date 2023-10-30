@@ -7,6 +7,6 @@ export type IUser = {
   moneyFromClick: Decimal;
   moneyPerClick: Decimal;
   moneyUsed: Decimal;
-  itemsBought: IItemBought[] | undefined;
-  prestigesBought: IPrestigeBought[] | undefined;
+  itemsBought: IItemBought[];
+  prestigesBought: IPrestigeBought[];
 };

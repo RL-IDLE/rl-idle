@@ -346,7 +346,7 @@ const insertUser = async () => {
       await connection.manager.save('item', item);
     } catch (error) {
       if (error.code !== '23505') {
-        Logger.error(error.code);
+        Logger.error(error);
       } else {
         //? Update
         await connection.manager.update(
@@ -514,7 +514,7 @@ const insertPrestige = async () => {
       await connection.manager.save('prestige', prestige);
     } catch (error) {
       if (error.code !== '23505') {
-        Logger.error(error.code);
+        Logger.error(error);
       } else {
         //? Update
         await connection.manager.update(

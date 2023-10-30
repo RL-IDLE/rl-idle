@@ -11,15 +11,7 @@ export const getUserBalance = (user: IUser) => {
   }, Decimal.fromString('0'));
   const total = moneyFromClick.plus(moneyFromInvestments);
   const moneyUsed = Decimal.fromString(user.moneyUsed);
-  const highestPrestige = user.prestigesBought.reduce<Decimal>(
-    (acc, prestige) => {
-      const prestigeValue = Decimal.fromString(prestige.prestige.moneyMult);
-      return prestigeValue.gt(acc) ? prestigeValue : acc;
-    },
-    Decimal.fromString('0'),
-  );
-  const prestigeMultiplier = highestPrestige.eq('0') ? '1' : highestPrestige;
-  const money = total.minus(moneyUsed).times(prestigeMultiplier);
+  const money = total.minus(moneyUsed);
   return money.round();
 };
 
@@ -38,4 +30,17 @@ export const getPriceForClickItem = (basePrice: Decimal, step: Decimal) => {
       step.times('3.5').eq('0') ? Decimal.fromString('1') : step.times('3.5'),
     )
     .round();
+};
+
+export const getUserMoneyPerClick = (user: IUser) => {
+  const clickPower = new Decimal(user.moneyPerClick);
+  const highestPrestige = user.prestigesBought.reduce<Decimal>(
+    (acc, prestige) => {
+      const prestigeValue = Decimal.fromString(prestige.prestige.moneyMult);
+      return prestigeValue.gt(acc) ? prestigeValue : acc;
+    },
+    Decimal.fromString('0'),
+  );
+  const prestigeMultiplier = highestPrestige.eq('0') ? '1' : highestPrestige;
+  return clickPower.times(prestigeMultiplier);
 };

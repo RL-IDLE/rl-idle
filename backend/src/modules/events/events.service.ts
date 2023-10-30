@@ -14,6 +14,7 @@ import {
   getPriceForClickItem,
   getPriceOfItem,
   getUserBalance,
+  getUserMoneyPerClick,
 } from 'src/lib/game';
 import { Item, ItemBought } from '../items/entities/item.entity';
 import { randomUUID } from 'crypto';
@@ -23,6 +24,7 @@ import {
   Prestige,
   PrestigeBought,
 } from '../prestiges/entities/prestige.entity';
+import { logger } from 'src/lib/logger';
 
 @Injectable()
 export class EventsService {
@@ -56,7 +58,7 @@ export class EventsService {
       return;
     }
     const moneyFromClick = Decimal.fromString(user.moneyFromClick);
-    const moneyPerClick = Decimal.fromString(user.moneyPerClick);
+    const moneyPerClick = getUserMoneyPerClick(user);
     const newMoneyFromClick = moneyFromClick.add(moneyPerClick);
     user.moneyFromClick = newMoneyFromClick.toString();
     await saveOneData({ key: 'users', id: parsedData.userId, data: user });
@@ -82,11 +84,14 @@ export class EventsService {
     });
     if (!item) throw new HttpException('Item not found', 404);
     const userBalance = getUserBalance(user);
-    const alreadyBought = await this.itemsBoughtRepository
-      .createQueryBuilder('itemBought')
-      .where('itemBought.item = :itemId', { itemId: item.id })
-      .andWhere('itemBought.user = :userId', { userId: user.id })
-      .getCount();
+    // const alreadyBought = await this.itemsBoughtRepository
+    //   .createQueryBuilder('itemBought')
+    //   .where('itemBought.item = :itemId', { itemId: item.id })
+    //   .andWhere('itemBought.user = :userId', { userId: user.id })
+    //   .getCount();
+    const alreadyBought = user.itemsBought.filter(
+      (itemBought) => itemBought.item.id === item.id,
+    ).length;
 
     const itemPrice =
       item.name === 'Click'
@@ -101,6 +106,11 @@ export class EventsService {
     if (userBalance.lt(itemPrice)) {
       //? Emit the exception for the correspondig user
       server.emit(`error:${user.id}`, 'Not enough money');
+      logger.warn(
+        `User ${user.id} tried to buy item ${
+          item.name
+        } but didn't have enough money (${userBalance.toString()} < ${itemPrice.toString()})`,
+      );
       return;
     }
 
@@ -176,7 +186,7 @@ export class EventsService {
     };
     await saveOneData({
       key: 'prestigesBought',
-      data: prestige,
+      data: prestigeBought,
       id: prestige.id,
     });
     user.prestigesBought.push({

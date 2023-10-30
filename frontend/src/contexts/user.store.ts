@@ -10,6 +10,11 @@ import { socket } from '@/lib/socket';
 import { IWsEvent } from '../../../backend/src/types/api';
 import { useItemsStore } from './items.store';
 import { usePrestigeStore } from './prestiges.store';
+import {
+  getPriceForClickItem,
+  getPriceOfItem,
+  getUserMoneyPerClick,
+} from '@/lib/game';
 
 interface UserState {
   user: IUser | null;
@@ -30,7 +35,9 @@ export const useUserStore = create<UserState>()(
             const user = state.user;
             if (!user) return;
             logger.debug('click');
-            user.moneyFromClick = user.moneyFromClick.add(user.moneyPerClick);
+            user.moneyFromClick = user.moneyFromClick.add(
+              getUserMoneyPerClick(user),
+            );
             const eventBody: IWsEvent['click']['body'] = {
               type: 'click',
               userId: user.id,
@@ -52,8 +59,45 @@ export const useUserStore = create<UserState>()(
               return;
             }
             logger.debug('buyItem');
+            if (item.name === 'Click') {
+              //? Update user moneyPerClick
+              const userMoneyPerClick = user.moneyPerClick;
+              const newUserMoneyPerClick = userMoneyPerClick.times(
+                item.moneyPerClickMult,
+              );
+              user.moneyPerClick = newUserMoneyPerClick;
+            }
             //* Mutate
-            user.moneyUsed = user.moneyUsed.add(item.price);
+            const itemsLevels: {
+              [id: string]: Decimal | undefined;
+            } = user.itemsBought.reduce<{
+              [id: string]: Decimal;
+            }>(
+              (prev, cur) => {
+                if (prev[cur.item.id] as Decimal | undefined) {
+                  prev[cur.item.id] = prev[cur.item.id].add(
+                    Decimal.fromString('1'),
+                  );
+                } else {
+                  prev[cur.item.id] = Decimal.fromString('1');
+                }
+                return prev;
+              },
+              {} as {
+                [id: string]: Decimal;
+              },
+            );
+            const price =
+              item.name === 'Click'
+                ? getPriceForClickItem(
+                    item.price,
+                    itemsLevels[item.id] || Decimal.fromString('0'),
+                  )
+                : getPriceOfItem(
+                    item.price,
+                    itemsLevels[item.id] || Decimal.fromString('0'),
+                  );
+            user.moneyUsed = user.moneyUsed.add(price);
             user.itemsBought.push({
               id: Math.random().toString(),
               item: {
@@ -101,6 +145,10 @@ export const useUserStore = create<UserState>()(
               },
               createdAt: new Date(),
             });
+            user.moneyFromClick = Decimal.fromString('0');
+            user.moneyPerClick = Decimal.fromString('1');
+            user.moneyUsed = Decimal.fromString('0');
+            user.itemsBought = [];
             const eventBody: IWsEvent['buyPrestige']['body'] = {
               type: 'buyPrestige',
               userId: user.id,
@@ -175,7 +223,6 @@ export const useUserStore = create<UserState>()(
             logger.error('User not found');
             return;
           }
-          console.log(router.user);
           const user = await router.user.reset({ id });
           //? Set the user
           set({
@@ -200,6 +247,19 @@ export const useUserStore = create<UserState>()(
                 },
                 createdAt: new Date(itemBought.createdAt),
               })),
+              prestigesBought: user.prestigesBought.map((prestigeBought) => ({
+                id: prestigeBought.id,
+                prestige: {
+                  id: prestigeBought.prestige.id,
+                  name: prestigeBought.prestige.name,
+                  price: Decimal.fromString(prestigeBought.prestige.price),
+                  moneyMult: Decimal.fromString(
+                    prestigeBought.prestige.moneyMult,
+                  ),
+                  image: prestigeBought.prestige.image,
+                },
+                createdAt: new Date(prestigeBought.createdAt),
+              })),
             },
           });
           return;
@@ -207,7 +267,7 @@ export const useUserStore = create<UserState>()(
       })),
       {
         name: 'user',
-        version: 1.3,
+        version: 2,
         merge: (_, persisted) => {
           return {
             ...persisted,
@@ -241,6 +301,24 @@ export const useUserStore = create<UserState>()(
                     },
                     createdAt: new Date(itemBought.createdAt),
                   })),
+                  prestigesBought: persisted.user.prestigesBought.map(
+                    (prestigeBought) => ({
+                      id: prestigeBought.id,
+                      prestige: {
+                        id: prestigeBought.prestige.id,
+                        name: prestigeBought.prestige.name,
+                        price: Decimal.fromString(
+                          prestigeBought.prestige.price as unknown as string,
+                        ),
+                        moneyMult: Decimal.fromString(
+                          prestigeBought.prestige
+                            .moneyMult as unknown as string,
+                        ),
+                        image: prestigeBought.prestige.image,
+                      },
+                      createdAt: new Date(prestigeBought.createdAt),
+                    }),
+                  ),
                 }
               : null,
           };
