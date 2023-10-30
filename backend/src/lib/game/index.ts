@@ -11,7 +11,15 @@ export const getUserBalance = (user: IUser) => {
   }, Decimal.fromString('0'));
   const total = moneyFromClick.plus(moneyFromInvestments);
   const moneyUsed = Decimal.fromString(user.moneyUsed);
-  const money = total.minus(moneyUsed);
+  const highestPrestige = user.prestigesBought.reduce<Decimal>(
+    (acc, prestige) => {
+      const prestigeValue = Decimal.fromString(prestige.prestige.moneyMult);
+      return prestigeValue.gt(acc) ? prestigeValue : acc;
+    },
+    Decimal.fromString('0'),
+  );
+  const prestigeMultiplier = highestPrestige.eq('0') ? '1' : highestPrestige;
+  const money = total.minus(moneyUsed).times(prestigeMultiplier);
   return money.round();
 };
 

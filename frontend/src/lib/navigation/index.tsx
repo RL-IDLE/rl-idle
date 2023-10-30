@@ -7,7 +7,7 @@ import Shop from '@/app/components/icons/Shop';
 export const pages = [
   {
     name: 'prestige',
-    disabled: true,
+    disabled: false,
     label: <Reset />,
   },
   {

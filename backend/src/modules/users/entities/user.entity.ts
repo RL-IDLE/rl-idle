@@ -2,6 +2,7 @@ import { IUser } from 'src/types/user';
 import { Timestamp } from '../../generic/timestamp.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ItemBought } from '../../../modules/items/entities/item.entity';
+import { PrestigeBought } from '../../prestiges/entities/prestige.entity';
 
 @Entity('user')
 export class User extends Timestamp implements IUser {
@@ -21,4 +22,9 @@ export class User extends Timestamp implements IUser {
     eager: true,
   })
   itemsBought: ItemBought[];
+
+  @OneToMany(() => PrestigeBought, (prestigesBought) => prestigesBought.user, {
+    eager: true,
+  })
+  prestigesBought: PrestigeBought[];
 }
