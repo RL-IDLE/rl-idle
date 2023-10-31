@@ -27,4 +27,11 @@ export class User extends Timestamp implements IUser {
     eager: true,
   })
   prestigesBought: PrestigeBought[];
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  lastSeen: Date;
 }

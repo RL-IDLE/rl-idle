@@ -1,10 +1,11 @@
 import Decimal from 'break_infinity.js';
 import { IUser } from 'src/types/user';
 
-export const getUserBalance = (user: IUser) => {
+export const getUserBalance = (user: IUser, date?: Date) => {
+  const baseDate = date?.getTime() || Date.now();
   const moneyFromClick = Decimal.fromString(user.moneyFromClick);
   const moneyFromInvestments = user.itemsBought.reduce<Decimal>((acc, item) => {
-    const timeDiff = Date.now() - new Date(item.createdAt).getTime();
+    const timeDiff = baseDate - new Date(item.createdAt).getTime();
     return acc.plus(
       Decimal.fromString(item.item.moneyPerSecond).times(timeDiff / 1000),
     );

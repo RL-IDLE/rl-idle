@@ -8,13 +8,14 @@ import { logger } from '@/lib/logger';
 import { decimalToHumanReadable } from '@/lib/bignumber';
 import clickSound from '@/assets/audio/buy-item.wav';
 import { useBalance } from '@/contexts/balance/BalanceUtils';
+import { useState } from 'react';
 
 export default function Shop() {
   const buyItem = useGameStore((state) => state.actions.buyItem);
   const user = useUserStore((state) => state.user);
   const { balance } = useBalance();
   const items = useItemsStore((state) => state.items);
-  const audio = new Audio(clickSound);
+  const [audio] = useState(new Audio(clickSound));
   const itemsLevels: {
     [id: string]: Decimal | undefined;
   } =
@@ -50,6 +51,7 @@ export default function Shop() {
 
   const handleBuy = (id: string) => {
     buyItem(id);
+    audio.currentTime = 0;
     audio.play();
   };
 

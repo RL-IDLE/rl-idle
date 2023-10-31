@@ -12,6 +12,8 @@ import { useUserStore } from '@/contexts/user.store';
 import { socket } from '@/lib/socket';
 import { logger } from '@/lib/logger';
 import { useGameStore } from '@/contexts/game.store';
+import { IWsEvent } from '../../../../backend/src/types/api';
+import { livelinessProbeInterval } from '@/lib/constant';
 
 const getPageIndex = (page: IPages) => {
   return pages.filter((p) => !p.disabled).findIndex((p) => p.name === page);
@@ -34,10 +36,21 @@ export default function Game() {
       loadUser();
     };
 
+    if (!userId) return;
+    const eventBody: IWsEvent['livelinessProbe']['body'] = {
+      type: 'livelinessProbe',
+      userId,
+    };
+    const livelinessRequets = () => {
+      socket.emit('events', eventBody);
+    };
+    const probe = setInterval(livelinessRequets, livelinessProbeInterval);
+
     socket.on(`error:${userId}`, handleError);
 
     return () => {
       socket.off(`error:${userId}`, handleError);
+      clearInterval(probe);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);

@@ -23,10 +23,11 @@ export class EventsGateway {
   findAll(@MessageBody() data: IWsEvent[keyof IWsEvent]['body']) {
     if (data.type === 'click')
       return this.eventsService.click(data, this.server);
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (data.type === 'buyItem')
       return this.eventsService.buyItem(data, this.server);
     if (data.type === 'buyPrestige')
       return this.eventsService.buyPrestige(data, this.server);
+
+    return this.eventsService.livelinessProbe(data);
   }
 }

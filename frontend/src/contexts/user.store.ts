@@ -177,6 +177,11 @@ export const useUserStore = create<UserState>()(
           if (!user) return;
           //? Save the user id to local storage if it's not already set
           localStorage.setItem('userId', user.id);
+          //? Save lastSeen in local storage
+          localStorage.setItem(
+            'lastBalanceTime',
+            new Date(user.lastSeen).getTime().toString(),
+          );
           //? Set the user
           set({
             user: {
@@ -267,7 +272,7 @@ export const useUserStore = create<UserState>()(
       })),
       {
         name: 'user',
-        version: 2,
+        version: 3,
         merge: (_, persisted) => {
           return {
             ...persisted,

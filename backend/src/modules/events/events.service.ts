@@ -201,4 +201,18 @@ export class EventsService {
     await saveOneData({ key: 'users', id: parsedData.userId, data: user });
     return user;
   }
+
+  async livelinessProbe(data: IWsEvent['livelinessProbe']['body']) {
+    const user = await getOneData({
+      databaseRepository: this.usersRepository,
+      key: 'users',
+      id: data.userId,
+    });
+    if (!user) throw new HttpException('User not found', 404);
+    //? Update user lastSeen
+    user.lastSeen = new Date();
+    await saveOneData({ key: 'users', id: data.userId, data: user });
+
+    return data;
+  }
 }

@@ -2,7 +2,12 @@ import { z } from 'zod';
 import { unknown } from '.';
 import { IHttpMethod } from './http';
 import { ILoadUser, IUser } from './user';
-import { buyItemSchema, buyPrestigeSchema, clickSchema } from './events';
+import {
+  buyItemSchema,
+  buyPrestigeSchema,
+  clickSchema,
+  livelinessProbeSchema,
+} from './events';
 import { IItem } from './item';
 import { IPrestige } from './prestige';
 
@@ -63,5 +68,8 @@ export type IWsEvent = {
   };
   buyPrestige: {
     body: z.infer<typeof buyPrestigeSchema>;
+  };
+  livelinessProbe: {
+    body: z.infer<typeof livelinessProbeSchema>;
   };
 };
