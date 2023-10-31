@@ -7,7 +7,6 @@ import { useItemsStore } from './items.store';
 import { usePrestigeStore } from './prestiges.store';
 
 interface GameState {
-  id: string | null;
   actions: {
     click: () => void;
     buyItem: (id: string) => void;
@@ -22,8 +21,6 @@ interface GameState {
 export const useGameStore = create<GameState>()(
   devtools(
     immer((set) => ({
-      id: localStorage.getItem('userId'),
-      user: null,
       actions: {
         click: () => {
           const { click } = useUserStore.getState();
@@ -39,9 +36,7 @@ export const useGameStore = create<GameState>()(
         },
         loadUser: async () => {
           const { loadUser } = useUserStore.getState();
-          const id = await loadUser();
-          if (!id) return;
-          set({ id });
+          await loadUser();
         },
         loadShop: async () => {
           const { loadItems } = useItemsStore.getState();

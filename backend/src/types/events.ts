@@ -16,3 +16,8 @@ export const buyPrestigeSchema = z.object({
   userId: z.string(),
   prestigeId: z.string(),
 });
+
+export const livelinessProbeSchema = z.object({
+  userId: z.string(),
+  type: z.literal('livelinessProbe'),
+});

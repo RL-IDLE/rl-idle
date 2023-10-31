@@ -5,14 +5,16 @@ import styles from './home.module.scss';
 import { decimalToHumanReadable } from '@/lib/bignumber';
 import clickSound from '@/assets/audio/click.ogg';
 import { getUserMoneyPerClick } from '@/lib/game';
+import { useState } from 'react';
 
 export default function Home() {
   const click = useGameStore((state) => state.actions.click);
   const user = useUserStore((state) => state.user);
-  const audio = new Audio(clickSound);
+  const [audio] = useState(new Audio(clickSound));
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     click();
+    audio.currentTime = 0;
     audio.play();
 
     const xAlea = Math.floor(Math.random() * 25);

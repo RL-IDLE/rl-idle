@@ -6,6 +6,7 @@ import Decimal from 'break_infinity.js';
 import { useEffect, useState } from 'react';
 import CreditLogo from '@/assets/credits_icon.webp';
 import { popupMinOfflineTime } from '@/lib/constant';
+import { maxPassiveIncomeInterval } from '../../../../backend/src/lib/constant';
 
 export default function PassivePopup() {
   const user = useUserStore((state) => state.user);
@@ -25,14 +26,19 @@ export default function PassivePopup() {
       now - parseInt(lastBalanceTime || '0') > popupMinOfflineTime &&
       lastBalance
     ) {
-      setInactiveTime(new Date(parseInt(lastBalanceTime || '0')));
+      const realInactiveTime = new Date(parseInt(lastBalanceTime || '0'));
+      if (realInactiveTime.getTime() + maxPassiveIncomeInterval < now) {
+        setInactiveTime(new Date(now - maxPassiveIncomeInterval));
+      } else {
+        setInactiveTime(realInactiveTime);
+      }
       const lastBalanceDecimal = new Decimal(lastBalance);
       const newBalance = getUserBalance(user);
       const difference = newBalance.minus(lastBalanceDecimal);
       if (difference.greaterThan(0)) {
         setShowPopup(difference);
-        setAlreadyShown(true);
       }
+      setAlreadyShown(true);
     }
   }, [user, alreadyShown]);
 
