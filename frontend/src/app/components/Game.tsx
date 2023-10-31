@@ -12,6 +12,8 @@ import { useUserStore } from '@/contexts/user.store';
 import { socket } from '@/lib/socket';
 import { logger } from '@/lib/logger';
 import { useGameStore } from '@/contexts/game.store';
+import { IWsEvent } from '../../../../backend/src/types/api';
+import { livelinessProbeInterval } from '@/lib/constant';
 
 const getPageIndex = (page: IPages) => {
   return pages.filter((p) => !p.disabled).findIndex((p) => p.name === page);
@@ -34,10 +36,21 @@ export default function Game() {
       loadUser();
     };
 
+    if (!userId) return;
+    const eventBody: IWsEvent['livelinessProbe']['body'] = {
+      type: 'livelinessProbe',
+      userId,
+    };
+    const livelinessRequets = () => {
+      socket.emit('events', eventBody);
+    };
+    const probe = setInterval(livelinessRequets, livelinessProbeInterval);
+
     socket.on(`error:${userId}`, handleError);
 
     return () => {
       socket.off(`error:${userId}`, handleError);
+      clearInterval(probe);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
@@ -52,41 +65,45 @@ export default function Game() {
       useGameStore.getState().actions.reset;
   }, []);
 
+  const pageIndex = getPageIndex(navigationStore.page);
+
   return (
-    <SwiperComponent
-      slidesPerView={1}
-      className="flex-1 w-screen"
-      initialSlide={getPageIndex(navigationStore.page)}
-      onSlideChange={(swiper) => {
-        navigationStore.setPage(indexToPage(swiper.activeIndex, true));
-      }}
-      onSwiper={setSwiper}
-      edgeSwipeThreshold={50}
-    >
-      {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}
-      {!pages[0].disabled && (
-        <SwiperSlide>
-          <Prestige />
+    <>
+      <SwiperComponent
+        slidesPerView={1}
+        className="flex-1 w-screen"
+        initialSlide={pageIndex}
+        onSlideChange={(swiper) => {
+          navigationStore.setPage(indexToPage(swiper.activeIndex, true));
+        }}
+        onSwiper={setSwiper}
+        edgeSwipeThreshold={50}
+      >
+        {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}
+        {!pages[0].disabled && (
+          <SwiperSlide>
+            <Prestige />
+          </SwiperSlide>
+        )}
+        <SwiperSlide className="z-10">
+          <Shop />
         </SwiperSlide>
-      )}
-      <SwiperSlide className="z-10">
-        <Shop />
-      </SwiperSlide>
-      <SwiperSlide>
-        <Home />
-      </SwiperSlide>
-      {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}
-      {!pages[3].disabled && (
         <SwiperSlide>
-          <Boost />
+          <Home />
         </SwiperSlide>
-      )}
-      {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}
-      {!pages[4].disabled && (
-        <SwiperSlide>
-          <Ranking />
-        </SwiperSlide>
-      )}
-    </SwiperComponent>
+        {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}
+        {!pages[3].disabled && (
+          <SwiperSlide>
+            <Boost />
+          </SwiperSlide>
+        )}
+        {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}
+        {!pages[4].disabled && (
+          <SwiperSlide>
+            <Ranking />
+          </SwiperSlide>
+        )}
+      </SwiperComponent>
+    </>
   );
 }

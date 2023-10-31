@@ -9,13 +9,18 @@ import Decimal from 'break_infinity.js';
 import { socket } from '@/lib/socket';
 import { IWsEvent } from '../../../backend/src/types/api';
 import { useItemsStore } from './items.store';
-import { getPriceForClickItem, getPriceOfItem } from '@/lib/game';
+import { usePrestigeStore } from './prestiges.store';
+import {
+  getPriceForClickItem,
+  getPriceOfItem,
+  getUserMoneyPerClick,
+} from '@/lib/game';
 
-type IUserOrNull = IUser | null;
 interface UserState {
-  user: IUserOrNull;
+  user: IUser | null;
   click: () => void;
   buyItem: (id: string) => void;
+  buyPrestige: (id: string) => void;
   loadUser: () => Promise<string | undefined>;
   reset: () => Promise<void>;
 }
@@ -30,7 +35,9 @@ export const useUserStore = create<UserState>()(
             const user = state.user;
             if (!user) return;
             logger.debug('click');
-            user.moneyFromClick = user.moneyFromClick.add(user.moneyPerClick);
+            user.moneyFromClick = user.moneyFromClick.add(
+              getUserMoneyPerClick(user),
+            );
             const eventBody: IWsEvent['click']['body'] = {
               type: 'click',
               userId: user.id,
@@ -40,14 +47,16 @@ export const useUserStore = create<UserState>()(
         },
         buyItem(id) {
           set((state) => {
-            if (!state.user) {
-              throw 'User not found';
-            }
             const user = state.user;
+            if (!user) {
+              logger.error('User not found');
+              return;
+            }
             const items = useItemsStore.getState().items;
             const item = items.find((item) => item.id === id);
             if (!item) {
-              throw 'Item not found';
+              logger.error('Item not found');
+              return;
             }
             logger.debug('buyItem');
             if (item.name === 'Click') {
@@ -89,25 +98,61 @@ export const useUserStore = create<UserState>()(
                     itemsLevels[item.id] || Decimal.fromString('0'),
                   );
             user.moneyUsed = user.moneyUsed.add(price);
-            user.itemsBought = [
-              ...user.itemsBought,
-              {
-                id: Math.random().toString(),
-                item: {
-                  id: item.id,
-                  name: item.name,
-                  price: item.price,
-                  moneyPerSecond: item.moneyPerSecond,
-                  moneyPerClickMult: item.moneyPerClickMult,
-                  image: item.image,
-                },
-                createdAt: new Date(),
+            user.itemsBought.push({
+              id: Math.random().toString(),
+              item: {
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                moneyPerSecond: item.moneyPerSecond,
+                moneyPerClickMult: item.moneyPerClickMult,
+                image: item.image,
               },
-            ];
+              createdAt: new Date(),
+            });
             const eventBody: IWsEvent['buyItem']['body'] = {
               type: 'buyItem',
               userId: user.id,
               itemId: item.id,
+            };
+            socket.emit('events', eventBody);
+          });
+        },
+        buyPrestige(id) {
+          set((state) => {
+            const user = state.user;
+            if (!user) {
+              logger.error('User not found');
+              return;
+            }
+            const prestiges = usePrestigeStore.getState().prestiges;
+            const prestige = prestiges.find((item) => item.id === id);
+            if (!prestige) {
+              logger.error('Prestige not found');
+              return;
+            }
+            logger.debug('buyPrestige !');
+            //* Mutate
+            user.moneyUsed = user.moneyUsed.add(prestige.price);
+            user.prestigesBought.push({
+              id: Math.random().toString(),
+              prestige: {
+                id: prestige.id,
+                name: prestige.name,
+                price: prestige.price,
+                moneyMult: prestige.moneyMult,
+                image: prestige.image,
+              },
+              createdAt: new Date(),
+            });
+            user.moneyFromClick = Decimal.fromString('0');
+            user.moneyPerClick = Decimal.fromString('1');
+            user.moneyUsed = Decimal.fromString('0');
+            user.itemsBought = [];
+            const eventBody: IWsEvent['buyPrestige']['body'] = {
+              type: 'buyPrestige',
+              userId: user.id,
+              prestigeId: prestige.id,
             };
             socket.emit('events', eventBody);
           });
@@ -132,6 +177,11 @@ export const useUserStore = create<UserState>()(
           if (!user) return;
           //? Save the user id to local storage if it's not already set
           localStorage.setItem('userId', user.id);
+          //? Save lastSeen in local storage
+          localStorage.setItem(
+            'lastBalanceTime',
+            new Date(user.lastSeen).getTime().toString(),
+          );
           //? Set the user
           set({
             user: {
@@ -155,6 +205,19 @@ export const useUserStore = create<UserState>()(
                 },
                 createdAt: new Date(itemBought.createdAt),
               })),
+              prestigesBought: user.prestigesBought.map((prestigeBought) => ({
+                id: prestigeBought.id,
+                prestige: {
+                  id: prestigeBought.prestige.id,
+                  name: prestigeBought.prestige.name,
+                  price: Decimal.fromString(prestigeBought.prestige.price),
+                  moneyMult: Decimal.fromString(
+                    prestigeBought.prestige.moneyMult,
+                  ),
+                  image: prestigeBought.prestige.image,
+                },
+                createdAt: new Date(prestigeBought.createdAt),
+              })),
             },
           });
           return user.id;
@@ -165,7 +228,6 @@ export const useUserStore = create<UserState>()(
             logger.error('User not found');
             return;
           }
-          console.log(router.user);
           const user = await router.user.reset({ id });
           //? Set the user
           set({
@@ -190,6 +252,19 @@ export const useUserStore = create<UserState>()(
                 },
                 createdAt: new Date(itemBought.createdAt),
               })),
+              prestigesBought: user.prestigesBought.map((prestigeBought) => ({
+                id: prestigeBought.id,
+                prestige: {
+                  id: prestigeBought.prestige.id,
+                  name: prestigeBought.prestige.name,
+                  price: Decimal.fromString(prestigeBought.prestige.price),
+                  moneyMult: Decimal.fromString(
+                    prestigeBought.prestige.moneyMult,
+                  ),
+                  image: prestigeBought.prestige.image,
+                },
+                createdAt: new Date(prestigeBought.createdAt),
+              })),
             },
           });
           return;
@@ -197,7 +272,7 @@ export const useUserStore = create<UserState>()(
       })),
       {
         name: 'user',
-        version: 1.13,
+        version: 3,
         merge: (_, persisted) => {
           return {
             ...persisted,
@@ -231,6 +306,24 @@ export const useUserStore = create<UserState>()(
                     },
                     createdAt: new Date(itemBought.createdAt),
                   })),
+                  prestigesBought: persisted.user.prestigesBought.map(
+                    (prestigeBought) => ({
+                      id: prestigeBought.id,
+                      prestige: {
+                        id: prestigeBought.prestige.id,
+                        name: prestigeBought.prestige.name,
+                        price: Decimal.fromString(
+                          prestigeBought.prestige.price as unknown as string,
+                        ),
+                        moneyMult: Decimal.fromString(
+                          prestigeBought.prestige
+                            .moneyMult as unknown as string,
+                        ),
+                        image: prestigeBought.prestige.image,
+                      },
+                      createdAt: new Date(prestigeBought.createdAt),
+                    }),
+                  ),
                 }
               : null,
           };
