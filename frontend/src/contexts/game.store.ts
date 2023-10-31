@@ -20,7 +20,7 @@ interface GameState {
 
 export const useGameStore = create<GameState>()(
   devtools(
-    immer((set) => ({
+    immer(() => ({
       actions: {
         click: () => {
           const { click } = useUserStore.getState();
