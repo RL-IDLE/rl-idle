@@ -35,7 +35,7 @@
     "vite": "^4.4.5",
     "vite-plugin-pwa": "^0.16.5",
     "zod": "^3.22.4",
-    "zustand": "^4.4.3"
+    "zustand": "4.4.4"
   },
   "devDependencies": {
     "@swc/cli": "^0.1.62",
