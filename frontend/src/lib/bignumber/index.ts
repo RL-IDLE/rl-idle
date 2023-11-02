@@ -31,10 +31,12 @@ function intToBase26String(_num: Decimal) {
   return num.mantissa.toString().replace(floatRegex, '$1') + ' ' + str;
 }
 
-function decimalToHumanReadable(decimal: Decimal): string {
+function decimalToHumanReadable(decimal: Decimal, round?: boolean): string {
   if (decimal.exponent < 3) {
     const mantissa = decimal.mantissa * 10 ** decimal.exponent;
-    return mantissa.toString().replace(floatRegex1, '$1');
+    return (round ? Math.round(mantissa) : mantissa)
+      .toString()
+      .replace(floatRegex1, '$1');
   }
 
   const entier = Math.floor(decimal.exponent / 3);

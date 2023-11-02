@@ -10,3 +10,14 @@ export const buyItemSchema = z.object({
   userId: z.string(),
   itemId: z.string(),
 });
+
+export const buyPrestigeSchema = z.object({
+  type: z.literal('buyPrestige'),
+  userId: z.string(),
+  prestigeId: z.string(),
+});
+
+export const livelinessProbeSchema = z.object({
+  userId: z.string(),
+  type: z.literal('livelinessProbe'),
+});

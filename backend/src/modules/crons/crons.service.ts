@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { redisNamespace } from 'src/lib/storage';
 import { redis } from 'src/lib/redis';
 import { ItemBought } from '../items/entities/item.entity';
+import { PrestigeBought } from '../prestiges/entities/prestige.entity';
 
 @Injectable()
 export class CronsService implements OnModuleInit {
@@ -15,6 +16,8 @@ export class CronsService implements OnModuleInit {
     private readonly usersRepository: Repository<User>,
     @InjectRepository(ItemBought)
     private readonly itemsBoughtRepository: Repository<ItemBought>,
+    @InjectRepository(PrestigeBought)
+    private readonly prestigesBoughtRepository: Repository<PrestigeBought>,
   ) {}
 
   private readonly logger = new Logger(CronsService.name);
@@ -52,6 +55,9 @@ export class CronsService implements OnModuleInit {
         await redis.del(key);
       } else if (namespace === 'itemsBought') {
         await this.itemsBoughtRepository.save(data);
+        await redis.del(key);
+      } else if (namespace === 'prestigesBought') {
+        await this.prestigesBoughtRepository.save(data);
         await redis.del(key);
       } else {
         this.logger.error(`Unknown namespace ${namespace}`);

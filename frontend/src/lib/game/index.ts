@@ -38,3 +38,16 @@ export const getPriceForClickItem = (basePrice: Decimal, step: Decimal) => {
     )
     .round();
 };
+
+export const getUserMoneyPerClick = (user: IUser | null) => {
+  const clickPower = new Decimal(user?.moneyPerClick);
+  const highestPrestige = user?.prestigesBought.reduce<Decimal>(
+    (acc, prestige) => {
+      const prestigeValue = prestige.prestige.moneyMult;
+      return prestigeValue.gt(acc) ? prestigeValue : acc;
+    },
+    Decimal.fromString('0'),
+  );
+  const prestigeMultiplier = highestPrestige?.neq('0') ? highestPrestige : '1';
+  return clickPower.times(prestigeMultiplier);
+};
