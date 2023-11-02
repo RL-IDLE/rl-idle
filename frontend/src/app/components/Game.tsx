@@ -117,6 +117,12 @@ export default function Game() {
         }}
         onSwiper={setSwiper}
         edgeSwipeThreshold={100}
+        //? Do not allow swiping to the left on the first page
+        allowSlidePrev={pageIndex !== 0}
+        //? Do not allow swiping to the right on the last page
+        allowSlideNext={
+          pageIndex !== pages.filter((p) => !p.disabled).length - 1
+        }
       >
         {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}
         {!pages[0].disabled && (
