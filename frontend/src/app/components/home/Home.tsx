@@ -10,6 +10,20 @@ import { useState } from 'react';
 export default function Home() {
   const click = useGameStore((state) => state.actions.click);
   const user = useUserStore((state) => state.user);
+
+  const itemsTab = user?.itemsBought.map((item) => {
+    return {
+      id: item.item.id,
+      moneyPerSecond: item.item.moneyPerSecond,
+      image: item.item.image,
+    };
+  });
+  itemsTab?.sort((a, b) => {
+    if (a.moneyPerSecond.gt(b.moneyPerSecond)) return -1;
+    if (a.moneyPerSecond.lt(b.moneyPerSecond)) return 1;
+    return 0;
+  });
+
   const [audio] = useState(new Audio(clickSound));
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -38,8 +52,12 @@ export default function Home() {
         className="active:scale-[0.97] no-highlight"
       >
         <img
-          src={env.VITE_API_URL + '/public/cars/animus-gp--blue.png'}
-          alt="animus-gp--blue"
+          src={
+            itemsTab && itemsTab.length > 0
+              ? itemsTab[0].image
+              : env.VITE_API_URL + '/public/cars/animus-gp--blue.png'
+          }
+          alt="rocket battle car image"
         />
       </button>
     </section>
