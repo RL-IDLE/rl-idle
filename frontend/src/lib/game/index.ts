@@ -14,7 +14,9 @@ export const getUserBalance = (user: IUser | null) => {
   return money.round();
 };
 
-export const getMoneyFromInvestmentsPerSeconds = (user: IUser | null) => {
+export const getMoneyFromInvestmentsPerSeconds = (
+  user: Pick<IUser, 'itemsBought'> | null,
+) => {
   if (!user) return Decimal.fromString('0');
   const moneyFromInvestments = user.itemsBought.reduce<Decimal>((acc, item) => {
     return acc.plus(item.item.moneyPerSecond);
