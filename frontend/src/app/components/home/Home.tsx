@@ -5,6 +5,7 @@ import styles from './home.module.scss';
 import homeBgLarge from '../../../assets/home-bg-large.webp';
 import { decimalToHumanReadable } from '@/lib/bignumber';
 import Decimal from 'break_infinity.js';
+
 export default function Home() {
   const click = useGameStore((state) => state.actions.click);
   const user = useUserStore((state) => state.user);
