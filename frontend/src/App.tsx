@@ -29,6 +29,7 @@ function App() {
       setIsConnected(false);
       //? Try reconnecting to the server every 5 seconds
       setTimeout(() => {
+        logger.debug('Trying to reconnect to server');
         socket.connect();
       }, 3000);
     }

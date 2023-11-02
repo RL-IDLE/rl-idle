@@ -8,7 +8,7 @@ import { maxPassiveIncomeInterval } from 'src/lib/constant';
 import { getUserBalance } from 'src/lib/game';
 import Decimal from 'break_infinity.js';
 import { logger } from 'src/lib/logger';
-import { getTimeBetween } from 'src/lib/utils';
+import { getTimeBetween, objectDepth } from 'src/lib/utils';
 import {
   Prestige,
   PrestigeBought,
@@ -218,7 +218,7 @@ export class UsersService {
     });
     user.prestigesBought.push({
       ...prestigeBought,
-      user: undefined as unknown as User,
+      user: objectDepth(user),
     });
 
     await saveOneData({
@@ -298,7 +298,7 @@ export class UsersService {
     });
     user.itemsBought.push({
       ...itemBought,
-      user: undefined as unknown as User,
+      user: objectDepth(user),
     });
     await saveOneData({
       key: 'users',

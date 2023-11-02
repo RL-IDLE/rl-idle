@@ -15,10 +15,19 @@ import clickSound from '@/assets/audio/buy-item.wav';
 import { useBalance } from '@/contexts/balance/BalanceUtils';
 import { useEffect, useState } from 'react';
 import CreditLogo from '@/assets/credits_icon.webp';
+import memoizeOne from 'memoize-one';
+import { IPrestigeBought } from '@/types/prestige';
+
+const memoizedPresitgesSorted = memoizeOne((prestiges: IPrestigeBought[]) => {
+  return prestiges.sort((a, b) =>
+    b.prestige.moneyMult.cmp(a.prestige.moneyMult),
+  );
+});
 
 export default function Shop() {
   const buyItem = useGameStore((state) => state.actions.buyItem);
   const itemsBought = useUserStore((state) => state.user?.itemsBought);
+  const prestigesBought = useUserStore((state) => state.user?.prestigesBought);
   const { balance } = useBalance();
   const items = useItemsStore((state) => state.items);
   const [audio, setAudio] = useState<HTMLAudioElement>();
@@ -83,6 +92,12 @@ export default function Shop() {
       : Decimal.fromString('0'),
   }));
 
+  const prestigesSorted = memoizedPresitgesSorted(prestigesBought ?? []);
+  const latestPrestigeMult: Decimal =
+    prestigesSorted.length > 0
+      ? prestigesSorted[0].prestige.moneyMult
+      : Decimal.fromString('1');
+
   useEffect(() => {
     const newAudio = new Audio(clickSound);
     setAudio(newAudio);
@@ -146,7 +161,7 @@ export default function Shop() {
                 {item.moneyPerSecond.eq(0)
                   ? `x${item.moneyPerClickMult.toString()} per click`
                   : `+${decimalToHumanReadable(
-                      item.moneyPerSecond,
+                      item.moneyPerSecond.mul(latestPrestigeMult),
                     )} per second`}
               </p>
 

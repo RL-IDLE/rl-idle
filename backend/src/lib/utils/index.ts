@@ -107,3 +107,29 @@ export const getTimeBetween = (
     precisionValue ? `${precisionValue} ${precisionUnit}` : ''
   }`;
 };
+
+/**
+ * Get the depth of an object
+ * @param object The object
+ * @param maxDepth The max depth
+ * @param curDepth The current depth
+ * @returns The object with the depth
+ * @example
+ * objectDepth({ a: { b: { c: 1 }, d: "foo" } }, 2) // { a: { d: "foo" } }
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const objectDepth = <T>(object: T, maxDepth = 1, curDepth = 1): T => {
+  if (typeof object !== 'object' || !object) return object as T;
+  const newObject = {} as T;
+  for (const key in object) {
+    if (!object.hasOwnProperty(key)) continue;
+    if (typeof object[key] === 'object') {
+      if (curDepth < maxDepth) {
+        newObject[key] = objectDepth(object[key], maxDepth, curDepth + 1);
+      } else continue;
+    } else {
+      newObject[key] = object[key];
+    }
+  }
+  return newObject;
+};
