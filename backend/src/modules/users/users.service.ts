@@ -280,6 +280,7 @@ export class UsersService {
       databaseRepository: this.itemRepository,
       key: 'items',
       id: giveItem.itemId,
+      options: { noSync: true },
     });
     if (!item) throw new HttpException('Item not found', 404);
     const itemBought: ItemBought = {
@@ -321,6 +322,7 @@ export class UsersService {
       databaseRepository: this.itemRepository,
       key: 'items',
       id: removeItem.itemId,
+      options: { noSync: true },
     });
     if (!item) throw new HttpException('Item not found', 404);
     user.itemsBought = user.itemsBought.filter(
