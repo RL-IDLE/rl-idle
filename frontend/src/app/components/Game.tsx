@@ -77,7 +77,7 @@ export default function Game() {
           navigationStore.setPage(indexToPage(swiper.activeIndex, true));
         }}
         onSwiper={setSwiper}
-        edgeSwipeThreshold={50}
+        edgeSwipeThreshold={100}
       >
         {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}
         {!pages[0].disabled && (
