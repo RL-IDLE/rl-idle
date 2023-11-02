@@ -78,7 +78,7 @@ export default function Home() {
           src={
             itemsTab.length > 0
               ? itemsTab[0].image
-              : env.VITE_API_URL + '/public/cars/animus-gp--blue.png'
+              : env.VITE_API_URL + '/public/cars/endo--blue.png'
           }
           alt="rocket battle car image"
         />
