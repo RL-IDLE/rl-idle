@@ -1,13 +1,26 @@
 import { IUser } from '@/types/user';
 import Decimal from 'break_infinity.js';
+import memoizeOne from 'memoize-one';
+
+const memoizedHighestPrestige = memoizeOne(
+  (prestiges: IUser['prestigesBought']) => {
+    return prestiges.reduce<Decimal>((acc, prestige) => {
+      const prestigeValue = prestige.prestige.moneyMult;
+      return prestigeValue.gt(acc) ? prestigeValue : acc;
+    }, Decimal.fromString('1'));
+  },
+);
 
 export const getUserBalance = (user: IUser | null) => {
   if (!user) return Decimal.fromString('0');
   const moneyFromClick = user.moneyFromClick;
-  const moneyFromInvestments = user.itemsBought.reduce<Decimal>((acc, item) => {
-    const timeDiff = Date.now() - new Date(item.createdAt).getTime();
-    return acc.plus(item.item.moneyPerSecond.times(timeDiff / 1000));
-  }, Decimal.fromString('0'));
+  const highestPrestige = memoizedHighestPrestige(user.prestigesBought);
+  const moneyFromInvestments = user.itemsBought
+    .reduce<Decimal>((acc, item) => {
+      const timeDiff = Date.now() - new Date(item.createdAt).getTime();
+      return acc.plus(item.item.moneyPerSecond.times(timeDiff / 1000));
+    }, Decimal.fromString('0'))
+    .times(highestPrestige);
   const total = moneyFromClick.plus(moneyFromInvestments);
   const moneyUsed = user.moneyUsed;
   const money = total.minus(moneyUsed);
@@ -15,13 +28,14 @@ export const getUserBalance = (user: IUser | null) => {
 };
 
 export const getMoneyFromInvestmentsPerSeconds = (
-  user: Pick<IUser, 'itemsBought'> | null,
+  user: Pick<IUser, 'itemsBought' | 'prestigesBought'> | null,
 ) => {
   if (!user) return Decimal.fromString('0');
   const moneyFromInvestments = user.itemsBought.reduce<Decimal>((acc, item) => {
     return acc.plus(item.item.moneyPerSecond);
   }, Decimal.fromString('0'));
-  return moneyFromInvestments;
+  const highestPrestige = memoizedHighestPrestige(user.prestigesBought);
+  return moneyFromInvestments.times(highestPrestige);
 };
 
 export const getPriceOfItem = (basePrice: Decimal, step: Decimal) =>
@@ -45,13 +59,6 @@ export const getUserMoneyPerClick = (
   user: Pick<IUser, 'moneyPerClick' | 'prestigesBought'> | null,
 ) => {
   const clickPower = new Decimal(user?.moneyPerClick);
-  const highestPrestige = user?.prestigesBought.reduce<Decimal>(
-    (acc, prestige) => {
-      const prestigeValue = prestige.prestige.moneyMult;
-      return prestigeValue.gt(acc) ? prestigeValue : acc;
-    },
-    Decimal.fromString('0'),
-  );
-  const prestigeMultiplier = highestPrestige?.neq('0') ? highestPrestige : '1';
-  return clickPower.times(prestigeMultiplier);
+  const highestPrestige = memoizedHighestPrestige(user?.prestigesBought ?? []);
+  return clickPower.times(highestPrestige);
 };
