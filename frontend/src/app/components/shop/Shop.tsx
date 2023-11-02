@@ -1,7 +1,11 @@
 import { useGameStore } from '@/contexts/game.store';
 import { useItemsStore } from '@/contexts/items.store';
 import { useUserStore } from '@/contexts/user.store';
-import { getPriceForClickItem, getPriceOfItem } from '@/lib/game';
+import {
+  getMoneyFromInvestmentsPerSeconds,
+  getPriceForClickItem,
+  getPriceOfItem,
+} from '@/lib/game';
 import { cn } from '@/lib/utils';
 import Decimal from 'break_infinity.js';
 import { logger } from '@/lib/logger';
@@ -14,14 +18,18 @@ import CreditLogo from '@/assets/credits_icon.webp';
 
 export default function Shop() {
   const buyItem = useGameStore((state) => state.actions.buyItem);
-  const user = useUserStore((state) => state.user);
-  const { balance } = useBalance();
+  const itemsBought = useUserStore((state) => state.user?.itemsBought);
   const items = useItemsStore((state) => state.items);
+  const { balance } = useBalance();
   const [audio] = useState(new Audio(clickSound));
+  const moneyPerSecond = getMoneyFromInvestmentsPerSeconds(
+    useUserStore((state) => state.user),
+  );
+
   const itemsLevels: {
     [id: string]: Decimal | undefined;
   } =
-    user?.itemsBought.reduce<{
+    itemsBought?.reduce<{
       [id: string]: Decimal;
     }>(
       (prev, cur) => {
@@ -29,6 +37,25 @@ export default function Shop() {
           prev[cur.item.id] = prev[cur.item.id].add(Decimal.fromString('1'));
         } else {
           prev[cur.item.id] = Decimal.fromString('1');
+        }
+        return prev;
+      },
+      {} as {
+        [id: string]: Decimal;
+      },
+    ) ?? {};
+
+  const itemEarnPerSecond: {
+    [id: string]: Decimal | undefined;
+  } =
+    itemsBought?.reduce<{
+      [id: string]: Decimal;
+    }>(
+      (prev, cur) => {
+        if (prev[cur.item.id] as Decimal | undefined) {
+          prev[cur.item.id] = prev[cur.item.id].add(cur.item.moneyPerSecond);
+        } else {
+          prev[cur.item.id] = cur.item.moneyPerSecond;
         }
         return prev;
       },
@@ -50,7 +77,10 @@ export default function Shop() {
             itemsLevels[item.id] || Decimal.fromString('0'),
           ),
     level: itemsLevels[item.id] || Decimal.fromString('0'),
-    // moneyPerSecond: (itemsLevels[item.id] * item.moneyPerSecond) || Decimal.fromString('0'),
+    ernPerSecond: itemEarnPerSecond[item.id] || Decimal.fromString('0'),
+    percentageInBalance: itemEarnPerSecond[item.id]
+      ? (itemEarnPerSecond[item.id] as Decimal).div(moneyPerSecond).times(100)
+      : Decimal.fromString('0'),
   }));
 
   const handleBuy = (id: string) => {
@@ -66,9 +96,9 @@ export default function Shop() {
           <li
             key={item.id}
             className={cn(
-              'flex flex-row gap-2 border p-2 cursor-pointer relative',
+              'flex flex-row gap-2 border p-2 cursor-pointer relative transition-all active:scale-[0.98]',
               {
-                'opacity-70': item.price.gt(balance),
+                'opacity-[.65]': item.price.gt(balance),
                 'pointer-events-none': item.price.gt(balance),
               },
             )}
@@ -80,30 +110,54 @@ export default function Shop() {
               handleBuy(item.id);
             }}
           >
-            <img src={item.image} alt={item.name} className="w-12 h-12" />
+            <img
+              src={item.image}
+              alt={item.name}
+              className="max-w-[6rem] h-full object-contain"
+            />
             <div className="flex flex-col gap-2">
+              {/* NAME */}
               <p className="text-white">{item.name}</p>
 
-              <p className="price text-white flex flex-row gap-1">
-                <img width="20" height="20" src={CreditLogo} alt="credit" />
+              {/* PRICE */}
+              <p className="price text-white flex flex-row gap-1 text-lg">
+                <img
+                  width="20"
+                  height="20"
+                  src={CreditLogo}
+                  alt="credit"
+                  className="object-contain"
+                />
                 {decimalToHumanReadable(item.price)}
               </p>
 
-              <p className="text-white">
+              {/* Money per Click */}
+              <p className="text-white text-xs">
                 {item.moneyPerSecond.eq(0)
                   ? `x${item.moneyPerClickMult.toString()} per click`
                   : `+${decimalToHumanReadable(
                       item.moneyPerSecond,
                     )} per second`}
               </p>
+
+              {/* LEVEL */}
               <p className="level text-white absolute top-1 right-1">
                 lvl {decimalToHumanReadable(item.level)}
               </p>
-              <p>{decimalToHumanReadable(item.moneyPerSecond)}</p>
+
+              {/* PERCENTAGE IN BALANCE */}
+              {item.percentageInBalance.gt(0) && (
+                <p className="text-white percentage absolute bottom-1 right-1">
+                  {item.percentageInBalance.toFixed(1).toString()} %
+                </p>
+              )}
             </div>
           </li>
         ))}
       </ul>
+      <p className="text-white text-end opacity-70 mr-4 text-sm">
+        % of total clicks per second
+      </p>
     </section>
   );
 }
