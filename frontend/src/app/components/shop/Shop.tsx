@@ -13,15 +13,15 @@ import { decimalToHumanReadable } from '@/lib/bignumber';
 import styles from './shop.module.scss';
 import clickSound from '@/assets/audio/buy-item.wav';
 import { useBalance } from '@/contexts/balance/BalanceUtils';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CreditLogo from '@/assets/credits_icon.webp';
 
 export default function Shop() {
   const buyItem = useGameStore((state) => state.actions.buyItem);
   const itemsBought = useUserStore((state) => state.user?.itemsBought);
-  const items = useItemsStore((state) => state.items);
   const { balance } = useBalance();
-  const [audio] = useState(new Audio(clickSound));
+  const items = useItemsStore((state) => state.items);
+  const [audio, setAudio] = useState<HTMLAudioElement>();
   const moneyPerSecond = getMoneyFromInvestmentsPerSeconds(
     useUserStore((state) => state.user),
   );
@@ -83,10 +83,20 @@ export default function Shop() {
       : Decimal.fromString('0'),
   }));
 
+  useEffect(() => {
+    const newAudio = new Audio(clickSound);
+    setAudio(newAudio);
+    return () => {
+      newAudio.remove();
+    };
+  }, []);
+
   const handleBuy = (id: string) => {
     buyItem(id);
-    audio.currentTime = 0;
-    audio.play();
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play();
+    }
   };
 
   return (

@@ -63,8 +63,7 @@ export class EventsService {
     user.moneyFromClick = newMoneyFromClick.toString();
     await saveOneData({ key: 'users', id: parsedData.userId, data: user });
     //? Add a click to the redis click counter
-    if (!clicks) await redis.setex(`clicks:${user.id}`, 30, 1);
-    else await redis.incr(`clicks:${user.id}`);
+    await redis.increx(`clicks:${user.id}`, 30, 1);
     return user;
   }
 

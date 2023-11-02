@@ -14,6 +14,8 @@ import { logger } from '@/lib/logger';
 import { useGameStore } from '@/contexts/game.store';
 import { IWsEvent } from '../../../../backend/src/types/api';
 import { livelinessProbeInterval } from '@/lib/constant';
+import { env } from '@/env';
+import { useItemsStore } from '@/contexts/items.store';
 
 const getPageIndex = (page: IPages) => {
   return pages.filter((p) => !p.disabled).findIndex((p) => p.name === page);
@@ -28,6 +30,7 @@ export default function Game() {
   const [swiper, setSwiper] = useState<Swiper>();
   const userId = useUserStore((state) => state.user?.id);
   const loadUser = useGameStore((state) => state.actions.loadUser);
+  const items = useItemsStore((state) => state.items);
 
   useEffect(() => {
     const handleError = (data: unknown) => {
@@ -60,10 +63,46 @@ export default function Game() {
     swiper.slideTo(getPageIndex(navigationStore.page));
   }, [navigationStore.page, swiper]);
 
+  //* Expose some functions to the window for debugging
   useEffect(() => {
+    if (env.VITE_ENV !== 'development') return;
     (window as unknown as { reset: unknown }).reset =
       useGameStore.getState().actions.reset;
+    (window as unknown as { give: unknown }).give =
+      useGameStore.getState().actions.give;
+    (window as unknown as { remove: unknown }).remove =
+      useGameStore.getState().actions.remove;
+    (window as unknown as { givePrestige: unknown }).givePrestige =
+      useGameStore.getState().actions.givePrestige;
+    (window as unknown as { removePrestige: unknown }).removePrestige =
+      useGameStore.getState().actions.removePrestige;
+    (window as unknown as { giveItem: unknown }).giveItem =
+      useGameStore.getState().actions.giveItem;
+    (window as unknown as { removeItem: unknown }).removeItem =
+      useGameStore.getState().actions.removeItem;
+
+    //? Wrap all in test object
+    (window as unknown as { test: unknown }).test = {
+      reset: useGameStore.getState().actions.reset,
+      give: useGameStore.getState().actions.give,
+      remove: useGameStore.getState().actions.remove,
+      givePrestige: useGameStore.getState().actions.givePrestige,
+      removePrestige: useGameStore.getState().actions.removePrestige,
+      giveItem: useGameStore.getState().actions.giveItem,
+      removeItem: useGameStore.getState().actions.removeItem,
+    };
   }, []);
+
+  //? Expose items object to simplify giveItem and removeItem
+  useEffect(() => {
+    if (env.VITE_ENV !== 'development') return;
+    (window as unknown as { items: unknown }).items = items.reduce<{
+      [name: string]: string;
+    }>((acc, item) => {
+      acc[item.name] = item.id;
+      return acc;
+    }, {});
+  }, [items]);
 
   const pageIndex = getPageIndex(navigationStore.page);
 
