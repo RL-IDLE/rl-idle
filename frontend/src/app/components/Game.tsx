@@ -14,6 +14,7 @@ import { logger } from '@/lib/logger';
 import { useGameStore } from '@/contexts/game.store';
 import { IWsEvent } from '../../../../backend/src/types/api';
 import { livelinessProbeInterval } from '@/lib/constant';
+import { env } from '@/env';
 
 const getPageIndex = (page: IPages) => {
   return pages.filter((p) => !p.disabled).findIndex((p) => p.name === page);
@@ -61,6 +62,7 @@ export default function Game() {
   }, [navigationStore.page, swiper]);
 
   useEffect(() => {
+    if (env.VITE_ENV !== 'development') return;
     (window as unknown as { reset: unknown }).reset =
       useGameStore.getState().actions.reset;
   }, []);
