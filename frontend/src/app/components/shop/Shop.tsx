@@ -9,19 +9,20 @@ import { decimalToHumanReadable } from '@/lib/bignumber';
 import styles from './shop.module.scss';
 import clickSound from '@/assets/audio/buy-item.wav';
 import { useBalance } from '@/contexts/balance/BalanceUtils';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CreditLogo from '@/assets/credits_icon.webp';
 
 export default function Shop() {
   const buyItem = useGameStore((state) => state.actions.buyItem);
-  const user = useUserStore((state) => state.user);
+  const itemsBought = useUserStore((state) => state.user?.itemsBought);
   const { balance } = useBalance();
   const items = useItemsStore((state) => state.items);
-  const [audio] = useState(new Audio(clickSound));
+  const [audio, setAudio] = useState<HTMLAudioElement>();
+
   const itemsLevels: {
     [id: string]: Decimal | undefined;
   } =
-    user?.itemsBought.reduce<{
+    itemsBought?.reduce<{
       [id: string]: Decimal;
     }>(
       (prev, cur) => {
@@ -53,10 +54,20 @@ export default function Shop() {
     // moneyPerSecond: (itemsLevels[item.id] * item.moneyPerSecond) || Decimal.fromString('0'),
   }));
 
+  useEffect(() => {
+    const newAudio = new Audio(clickSound);
+    setAudio(newAudio);
+    return () => {
+      newAudio.remove();
+    };
+  }, []);
+
   const handleBuy = (id: string) => {
     buyItem(id);
-    audio.currentTime = 0;
-    audio.play();
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play();
+    }
   };
 
   return (

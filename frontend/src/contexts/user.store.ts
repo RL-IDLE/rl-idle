@@ -18,6 +18,7 @@ import {
 
 interface UserState {
   user: IUser | null;
+  lastClick: Date | null;
   click: () => void;
   buyItem: (id: string) => void;
   buyPrestige: (id: string) => void;
@@ -30,8 +31,15 @@ export const useUserStore = create<UserState>()(
     persist(
       immer((set, get) => ({
         user: null,
+        lastClick: null,
         click() {
+          //? If lastClick is too recent (less than 0.1s), return
+          const lastClick = get().lastClick;
+          const timeDiff = lastClick ? Date.now() - lastClick.getTime() : null;
+          if (timeDiff !== null && timeDiff < 100) return;
+          //? Update lastClick
           set((state) => {
+            state.lastClick = new Date();
             const user = state.user;
             if (!user) return;
             logger.debug('click');

@@ -39,7 +39,9 @@ export const getPriceForClickItem = (basePrice: Decimal, step: Decimal) => {
     .round();
 };
 
-export const getUserMoneyPerClick = (user: IUser | null) => {
+export const getUserMoneyPerClick = (
+  user: Pick<IUser, 'moneyPerClick' | 'prestigesBought'> | null,
+) => {
   const clickPower = new Decimal(user?.moneyPerClick);
   const highestPrestige = user?.prestigesBought.reduce<Decimal>(
     (acc, prestige) => {
