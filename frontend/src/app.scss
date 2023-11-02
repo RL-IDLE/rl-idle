@@ -4,99 +4,130 @@
   font-family: 'Jost';
   font-style: hairline;
   font-weight: 100;
-  src: url(./fonts/Jost-100-Hairline.ttf) format('truetype'); /* IE9 Compat Modes */
+  src: url('$fonts/Jost-100-Hairline.ttf') format('truetype');
+  /* IE9 Compat Modes */
 }
+
 @font-face {
   font-family: 'Jost';
   font-style: light;
   font-weight: 500;
-  src: url(./fonts/Jost-300-Light.ttf) format('truetype'); /* IE9 Compat Modes */
+  src: url('$fonts/Jost-300-Light.ttf') format('truetype');
+  /* IE9 Compat Modes */
 }
+
 @font-face {
   font-family: 'Jost';
   font-style: "book";
   font-weight: 500;
-  src: url(./fonts/Jost-400-Book.ttf) format('truetype'); /* IE9 Compat Modes */
+  src: url('$fonts/Jost-400-Book.ttf') format('truetype');
+  /* IE9 Compat Modes */
 }
+
 @font-face {
   font-family: 'Jost';
   font-style: medium;
   font-weight: 500;
-  src: url(./fonts/Jost-500-Medium.ttf) format('truetype'); /* IE9 Compat Modes */
+  src: url('$fonts/Jost-500-Medium.ttf') format('truetype');
+  /* IE9 Compat Modes */
 }
+
 @font-face {
   font-family: 'Jost';
   font-style: "semibold";
   font-weight: 600;
-  src: url(./fonts/Jost-600-Semi.ttf) format('truetype'); /* IE9 Compat Modes */
+  src: url('$fonts/Jost-600-Semi.ttf') format('truetype');
+  /* IE9 Compat Modes */
 }
+
 @font-face {
   font-family: 'Jost';
   font-style: bold;
   font-weight: 700;
-  src: url(./fonts/Jost-700-Bold.ttf) format('truetype'); /* IE9 Compat Modes */
+  src: url('$fonts/Jost-700-Bold.ttf') format('truetype');
+  /* IE9 Compat Modes */
 }
-@font-face {
-  font-family: 'Jost';
-  font-style: "extra-bold";
-  font-weight: 800;
-  src: url(./fonts/Jost-800-Extra.ttf) format('truetype'); /* IE9 Compat Modes */
-}
+
+// @font-face {
+//   font-family: 'Jost';
+//   font-style: "extra-bold";
+//   font-weight: 800;
+//   src: url('$fonts/Jost-800-Extra.ttf') format('truetype');
+//   /* IE9 Compat Modes */
+// }
+
 @font-face {
   font-family: 'Jost';
   font-style: black;
   font-weight: 900;
-  src: url(./fonts/Jost-900-Black.ttf) format('truetype'); /* IE9 Compat Modes */
+  src: url('$fonts/Jost-900-Black.ttf') format('truetype');
+  /* IE9 Compat Modes */
 }
+
 @font-face {
   font-family: 'Jost';
   font-style: "hairline-italic";
   font-weight: 100;
-  src: url(./fonts/Jost-100-HairlineItalic.ttf) format('truetype'); /* IE9 Compat Modes */
+  src: url('$fonts/Jost-100-HairlineItalic.ttf') format('truetype');
+  /* IE9 Compat Modes */
 }
+
 @font-face {
   font-family: 'Jost';
   font-style: "light-italic";
   font-weight: 500;
-  src: url(./fonts/Jost-300-LightItalic.ttf) format('truetype'); /* IE9 Compat Modes */
+  src: url('$fonts/Jost-300-LightItalic.ttf') format('truetype');
+  /* IE9 Compat Modes */
 }
+
 @font-face {
   font-family: 'Jost';
   font-style: "book-italic";
   font-weight: 500;
-  src: url(./fonts/Jost-400-BookItalic.ttf) format('truetype'); /* IE9 Compat Modes */
+  src: url('$fonts/Jost-400-BookItalic.ttf') format('truetype');
+  /* IE9 Compat Modes */
 }
+
 @font-face {
   font-family: 'Jost';
   font-style: "medium-italic";
   font-weight: 500;
-  src: url(./fonts/Jost-500-MediumItalic.ttf) format('truetype'); /* IE9 Compat Modes */
+  src: url('$fonts/Jost-500-MediumItalic.ttf') format('truetype');
+  /* IE9 Compat Modes */
 }
+
 @font-face {
   font-family: 'Jost';
   font-style: "semibold-italic";
   font-weight: 600;
-  src: url(./fonts/Jost-600-SemiItalic.ttf) format('truetype'); /* IE9 Compat Modes */
+  src: url('$fonts/Jost-600-SemiItalic.ttf') format('truetype');
+  /* IE9 Compat Modes */
 }
+
 @font-face {
   font-family: 'Jost';
   font-style: "bold-italic";
   font-weight: 700;
-  src: url(./fonts/Jost-700-BoldItalic.ttf) format('truetype'); /* IE9 Compat Modes */
+  src: url('$fonts/Jost-700-BoldItalic.ttf') format('truetype');
+  /* IE9 Compat Modes */
 }
-@font-face {
-  font-family: 'Jost';
-  font-style: "extra-bold-italic";
-  font-weight: 800;
-  src: url(./fonts/Jost-800-ExtraItalic.ttf) format('truetype'); /* IE9 Compat Modes */
-}
+
+// @font-face {
+//   font-family: 'Jost';
+//   font-style: "extra-bold-italic";
+//   font-weight: 800;
+//   src: url('$fonts/Jost-800-ExtraItalic.ttf') format('truetype');
+//   /* IE9 Compat Modes */
+// }
+
 @font-face {
   font-family: 'Jost';
   font-style: "black-italic";
   font-weight: 900;
-  src: url(./fonts/Jost-900-BlackItalic.ttf) format('truetype'); /* IE9 Compat Modes */
+  src: url('$fonts/Jost-900-BlackItalic.ttf') format('truetype');
+  /* IE9 Compat Modes */
 }
 
-*{
+body {
   font-family: 'Jost', sans-serif;
 }

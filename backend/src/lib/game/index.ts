@@ -1,10 +1,11 @@
 import Decimal from 'break_infinity.js';
 import { IUser } from 'src/types/user';
 
-export const getUserBalance = (user: IUser) => {
+export const getUserBalance = (user: IUser, date?: Date) => {
+  const baseDate = date?.getTime() || Date.now();
   const moneyFromClick = Decimal.fromString(user.moneyFromClick);
   const moneyFromInvestments = user.itemsBought.reduce<Decimal>((acc, item) => {
-    const timeDiff = Date.now() - new Date(item.createdAt).getTime();
+    const timeDiff = baseDate - new Date(item.createdAt).getTime();
     return acc.plus(
       Decimal.fromString(item.item.moneyPerSecond).times(timeDiff / 1000),
     );
@@ -30,4 +31,17 @@ export const getPriceForClickItem = (basePrice: Decimal, step: Decimal) => {
       step.times('3.5').eq('0') ? Decimal.fromString('1') : step.times('3.5'),
     )
     .round();
+};
+
+export const getUserMoneyPerClick = (user: IUser) => {
+  const clickPower = new Decimal(user.moneyPerClick);
+  const highestPrestige = user.prestigesBought.reduce<Decimal>(
+    (acc, prestige) => {
+      const prestigeValue = Decimal.fromString(prestige.prestige.moneyMult);
+      return prestigeValue.gt(acc) ? prestigeValue : acc;
+    },
+    Decimal.fromString('0'),
+  );
+  const prestigeMultiplier = highestPrestige.eq('0') ? '1' : highestPrestige;
+  return clickPower.times(prestigeMultiplier);
 };

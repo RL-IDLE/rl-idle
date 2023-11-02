@@ -39,10 +39,19 @@ export class ItemBought extends Timestamp implements IItemBought {
 
   @ManyToOne(() => Item, (item) => item.id, {
     eager: true,
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'RESTRICT',
+    orphanedRowAction: 'delete',
   })
   @JoinColumn()
   item: Item;
 
-  @ManyToOne(() => User, (user) => user.itemsBought)
+  @ManyToOne(() => User, (user) => user.itemsBought, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'RESTRICT',
+    orphanedRowAction: 'delete',
+  })
   user: User;
 }

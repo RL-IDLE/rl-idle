@@ -6,6 +6,7 @@ import { UsersModule } from './modules/users/users.module';
 import configurations from './config';
 import { CronsModule } from './modules/crons/crons.module';
 import { ItemsModule } from './modules/items/items.module';
+import { PrestigesModule } from './modules/prestiges/prestiges.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ItemsModule } from './modules/items/items.module';
     CronsModule,
     UsersModule,
     ItemsModule,
+    PrestigesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,10 +1,11 @@
 import Decimal from 'break_infinity.js';
 
 const floatRegex = /(\.\d{3})\d+/;
+const floatRegex1 = /(\.\d{1})\d+/;
 
 const tabsDecimal = [
   { value: 0, label: '' },
-  { value: 3, label: 'k' },
+  { value: 3, label: 'K' },
   { value: 6, label: 'M' },
   { value: 9, label: 'B' },
   { value: 12, label: 'T' },
@@ -30,11 +31,17 @@ function intToBase26String(_num: Decimal) {
   return num.mantissa.toString().replace(floatRegex, '$1') + ' ' + str;
 }
 
-function decimalToHumanReadable(decimal: Decimal): string {
+function decimalToHumanReadable(decimal: Decimal, round?: boolean): string {
+  if (decimal.exponent < 3) {
+    const mantissa = decimal.mantissa * 10 ** decimal.exponent;
+    return (round ? Math.round(mantissa) : mantissa)
+      .toString()
+      .replace(floatRegex1, '$1');
+  }
+
   const entier = Math.floor(decimal.exponent / 3);
   const index = entier + 1;
 
-  //si l'index est 0, on ne fait rien
   if (index === 0) {
     return decimal.mantissa.toString();
   } else if (index > tabsDecimal.length) {

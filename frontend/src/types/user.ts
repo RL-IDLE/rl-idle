@@ -1,5 +1,6 @@
 import Decimal from 'break_infinity.js';
 import { IItemBought } from './item';
+import { IPrestigeBought } from './prestige';
 
 export type IUser = {
   id: string;
@@ -7,4 +8,5 @@ export type IUser = {
   moneyPerClick: Decimal;
   moneyUsed: Decimal;
   itemsBought: IItemBought[];
+  prestigesBought: IPrestigeBought[];
 };
