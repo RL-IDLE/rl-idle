@@ -118,11 +118,25 @@ export default function Shop() {
 
   return (
     <div className="flex flex-col mt-32 pb-6 h-full">
-      <div className="flex mt-30 justify-center">
-        <button className="text-white p-5" onClick={() => setIsCredit(true)}>
+      <div
+        className={cn(
+          'bg-gradient-to-t from-[#111429] from-0% to-[#1f3358] to-100% justify-evenly flex touch-pan-y w-10/12 self-center mb-2 rounded-xl p-1',
+        )}
+      >
+        <button
+          className={cn('text-white p-3 w-full rounded-xl', {
+            'bg-[#1f3358]': isCredit,
+          })}
+          onClick={() => setIsCredit(true)}
+        >
           Credits
         </button>
-        <button className="text-white p-5" onClick={() => setIsCredit(false)}>
+        <button
+          className={cn('text-white p-3 w-full rounded-xl', {
+            'bg-[#1f3358]': !isCredit,
+          })}
+          onClick={() => setIsCredit(false)}
+        >
           Emeralds
         </button>
       </div>
