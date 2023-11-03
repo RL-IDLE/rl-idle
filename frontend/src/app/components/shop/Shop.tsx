@@ -17,6 +17,7 @@ import { useEffect, useState } from 'react';
 import CreditLogo from '@/assets/credits_icon.webp';
 import memoizeOne from 'memoize-one';
 import { IPrestigeBought } from '@/types/prestige';
+import ClickImage from '@/assets/Cursor.svg';
 
 const memoizedPresitgesSorted = memoizeOne((prestiges: IPrestigeBought[]) => {
   return prestiges.sort((a, b) =>
@@ -136,9 +137,11 @@ export default function Shop() {
             }}
           >
             <img
-              src={item.image}
+              src={item.name !== 'Click' ? item.image : ClickImage}
               alt={item.name}
-              className="max-w-[6rem] h-full object-contain"
+              className={`max-w-[6rem] h-full object-contain ${
+                item.name === 'Click' ? styles.clickImg : ''
+              }`}
             />
             <div className="flex flex-col gap-2">
               {/* NAME */}
