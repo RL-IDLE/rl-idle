@@ -1,15 +1,28 @@
 import Decimal from 'break_infinity.js';
 import { IUser } from 'src/types/user';
+import memoizeOne from 'memoize-one';
+
+const memoizedHighestPrestige = memoizeOne(
+  (prestiges: IUser['prestigesBought']) => {
+    return prestiges.reduce<Decimal>((acc, prestige) => {
+      const prestigeValue = Decimal.fromString(prestige.prestige.moneyMult);
+      return prestigeValue.gt(acc) ? prestigeValue : acc;
+    }, Decimal.fromString('1'));
+  },
+);
 
 export const getUserBalance = (user: IUser, date?: Date) => {
   const baseDate = date?.getTime() || Date.now();
   const moneyFromClick = Decimal.fromString(user.moneyFromClick);
-  const moneyFromInvestments = user.itemsBought.reduce<Decimal>((acc, item) => {
-    const timeDiff = baseDate - new Date(item.createdAt).getTime();
-    return acc.plus(
-      Decimal.fromString(item.item.moneyPerSecond).times(timeDiff / 1000),
-    );
-  }, Decimal.fromString('0'));
+  const highestPrestige = memoizedHighestPrestige(user.prestigesBought);
+  const moneyFromInvestments = user.itemsBought
+    .reduce<Decimal>((acc, item) => {
+      const timeDiff = baseDate - new Date(item.createdAt).getTime();
+      return acc.plus(
+        Decimal.fromString(item.item.moneyPerSecond).times(timeDiff / 1000),
+      );
+    }, Decimal.fromString('0'))
+    .times(highestPrestige);
   const total = moneyFromClick.plus(moneyFromInvestments);
   const moneyUsed = Decimal.fromString(user.moneyUsed);
   const money = total.minus(moneyUsed);
@@ -35,13 +48,6 @@ export const getPriceForClickItem = (basePrice: Decimal, step: Decimal) => {
 
 export const getUserMoneyPerClick = (user: IUser) => {
   const clickPower = new Decimal(user.moneyPerClick);
-  const highestPrestige = user.prestigesBought.reduce<Decimal>(
-    (acc, prestige) => {
-      const prestigeValue = Decimal.fromString(prestige.prestige.moneyMult);
-      return prestigeValue.gt(acc) ? prestigeValue : acc;
-    },
-    Decimal.fromString('0'),
-  );
-  const prestigeMultiplier = highestPrestige.eq('0') ? '1' : highestPrestige;
-  return clickPower.times(prestigeMultiplier);
+  const highestPrestige = memoizedHighestPrestige(user.prestigesBought);
+  return clickPower.times(highestPrestige);
 };
