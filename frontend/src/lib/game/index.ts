@@ -27,6 +27,13 @@ export const getUserBalance = (user: IUser | null) => {
   return money.round();
 };
 
+export const getHighestPrestigeMult = (
+  user: Pick<IUser, 'prestigesBought'> | null,
+) => {
+  if (!user) return Decimal.fromString('1');
+  return memoizedHighestPrestige(user.prestigesBought);
+};
+
 export const getMoneyFromInvestmentsPerSeconds = (
   user: Pick<IUser, 'itemsBought' | 'prestigesBought'> | null,
 ) => {
