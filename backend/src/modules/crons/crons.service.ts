@@ -26,7 +26,7 @@ export class CronsService implements OnModuleInit {
     this.logger.debug('Crons module initialized');
     this.logger.debug(
       `Running syncDB every ${
-        env.ENV !== 'development' ? '10 minutes' : '30 seconds'
+        env.ENV !== 'development' ? '2 minutes' : '30 seconds'
       }`,
     );
   }
@@ -34,7 +34,7 @@ export class CronsService implements OnModuleInit {
   /**
    * @description Sync database with redis
    */
-  @Cron(env.ENV !== 'development' ? '0 */10 * * * *' : '*/5 * * * * *')
+  @Cron(env.ENV !== 'development' ? '0 */2 * * * *' : '*/5 * * * * *')
   async syncDB() {
     //? Lock the database
     await redis.setex(`lock:${redisNamespace}`, 10, 'true'); // 10 seconds max
