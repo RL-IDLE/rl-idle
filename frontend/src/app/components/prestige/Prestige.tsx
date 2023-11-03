@@ -90,7 +90,7 @@ export default function Prestige() {
         <div className="flex items-center content-center justify-center">
           {currentPrestige ? (
             <p className="text-4xl">
-              {decimalToHumanReadable(currentPrestige.prestige.moneyMult)}
+              {`x${decimalToHumanReadable(currentPrestige.prestige.moneyMult)}`}
             </p>
           ) : (
             <p className="text-4xl">x1</p>
