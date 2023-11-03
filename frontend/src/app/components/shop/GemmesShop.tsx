@@ -11,13 +11,13 @@ export default function GemmesShop() {
     },
     {
       id: 2,
-      name: 'Handle of emeralds',
+      name: 'Handful of emeralds',
       quantity: 500,
       price: 4.99,
     },
     {
       id: 3,
-      name: 'Heap of emeralds',
+      name: 'Pile of emeralds',
       quantity: 1100,
       price: 9.99,
     },
