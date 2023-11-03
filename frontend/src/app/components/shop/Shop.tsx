@@ -19,11 +19,16 @@ import EmeraldsShop from './EmeraldsShop';
 import memoizeOne from 'memoize-one';
 import { IPrestigeBought } from '@/types/prestige';
 import { getHighestPrestigeMult } from '../../../lib/game';
+import { IItemBought } from '@/types/item';
 
 const memoizedPresitgesSorted = memoizeOne((prestiges: IPrestigeBought[]) => {
   return prestiges.sort((a, b) =>
     b.prestige.moneyMult.cmp(a.prestige.moneyMult),
   );
+});
+
+const memoizedItemsBoughtSorted = memoizeOne((items: IItemBought[]) => {
+  return items.sort((a, b) => b.item.moneyPerSecond.cmp(a.item.moneyPerSecond));
 });
 
 export default function Shop() {
@@ -103,6 +108,23 @@ export default function Shop() {
       : Decimal.fromString('0'),
   }));
 
+  const itemsBoughtSorted = memoizedItemsBoughtSorted(
+    itemsBought ? [...itemsBought] : [],
+  );
+  const latestItemBought =
+    itemsBoughtSorted.length > 0 ? itemsBoughtSorted[0] : null;
+  const latestItemBoughtIndex = itemsWithPrice.findIndex(
+    (item) => item.id === latestItemBought?.item.id,
+  );
+
+  //? All items + 3 items that are not bought
+  const itemsDisplayList = itemsWithPrice.filter((_, index) => {
+    //? Item index <= latestItemBoughtIndex + 3
+    if (index < 3 || index <= latestItemBoughtIndex + 2) {
+      return true;
+    }
+  });
+
   const prestigesSorted = memoizedPresitgesSorted(
     prestigesBought ? [...prestigesBought] : [],
   );
@@ -159,7 +181,7 @@ export default function Shop() {
         {isCredit ? (
           <>
             <ul className="flex flex-col gap-2 overflow-auto touch-pan-y items-center rounded-xl pt-3 pb-3 px-4">
-              {itemsWithPrice.map((item) => (
+              {itemsDisplayList.map((item) => (
                 <li
                   key={item.id}
                   className={cn(
