@@ -18,6 +18,7 @@ import CreditLogo from '@/assets/credits_icon.webp';
 import GemmesShop from './GemmesShop';
 import memoizeOne from 'memoize-one';
 import { IPrestigeBought } from '@/types/prestige';
+import { getHighestPrestigeMult } from '../../../lib/game';
 
 const memoizedPresitgesSorted = memoizeOne((prestiges: IPrestigeBought[]) => {
   return prestiges.sort((a, b) =>
@@ -33,9 +34,10 @@ export default function Shop() {
   const [isCredit, setIsCredit] = useState(true);
   const items = useItemsStore((state) => state.items);
   const [audio, setAudio] = useState<HTMLAudioElement>();
-  const moneyPerSecond = getMoneyFromInvestmentsPerSeconds(
-    useUserStore((state) => state.user),
-  );
+  const moneyPerSecond = getMoneyFromInvestmentsPerSeconds({
+    itemsBought: itemsBought ?? [],
+    prestigesBought: prestigesBought ?? [],
+  });
 
   const itemsLevels: {
     [id: string]: Decimal | undefined;
@@ -90,11 +92,20 @@ export default function Shop() {
     level: itemsLevels[item.id] || Decimal.fromString('0'),
     ernPerSecond: itemEarnPerSecond[item.id] || Decimal.fromString('0'),
     percentageInBalance: itemEarnPerSecond[item.id]
-      ? (itemEarnPerSecond[item.id] as Decimal).div(moneyPerSecond).times(100)
+      ? (itemEarnPerSecond[item.id] as Decimal)
+          .times(
+            getHighestPrestigeMult({
+              prestigesBought: prestigesBought ?? [],
+            }),
+          )
+          .div(moneyPerSecond)
+          .times(100)
       : Decimal.fromString('0'),
   }));
 
-  const prestigesSorted = memoizedPresitgesSorted(prestigesBought ?? []);
+  const prestigesSorted = memoizedPresitgesSorted(
+    prestigesBought ? [...prestigesBought] : [],
+  );
   const latestPrestigeMult: Decimal =
     prestigesSorted.length > 0
       ? prestigesSorted[0].prestige.moneyMult
