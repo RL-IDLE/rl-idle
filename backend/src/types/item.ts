@@ -13,7 +13,6 @@ export type IItem = z.infer<typeof ItemSchema>;
 export const ItemBoughtSchema = z.object({
   id: z.string(),
   item: ItemSchema,
-  timesBought: z.string(),
   // user: UserSchema,
   createdAt: z.date(),
 });

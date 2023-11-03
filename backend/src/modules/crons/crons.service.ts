@@ -34,12 +34,18 @@ export class CronsService implements OnModuleInit {
   /**
    * @description Sync database with redis
    */
-  @Cron(env.ENV !== 'development' ? '0 */10 * * * *' : '*/30 * * * * *')
+  @Cron(env.ENV !== 'development' ? '0 */10 * * * *' : '*/5 * * * * *')
   async syncDB() {
+    //? Lock the database
+    await redis.setex(`lock:${redisNamespace}`, 10, 'true'); // 10 seconds max
     //? We store all the redis value under the prefix 'async' (async:users, async:posts, etc.) in database
     //? Then delete them
     const keys = await redis.keys(`${redisNamespace}:*`);
-    if (!keys.length) return;
+    if (!keys.length) {
+      //? Delete lock
+      await redis.del(`lock:${redisNamespace}`);
+      return;
+    }
     const data = await redis.mget(keys);
     const parsedData = (data.filter((d) => d) as string[]).map((d) =>
       JSON.parse(d),
@@ -52,17 +58,18 @@ export class CronsService implements OnModuleInit {
       const data = parsedData[i];
       if (namespace === 'users') {
         await this.usersRepository.save(data);
-        await redis.del(key);
       } else if (namespace === 'itemsBought') {
         await this.itemsBoughtRepository.save(data);
-        await redis.del(key);
       } else if (namespace === 'prestigesBought') {
         await this.prestigesBoughtRepository.save(data);
-        await redis.del(key);
       } else {
         this.logger.error(`Unknown namespace ${namespace}`);
       }
       i++;
     }
+    //? Delete keys
+    await redis.del(keys);
+    //? Delete lock
+    await redis.del(`lock:${redisNamespace}`);
   }
 }

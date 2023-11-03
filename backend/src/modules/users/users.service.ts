@@ -295,6 +295,15 @@ export class UsersService {
       options: { noSync: true },
     });
     if (!item) throw new HttpException('Item not found', 400);
+    //? Is click boost
+    if (item.name === 'Click') {
+      //? Update user moneyPerClick
+      const userMoneyPerClick = Decimal.fromString(user.moneyPerClick);
+      const newUserMoneyPerClick = userMoneyPerClick.times(
+        Decimal.fromString(item.moneyPerClickMult),
+      );
+      user.moneyPerClick = newUserMoneyPerClick.toString();
+    }
     const itemBought: ItemBought = {
       id: randomUUID(),
       item: item,

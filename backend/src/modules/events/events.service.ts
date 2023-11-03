@@ -25,7 +25,7 @@ import {
   PrestigeBought,
 } from '../prestiges/entities/prestige.entity';
 import { logger } from 'src/lib/logger';
-import { objectDepth, sleep } from 'src/lib/utils';
+import { objectDepth } from 'src/lib/utils';
 import { maxDiffTimeUserSpec } from 'src/lib/constant';
 
 @Injectable()
@@ -75,7 +75,6 @@ export class EventsService {
   }
 
   async buyItem(data: IWsEvent['buyItem']['body'], server: Server) {
-    await sleep(1000);
     const parsedData = await buyItemSchema.parseAsync(data);
     const user = await getOneData({
       databaseRepository: this.usersRepository,
@@ -121,7 +120,8 @@ export class EventsService {
       return;
     }
 
-    //* Is click boost
+    //* Mutate
+    //? Is click boost
     if (item.name === 'Click') {
       //? Update user moneyPerClick
       const userMoneyPerClick = Decimal.fromString(user.moneyPerClick);
@@ -130,8 +130,6 @@ export class EventsService {
       );
       user.moneyPerClick = newUserMoneyPerClick.toString();
     }
-
-    //* Mutate
     const now = new Date();
     let createdAt = new Date(data.createdAt);
     //? If the difference between now and the user spec is too big, we use now
@@ -163,7 +161,11 @@ export class EventsService {
       ...itemBought,
       user: { id: user.id } as unknown as User,
     });
-    await saveOneData({ key: 'users', id: parsedData.userId, data: user });
+    await saveOneData({
+      key: 'users',
+      id: parsedData.userId,
+      data: user,
+    });
     return user;
   }
 

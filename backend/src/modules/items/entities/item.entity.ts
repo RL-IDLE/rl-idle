@@ -39,9 +39,6 @@ export class ItemBought extends Timestamp implements IItemBought {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  timesBought: string;
-
   @ManyToOne(() => Item, (item) => item.id, {
     eager: true,
     cascade: true,

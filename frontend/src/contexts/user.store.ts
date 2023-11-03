@@ -83,6 +83,7 @@ export const useUserStore = create<UserState>()(
               return;
             }
             logger.debug('buyItem');
+            //* Mutate
             if (item.name === 'Click') {
               //? Update user moneyPerClick
               const userMoneyPerClick = user.moneyPerClick;
@@ -91,7 +92,6 @@ export const useUserStore = create<UserState>()(
               );
               user.moneyPerClick = newUserMoneyPerClick;
             }
-            //* Mutate
             const itemsLevels: {
               [id: string]: Decimal | undefined;
             } = user.itemsBought.reduce<{
@@ -398,6 +398,7 @@ export const useUserStore = create<UserState>()(
           set({
             user: {
               ...oldUser,
+              moneyPerClick: Decimal.fromString(user.moneyPerClick),
               itemsBought: user.itemsBought.map((itemBought) => ({
                 id: itemBought.id,
                 item: {
@@ -465,7 +466,7 @@ export const useUserStore = create<UserState>()(
       })),
       {
         name: 'user',
-        version: 5,
+        version: 6,
         merge: (_, persisted) => {
           return {
             ...persisted,
