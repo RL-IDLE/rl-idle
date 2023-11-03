@@ -167,14 +167,14 @@ export default function Shop() {
                     />
                     {decimalToHumanReadable(item.price)}
                   </p>
-              {/* Money per Click */}
-              <p className="text-white text-xs">
-                {item.moneyPerSecond.eq(0)
-                  ? `x${item.moneyPerClickMult.toString()} per click`
-                  : `+${decimalToHumanReadable(
-                      item.moneyPerSecond.mul(latestPrestigeMult),
-                    )} per second`}
-              </p>
+                  {/* Money per Click */}
+                  <p className="text-white text-xs">
+                    {item.moneyPerSecond.eq(0)
+                      ? `x${item.moneyPerClickMult.toString()} per click`
+                      : `+${decimalToHumanReadable(
+                          item.moneyPerSecond.mul(latestPrestigeMult),
+                        )} per second`}
+                  </p>
 
                   {/* LEVEL */}
                   <p className="level text-white absolute top-1 right-1">
