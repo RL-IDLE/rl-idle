@@ -51,7 +51,7 @@ export class UsersService {
       key: 'users',
       id: 'id' in loadUser ? loadUser.id : (userId as string),
     });
-    if (!dbUser) throw new HttpException('User not found', 404);
+    if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
 
     //* Max passive income
@@ -106,7 +106,7 @@ export class UsersService {
       key: 'users',
       id: resetUser.id,
     });
-    if (!dbUser) throw new HttpException('User not found', 404);
+    if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
     user.moneyFromClick = '0';
     user.moneyPerClick = '1';
@@ -129,7 +129,7 @@ export class UsersService {
       key: 'users',
       id: give.id,
     });
-    if (!dbUser) throw new HttpException('User not found', 404);
+    if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
     user.moneyFromClick = Decimal.fromString(user.moneyFromClick)
       .add(give.amount)
@@ -150,7 +150,7 @@ export class UsersService {
       key: 'users',
       id: remove.id,
     });
-    if (!dbUser) throw new HttpException('User not found', 404);
+    if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
     user.moneyUsed = Decimal.fromString(user.moneyUsed)
       .sub(remove.amount)
@@ -171,7 +171,7 @@ export class UsersService {
       key: 'users',
       id: givePrestige.id,
     });
-    if (!dbUser) throw new HttpException('User not found', 404);
+    if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
     //* Next prestige
     const prestiges = await this.prestigeRepository.find();
@@ -201,7 +201,7 @@ export class UsersService {
             )
           : true,
       );
-    if (!nextPrestige) throw new HttpException('No next prestige found', 404);
+    if (!nextPrestige) throw new HttpException('No next prestige found', 400);
     //* Give prestige
     const prestigeBought: PrestigeBought = {
       id: randomUUID(),
@@ -237,7 +237,7 @@ export class UsersService {
       key: 'users',
       id: removePrestige.id,
     });
-    if (!dbUser) throw new HttpException('User not found', 404);
+    if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
     //* Find the highest prestige
     const highestPrestige = user.prestigesBought.reduce<Prestige | null>(
@@ -253,7 +253,7 @@ export class UsersService {
       },
       null,
     );
-    if (!highestPrestige) throw new HttpException('No prestige found', 404);
+    if (!highestPrestige) throw new HttpException('No prestige found', 400);
     //* Remove prestige
     user.prestigesBought = user.prestigesBought.filter(
       (prestigeBought) => prestigeBought.prestige.id !== highestPrestige.id,
@@ -274,7 +274,7 @@ export class UsersService {
       key: 'users',
       id: giveItem.id,
     });
-    if (!dbUser) throw new HttpException('User not found', 404);
+    if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
     const item = await getOneData({
       databaseRepository: this.itemRepository,
@@ -282,7 +282,7 @@ export class UsersService {
       id: giveItem.itemId,
       options: { noSync: true },
     });
-    if (!item) throw new HttpException('Item not found', 404);
+    if (!item) throw new HttpException('Item not found', 400);
     const itemBought: ItemBought = {
       id: randomUUID(),
       item: item,
@@ -316,7 +316,7 @@ export class UsersService {
       key: 'users',
       id: removeItem.id,
     });
-    if (!dbUser) throw new HttpException('User not found', 404);
+    if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
     const item = await getOneData({
       databaseRepository: this.itemRepository,
@@ -324,7 +324,7 @@ export class UsersService {
       id: removeItem.itemId,
       options: { noSync: true },
     });
-    if (!item) throw new HttpException('Item not found', 404);
+    if (!item) throw new HttpException('Item not found', 400);
     user.itemsBought = user.itemsBought.filter(
       (itemBought) => itemBought.item.id !== item.id,
     );

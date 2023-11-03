@@ -16,9 +16,12 @@ import {
   getUserMoneyPerClick,
 } from '@/lib/game';
 
+let clickBuffer: Decimal = Decimal.fromString('0');
+
 interface UserState {
   user: IUser | null;
   lastClick: Date | null;
+
   click: () => void;
   buyItem: (id: string) => void;
   buyPrestige: (id: string) => void;
@@ -44,7 +47,10 @@ export const useUserStore = create<UserState>()(
           //? If lastClick is too recent (less than 0.1s), return
           const lastClick = get().lastClick;
           const timeDiff = lastClick ? Date.now() - lastClick.getTime() : null;
-          if (timeDiff !== null && timeDiff < 100) return;
+          if (timeDiff !== null && timeDiff < 100) {
+            clickBuffer = clickBuffer.add(Decimal.fromString('1'));
+            return;
+          }
           //? Update lastClick
           set((state) => {
             state.lastClick = new Date();
@@ -52,12 +58,14 @@ export const useUserStore = create<UserState>()(
             if (!user) return;
             logger.debug('click');
             user.moneyFromClick = user.moneyFromClick.add(
-              getUserMoneyPerClick(user),
+              getUserMoneyPerClick(user).times(clickBuffer.add('1')),
             );
             const eventBody: IWsEvent['click']['body'] = {
               type: 'click',
               userId: user.id,
+              times: clickBuffer.add('1').toString(),
             };
+            clickBuffer = Decimal.fromString('0');
             socket.emit('events', eventBody);
           });
         },
@@ -439,7 +447,7 @@ export const useUserStore = create<UserState>()(
       })),
       {
         name: 'user',
-        version: 4,
+        version: 5,
         merge: (_, persisted) => {
           return {
             ...persisted,
