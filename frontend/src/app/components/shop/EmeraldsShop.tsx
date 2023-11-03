@@ -106,20 +106,8 @@ export default function Shop() {
               <p className="price text-white flex flex-row text-xl gap-1">
                 {item.quantity}
               </p>
-              <div className="flex flex-col justify-center items-center">
-                <img
-                  width="60"
-                  height="60"
-                  src={EmeraldsLogo}
-                  alt="credit"
-                  className="object-contain"
-                />
-                <p className="price text-white flex flex-row text-xl gap-1">
-                  {item.quantity}
-                </p>
-              </div>
-              <p className="price text-white gap-1 align-bottom self-center text-2xl">{`${item.price}€`}</p>
             </div>
+            <p className="price text-white gap-1 align-bottom self-center text-2xl">{`${item.price}€`}</p>
           </a>
         </li>
       ))}
