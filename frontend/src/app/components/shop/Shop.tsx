@@ -117,12 +117,8 @@ export default function Shop() {
   };
 
   return (
-    <section
-      className={cn(styles.shop + ' flex flex-col mt-32 rounded-xl pt-5', {
-        'after:!hidden': !isCredit,
-      })}
-    >
-      <div className="flex justify-center">
+    <div className="flex flex-col mt-32 pb-6 h-full">
+      <div className="flex mt-30 justify-center">
         <button className="text-white p-5" onClick={() => setIsCredit(true)}>
           Credits
         </button>
@@ -130,78 +126,84 @@ export default function Shop() {
           Emeralds
         </button>
       </div>
-      {isCredit ? (
-        <>
-          <ul className="flex flex-col gap-2 overflow-auto touch-pan-y items-center rounded-xl pt-3 pb-3 px-4">
-            {itemsWithPrice.map((item) => (
-              <li
-                key={item.id}
-                className={cn(
-                  'flex flex-row gap-2 border p-2 cursor-pointer relative transition-all active:scale-[0.98] w-full',
-                  {
-                    'opacity-[.65]': item.price.gt(balance),
-                    'pointer-events-none': item.price.gt(balance),
-                  },
-                )}
-                onClick={() => {
-                  if (item.price.gt(balance)) {
-                    logger.debug('Not enough money to buy item');
-                    return;
-                  }
-                  handleBuy(item.id);
-                }}
-              >
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="max-w-[6rem] h-full object-contain"
-                />
-                <div className="flex flex-col gap-2">
-                  {/* NAME */}
-                  <p className="text-white">{item.name}</p>
-
-                  {/* PRICE */}
-                  <p className="price text-white flex flex-row gap-1 text-lg">
-                    <img
-                      width="20"
-                      height="20"
-                      src={CreditLogo}
-                      alt="credit"
-                      className="object-contain"
-                    />
-                    {decimalToHumanReadable(item.price)}
-                  </p>
-                  {/* Money per Click */}
-                  <p className="text-white text-xs">
-                    {item.moneyPerSecond.eq(0)
-                      ? `x${item.moneyPerClickMult.toString()} per click`
-                      : `+${decimalToHumanReadable(
-                          item.moneyPerSecond.mul(latestPrestigeMult),
-                        )} per second`}
-                  </p>
-
-                  {/* LEVEL */}
-                  <p className="level text-white absolute top-1 right-1">
-                    lvl {decimalToHumanReadable(item.level)}
-                  </p>
-
-                  {/* PERCENTAGE IN BALANCE */}
-                  {item.percentageInBalance.gt(0) && (
-                    <p className="text-white percentage absolute bottom-1 right-1">
-                      {item.percentageInBalance.toFixed(1).toString()} %
-                    </p>
+      <section
+        className={cn(styles.shop + ' flex flex-col rounded-xl pt-5', {
+          'after:!hidden': !isCredit,
+        })}
+      >
+        {isCredit ? (
+          <>
+            <ul className="flex flex-col gap-2 overflow-auto touch-pan-y items-center rounded-xl pt-3 pb-3 px-4">
+              {itemsWithPrice.map((item) => (
+                <li
+                  key={item.id}
+                  className={cn(
+                    'flex flex-row gap-2 border p-2 cursor-pointer relative transition-all active:scale-[0.98] w-full',
+                    {
+                      'opacity-[.65]': item.price.gt(balance),
+                      'pointer-events-none': item.price.gt(balance),
+                    },
                   )}
-                </div>
-              </li>
-            ))}
-          </ul>
-          <p className="text-white text-end opacity-70 mr-4 text-sm">
-            % of total clicks per second
-          </p>
-        </>
-      ) : (
-        <GemmesShop />
-      )}
-    </section>
+                  onClick={() => {
+                    if (item.price.gt(balance)) {
+                      logger.debug('Not enough money to buy item');
+                      return;
+                    }
+                    handleBuy(item.id);
+                  }}
+                >
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="max-w-[6rem] h-full object-contain"
+                  />
+                  <div className="flex flex-col gap-2">
+                    {/* NAME */}
+                    <p className="text-white">{item.name}</p>
+
+                    {/* PRICE */}
+                    <p className="price text-white flex flex-row gap-1 text-lg">
+                      <img
+                        width="20"
+                        height="20"
+                        src={CreditLogo}
+                        alt="credit"
+                        className="object-contain"
+                      />
+                      {decimalToHumanReadable(item.price)}
+                    </p>
+                    {/* Money per Click */}
+                    <p className="text-white text-xs">
+                      {item.moneyPerSecond.eq(0)
+                        ? `x${item.moneyPerClickMult.toString()} per click`
+                        : `+${decimalToHumanReadable(
+                            item.moneyPerSecond.mul(latestPrestigeMult),
+                          )} per second`}
+                    </p>
+
+                    {/* LEVEL */}
+                    <p className="level text-white absolute top-1 right-1">
+                      lvl {decimalToHumanReadable(item.level)}
+                    </p>
+
+                    {/* PERCENTAGE IN BALANCE */}
+                    {item.percentageInBalance.gt(0) && (
+                      <p className="text-white percentage absolute bottom-1 right-1">
+                        {item.percentageInBalance.toFixed(1).toString()} %
+                      </p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <p className="text-white text-end opacity-70 mr-4 text-sm">
+              % of total clicks per second
+            </p>
+          </>
+        ) : (
+          <GemmesShop />
+        )}
+      </section>
+    </div>
   );
 }
