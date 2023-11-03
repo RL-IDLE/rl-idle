@@ -9,6 +9,12 @@ export class User extends Timestamp implements IUser {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ type: 'varchar', unique: true, nullable: true })
+  username: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  password: string;
+
   @Column({ type: 'varchar', default: '0' })
   moneyFromClick: string;
 
