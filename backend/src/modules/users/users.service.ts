@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -338,28 +338,36 @@ export class UsersService {
   }
 
   async updateUser(user: User) {
-    const password = hash(user.password, 10);
+    const password = await hash(user.password, 10);
 
     if (!user.password || !user.username)
       throw new HttpException('Missing password or username', 400);
 
-    await saveOneData({
-      key: 'users',
-      id: user.id,
-      data: {
+    try {
+      const userInDb = await this.usersRepository.findOne({
+        where: { id: user.id },
+      });
+
+      if (!userInDb) throw new HttpException('User not found', 400);
+
+      const updatedUser = {
+        ...userInDb,
         password: password,
         username: user.username,
-      },
-    });
-    return user;
+      };
+      const res = await this.usersRepository.save(updatedUser);
+      return res;
+    } catch (err) {
+      logger.error(err);
+      throw new HttpException('Username already exist', HttpStatus.BAD_REQUEST);
+    }
   }
 
   async signIn(user: User) {
-    const dbUser = await getOneData({
-      databaseRepository: this.usersRepository,
-      key: 'users',
-      id: user.id,
+    const dbUser = await this.usersRepository.findOne({
+      where: { username: user.username },
     });
+
     if (!dbUser) throw new HttpException('User not found', 400);
 
     if (user.username !== dbUser.username)

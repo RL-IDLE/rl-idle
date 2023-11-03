@@ -26,6 +26,8 @@ interface UserState {
   buyItem: (id: string) => void;
   buyPrestige: (id: string) => void;
   loadUser: () => Promise<string | undefined>;
+  updateUser: (user: IUser) => Promise<unknown>;
+  signIn: (user: IUser) => void;
 
   /** TEST COMMANDS */
   reset: () => Promise<void>;
@@ -211,6 +213,8 @@ export const useUserStore = create<UserState>()(
             user: {
               id: user.id,
               username: user.username,
+              password: user.password,
+              lastSeen: new Date(user.lastSeen),
               moneyFromClick: Decimal.fromString(user.moneyFromClick),
               moneyPerClick: Decimal.fromString(user.moneyPerClick),
               moneyUsed: Decimal.fromString(user.moneyUsed),
@@ -260,6 +264,8 @@ export const useUserStore = create<UserState>()(
             user: {
               id: user.id,
               username: user.username,
+              password: user.password,
+              lastSeen: new Date(user.lastSeen),
               moneyFromClick: Decimal.fromString(user.moneyFromClick),
               moneyPerClick: Decimal.fromString(user.moneyPerClick),
               moneyUsed: Decimal.fromString(user.moneyUsed),
@@ -454,11 +460,17 @@ export const useUserStore = create<UserState>()(
             return;
           }
           //? Set the user
-          set({ user });
+          const res = await router.user.updateUser(user);
+          return res;
         },
-        signIn(user: IUser) {
+        async signIn(user: IUser) {
           //? Set the user
-          set({ user });
+          const userFromDb = await router.user.signIn(user).catch(() => null);
+          if (!userFromDb) return;
+
+          localStorage.setItem('userId', userFromDb.id);
+
+          return this.loadUser();
         },
       })),
       {

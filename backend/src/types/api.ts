@@ -88,13 +88,13 @@ export const api = IApiType({
     updateUser: {
       method: 'PUT',
       url: '/users/update-user',
-      body: unknown as IUser,
+      body: unknown as Pick<IUser, 'username' | 'password' | 'id'>,
       response: unknown as IUser,
     },
     signIn: {
       method: 'POST',
       url: '/users/sign-in',
-      body: unknown as IUser,
+      body: unknown as Pick<IUser, 'username' | 'password' | 'id'>,
       response: unknown as IUser,
     },
   },
