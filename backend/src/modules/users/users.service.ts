@@ -15,6 +15,7 @@ import {
 } from '../prestiges/entities/prestige.entity';
 import { Item, ItemBought } from '../items/entities/item.entity';
 import { randomUUID } from 'crypto';
+import { bcryptCompare, hash } from 'src/lib/bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -333,6 +334,38 @@ export class UsersService {
       id: user.id,
       data: user,
     });
+    return user;
+  }
+
+  async updateUser(user: User) {
+    const password = hash(user.password, 10);
+
+    if (!user.password || !user.username)
+      throw new HttpException('Missing password or username', 400);
+
+    await saveOneData({
+      key: 'users',
+      id: user.id,
+      data: {
+        password: password,
+        username: user.username,
+      },
+    });
+    return user;
+  }
+
+  async signIn(user: User) {
+    const dbUser = await getOneData({
+      databaseRepository: this.usersRepository,
+      key: 'users',
+      id: user.id,
+    });
+    if (!dbUser) throw new HttpException('User not found', 400);
+
+    if (user.username !== dbUser.username)
+      throw new HttpException('Wrong username', 400);
+    if (!(await bcryptCompare(user.password, dbUser.password)))
+      throw new HttpException('Wrong password', 400);
     return user;
   }
 }

@@ -85,6 +85,18 @@ export const api = IApiType({
       body: unknown as IRemoveItem,
       response: unknown as IUser,
     },
+    updateUser: {
+      method: 'PUT',
+      url: '/users/update-user',
+      body: unknown as IUser,
+      response: unknown as IUser,
+    },
+    signIn: {
+      method: 'POST',
+      url: '/users/sign-in',
+      body: unknown as IUser,
+      response: unknown as IUser,
+    },
   },
   items: {
     findAll: {
