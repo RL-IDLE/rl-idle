@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { string, z } from 'zod';
 import { ItemBoughtSchema } from './item';
 import { PrestigeBoughtSchema } from './prestige';
 
@@ -29,3 +29,43 @@ export const ResetSchema = z.object({
 });
 
 export type IReset = z.infer<typeof ResetSchema>;
+
+export const GiveSchema = z.object({
+  id: z.string(),
+  amount: z.string(),
+});
+
+export type IGive = z.infer<typeof GiveSchema>;
+
+export const RemoveSchema = z.object({
+  id: z.string(),
+  amount: z.string(),
+});
+
+export type IRemove = z.infer<typeof RemoveSchema>;
+
+export const GivePrestigeSchema = z.object({
+  id: z.string(),
+});
+
+export type IGivePrestige = z.infer<typeof GivePrestigeSchema>;
+
+export const RemovePrestigeSchema = z.object({
+  id: string(),
+});
+
+export type IRemovePrestige = z.infer<typeof RemovePrestigeSchema>;
+
+export const GiveItemSchema = z.object({
+  id: z.string(),
+  itemId: z.string(),
+});
+
+export type IGiveItem = z.infer<typeof GiveItemSchema>;
+
+export const RemoveItemSchema = z.object({
+  id: z.string(),
+  itemId: z.string(),
+});
+
+export type IRemoveItem = z.infer<typeof RemoveItemSchema>;
