@@ -63,8 +63,8 @@ export default function Game() {
     swiper.slideTo(getPageIndex(navigationStore.page));
   }, [navigationStore.page, swiper]);
 
-  //* Expose some functions to the window for debugging
   useEffect(() => {
+    //* Expose some functions to the window for debugging
     if (env.VITE_ENV !== 'development') return;
     (window as unknown as { reset: unknown }).reset =
       useGameStore.getState().actions.reset;
@@ -90,6 +90,15 @@ export default function Game() {
       removePrestige: useGameStore.getState().actions.removePrestige,
       giveItem: useGameStore.getState().actions.giveItem,
       removeItem: useGameStore.getState().actions.removeItem,
+    };
+
+    //* Desactivate right click
+    const handleContextmenu = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+    document.addEventListener('contextmenu', handleContextmenu);
+    return function cleanup() {
+      document.removeEventListener('contextmenu', handleContextmenu);
     };
   }, []);
 
