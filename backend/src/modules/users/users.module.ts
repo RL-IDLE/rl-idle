@@ -8,6 +8,7 @@ import {
   PrestigeBought,
 } from '../prestiges/entities/prestige.entity';
 import { Item, ItemBought } from '../items/entities/item.entity';
+import { Payment } from '../payments/entities/payment.entity';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { Item, ItemBought } from '../items/entities/item.entity';
       PrestigeBought,
       Item,
       ItemBought,
+      Payment,
     ]),
   ],
   controllers: [UsersController],

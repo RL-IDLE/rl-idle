@@ -4,7 +4,7 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { api } from 'src/types/api';
 import { getOneData, saveOneData } from 'src/lib/storage';
-import { maxPassiveIncomeInterval } from 'src/lib/constant';
+import { maxPassiveIncomeInterval, priceToEmerald } from 'src/lib/constant';
 import { getUserBalance } from 'src/lib/game';
 import Decimal from 'break_infinity.js';
 import { logger } from 'src/lib/logger';
@@ -16,6 +16,9 @@ import {
 import { Item, ItemBought } from '../items/entities/item.entity';
 import { randomUUID } from 'crypto';
 import { bcryptCompare, hash } from 'src/lib/bcrypt';
+import { IConfirmPayment } from 'src/types/user';
+import { Payment } from '../payments/entities/payment.entity';
+import { stripe } from 'src/lib/stripe';
 
 @Injectable()
 export class UsersService {
@@ -31,6 +34,8 @@ export class UsersService {
     private readonly itemRepository: Repository<Item>,
     @InjectRepository(ItemBought)
     private readonly itemBoughtRepository: Repository<ItemBought>,
+    @InjectRepository(Payment)
+    private readonly paymentRepository: Repository<Payment>,
   ) {}
 
   async load(
@@ -366,6 +371,49 @@ export class UsersService {
       throw new HttpException('Wrong username', 400);
     if (!(await bcryptCompare(user.password, dbUser.password)))
       throw new HttpException('Wrong password', 400);
+    return user;
+  }
+
+  async confirmPayment(payment: IConfirmPayment) {
+    const dbUser = await getOneData({
+      databaseRepository: this.usersRepository,
+      key: 'users',
+      id: payment.id,
+    });
+    if (!dbUser) throw new HttpException('User not found', 400);
+    const user = dbUser;
+
+    //* Get the payment checkout
+    const checkoutId = payment.checkoutSessionId;
+    const exists = await this.paymentRepository.findOne({
+      where: {
+        id: checkoutId,
+      },
+    });
+    if (exists) {
+      throw new HttpException('Payment already registered', 400);
+    }
+    const checkout = await stripe.checkout.sessions.retrieve(checkoutId);
+    if (!checkout.amount_total) {
+      throw 'Amount not found on checkout';
+    }
+    const emeralds = priceToEmerald(checkout.amount_total);
+
+    //* Save the payment checkout
+    await this.paymentRepository.save({
+      id: checkout.id,
+      user: {
+        id: user.id,
+      },
+    });
+
+    //* Save the emeralds
+    user.emeralds = Decimal.fromString(user.emeralds).add(emeralds).toString();
+    await saveOneData({
+      key: 'users',
+      id: user.id,
+      data: user,
+    });
     return user;
   }
 }
