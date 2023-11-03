@@ -25,6 +25,8 @@ import {
   PrestigeBought,
 } from '../prestiges/entities/prestige.entity';
 import { logger } from 'src/lib/logger';
+import { objectDepth, sleep } from 'src/lib/utils';
+import { maxDiffTimeUserSpec } from 'src/lib/constant';
 
 @Injectable()
 export class EventsService {
@@ -73,6 +75,7 @@ export class EventsService {
   }
 
   async buyItem(data: IWsEvent['buyItem']['body'], server: Server) {
+    await sleep(1000);
     const parsedData = await buyItemSchema.parseAsync(data);
     const user = await getOneData({
       databaseRepository: this.usersRepository,
@@ -129,15 +132,26 @@ export class EventsService {
     }
 
     //* Mutate
+    const now = new Date();
+    let createdAt = new Date(data.createdAt);
+    //? If the difference between now and the user spec is too big, we use now
+    if (
+      now.getTime() - new Date(data.createdAt).getTime() >
+      maxDiffTimeUserSpec
+    ) {
+      createdAt = now;
+    }
     const userMoneyUsed = Decimal.fromString(user.moneyUsed);
     const newUserMoneyUsed = userMoneyUsed.add(itemPrice);
     user.moneyUsed = newUserMoneyUsed.toString();
-    const itemBought: ItemBought = {
+    const itemBought: Omit<ItemBought, 'user'> & { user: { id: string } } = {
       id: randomUUID(),
       item: item,
-      user: user,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      user: {
+        id: user.id,
+      },
+      createdAt: createdAt,
+      updatedAt: createdAt,
       deletedAt: null as unknown as Date,
     };
     await saveOneData({
@@ -147,7 +161,7 @@ export class EventsService {
     });
     user.itemsBought.push({
       ...itemBought,
-      user: undefined as unknown as User,
+      user: { id: user.id } as unknown as User,
     });
     await saveOneData({ key: 'users', id: parsedData.userId, data: user });
     return user;
@@ -220,7 +234,7 @@ export class EventsService {
     const prestigeBought: PrestigeBought = {
       id: randomUUID(),
       prestige: prestige,
-      user: user,
+      user: objectDepth(user),
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null as unknown as Date,

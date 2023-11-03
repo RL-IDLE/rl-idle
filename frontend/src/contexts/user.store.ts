@@ -122,6 +122,7 @@ export const useUserStore = create<UserState>()(
                     itemsLevels[item.id] || Decimal.fromString('0'),
                   );
             user.moneyUsed = user.moneyUsed.add(price);
+            const now = new Date();
             user.itemsBought.push({
               id: Math.random().toString(),
               item: {
@@ -132,12 +133,13 @@ export const useUserStore = create<UserState>()(
                 moneyPerClickMult: item.moneyPerClickMult,
                 image: item.image,
               },
-              createdAt: new Date(),
+              createdAt: now,
             });
             const eventBody: IWsEvent['buyItem']['body'] = {
               type: 'buyItem',
               userId: user.id,
               itemId: item.id,
+              createdAt: now.toISOString(),
             };
             socket.emit('events', eventBody);
           });

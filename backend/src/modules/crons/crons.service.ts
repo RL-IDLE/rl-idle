@@ -64,5 +64,6 @@ export class CronsService implements OnModuleInit {
       }
       i++;
     }
+    this.logger.debug('Synced database with redis');
   }
 }
