@@ -1,6 +1,7 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
+  IConfirmPayment,
   IGive,
   IGiveItem,
   IGivePrestige,
@@ -11,6 +12,7 @@ import {
   IReset,
 } from 'src/types/user';
 import { UseOnlyDev } from 'src/decorators/use-only-dev';
+import { User } from './entities/user.entity';
 
 @Controller('users')
 export class UsersController {
@@ -61,5 +63,21 @@ export class UsersController {
   @UseOnlyDev()
   removeItem(@Body() removeItem: IRemoveItem) {
     return this.usersService.removeItem(removeItem);
+  }
+
+  @Put('update-user')
+  @UseOnlyDev()
+  updateUser(@Body() updateUser: User) {
+    return this.usersService.updateUser(updateUser);
+  }
+
+  @Post('sign-in')
+  signIn(@Body() user: User) {
+    return this.usersService.signIn(user);
+  }
+
+  @Post('confirm-payment')
+  confirmPayment(@Body() payment: IConfirmPayment) {
+    return this.usersService.confirmPayment(payment);
   }
 }

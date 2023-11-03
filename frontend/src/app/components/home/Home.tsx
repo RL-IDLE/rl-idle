@@ -6,6 +6,7 @@ import { decimalToHumanReadable } from '@/lib/bignumber';
 import clickSound from '@/assets/audio/click.ogg';
 import { getUserMoneyPerClick } from '@/lib/game';
 import { useEffect, useState } from 'react';
+import Parameters from './Parameters';
 
 export default function Home() {
   const click = useGameStore((state) => state.actions.click);
@@ -62,6 +63,7 @@ export default function Home() {
       );
     mouse.style.top = y + 'px';
     mouse.style.left = x + 'px';
+    mouse.style.whiteSpace = 'nowrap';
     document.body.appendChild(mouse);
     setTimeout(() => {
       mouse.remove();
@@ -83,6 +85,7 @@ export default function Home() {
           alt="rocket battle car image"
         />
       </button>
+      <Parameters />
     </section>
   );
 }

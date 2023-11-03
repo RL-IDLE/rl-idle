@@ -15,6 +15,8 @@
   },
   "dependencies": {
     "@redux-devtools/extension": "^3.2.5",
+    "@stripe/react-stripe-js": "^2.3.1",
+    "@stripe/stripe-js": "^2.1.11",
     "@t3-oss/env-core": "^0.7.0",
     "@types/node": "^20.8.5",
     "@types/react": "^18.2.28",

@@ -7,6 +7,7 @@ export const env = createEnv({
   client: {
     VITE_ENV: z.enum(['development', 'production']),
     VITE_API_URL: z.string().url(),
+    VITE_STRIPE_PUBLIC_KEY: z.string(),
   },
   runtimeEnv: import.meta.env,
 });

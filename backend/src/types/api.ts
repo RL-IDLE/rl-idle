@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { unknown } from '.';
 import { IHttpMethod } from './http';
 import {
+  IConfirmPayment,
   IGive,
   IGiveItem,
   IGivePrestige,
@@ -84,6 +85,24 @@ export const api = IApiType({
       url: '/users/remove-item',
       body: unknown as IRemoveItem,
       response: unknown as IUser,
+    },
+    updateUser: {
+      method: 'PUT',
+      url: '/users/update-user',
+      body: unknown as IUser,
+      response: unknown as IUser,
+    },
+    signIn: {
+      method: 'POST',
+      url: '/users/sign-in',
+      body: unknown as IUser,
+      response: unknown as IUser,
+    },
+    confirmPayment: {
+      method: 'POST',
+      url: '/users/confirm-payment',
+      body: unknown as IConfirmPayment,
+      response: unknown,
     },
   },
   items: {

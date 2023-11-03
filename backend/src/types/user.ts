@@ -4,6 +4,7 @@ import { PrestigeBoughtSchema } from './prestige';
 
 export const UserSchema = z.object({
   id: z.string(),
+  username: z.string(),
   moneyFromClick: z.string(),
   moneyPerClick: z.string(),
   moneyUsed: z.string(),
@@ -69,3 +70,10 @@ export const RemoveItemSchema = z.object({
 });
 
 export type IRemoveItem = z.infer<typeof RemoveItemSchema>;
+
+export const ConfirmPaymentSchema = z.object({
+  id: z.string(),
+  checkoutSessionId: z.string(),
+});
+
+export type IConfirmPayment = z.infer<typeof ConfirmPaymentSchema>;

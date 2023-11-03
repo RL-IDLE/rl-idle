@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { api } from 'src/types/api';
-import { getOneData, saveOneData } from 'src/lib/storage';
-import { maxPassiveIncomeInterval } from 'src/lib/constant';
+import { getOneData, redisNamespace, saveOneData } from 'src/lib/storage';
+import { maxPassiveIncomeInterval, priceToEmerald } from 'src/lib/constant';
 import { getUserBalance } from 'src/lib/game';
 import Decimal from 'break_infinity.js';
 import { logger } from 'src/lib/logger';
@@ -15,6 +15,11 @@ import {
 } from '../prestiges/entities/prestige.entity';
 import { Item, ItemBought } from '../items/entities/item.entity';
 import { randomUUID } from 'crypto';
+import { bcryptCompare, hash } from 'src/lib/bcrypt';
+import { redis } from 'src/lib/redis';
+import { IConfirmPayment } from 'src/types/user';
+import { Payment } from '../payments/entities/payment.entity';
+import { stripe } from 'src/lib/stripe';
 
 @Injectable()
 export class UsersService {
@@ -30,6 +35,8 @@ export class UsersService {
     private readonly itemRepository: Repository<Item>,
     @InjectRepository(ItemBought)
     private readonly itemBoughtRepository: Repository<ItemBought>,
+    @InjectRepository(Payment)
+    private readonly paymentRepository: Repository<Payment>,
   ) {}
 
   async load(
@@ -108,6 +115,11 @@ export class UsersService {
     });
     if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
+    //? Delete all redis keys
+    const keys = await redis.keys(`${redisNamespace}:*`);
+    if (keys.length) {
+      await redis.del(keys);
+    }
     user.moneyFromClick = '0';
     user.moneyPerClick = '1';
     user.moneyUsed = '0';
@@ -283,6 +295,15 @@ export class UsersService {
       options: { noSync: true },
     });
     if (!item) throw new HttpException('Item not found', 400);
+    //? Is click boost
+    if (item.name === 'Click') {
+      //? Update user moneyPerClick
+      const userMoneyPerClick = Decimal.fromString(user.moneyPerClick);
+      const newUserMoneyPerClick = userMoneyPerClick.times(
+        Decimal.fromString(item.moneyPerClickMult),
+      );
+      user.moneyPerClick = newUserMoneyPerClick.toString();
+    }
     const itemBought: ItemBought = {
       id: randomUUID(),
       item: item,
@@ -328,6 +349,81 @@ export class UsersService {
     user.itemsBought = user.itemsBought.filter(
       (itemBought) => itemBought.item.id !== item.id,
     );
+    await saveOneData({
+      key: 'users',
+      id: user.id,
+      data: user,
+    });
+    return user;
+  }
+
+  async updateUser(user: User) {
+    const password = hash(user.password, 10);
+
+    if (!user.password || !user.username)
+      throw new HttpException('Missing password or username', 400);
+
+    await saveOneData({
+      key: 'users',
+      id: user.id,
+      data: {
+        password: password,
+        username: user.username,
+      },
+    });
+    return user;
+  }
+
+  async signIn(user: User) {
+    const dbUser = await getOneData({
+      databaseRepository: this.usersRepository,
+      key: 'users',
+      id: user.id,
+    });
+    if (!dbUser) throw new HttpException('User not found', 400);
+
+    if (user.username !== dbUser.username)
+      throw new HttpException('Wrong username', 400);
+    if (!(await bcryptCompare(user.password, dbUser.password)))
+      throw new HttpException('Wrong password', 400);
+    return user;
+  }
+
+  async confirmPayment(payment: IConfirmPayment) {
+    const dbUser = await getOneData({
+      databaseRepository: this.usersRepository,
+      key: 'users',
+      id: payment.id,
+    });
+    if (!dbUser) throw new HttpException('User not found', 400);
+    const user = dbUser;
+
+    //* Get the payment checkout
+    const checkoutId = payment.checkoutSessionId;
+    const exists = await this.paymentRepository.findOne({
+      where: {
+        id: checkoutId,
+      },
+    });
+    if (exists) {
+      throw new HttpException('Payment already registered', 400);
+    }
+    const checkout = await stripe.checkout.sessions.retrieve(checkoutId);
+    if (!checkout.amount_total) {
+      throw 'Amount not found on checkout';
+    }
+    const emeralds = priceToEmerald(checkout.amount_total);
+
+    //* Save the payment checkout
+    await this.paymentRepository.save({
+      id: checkout.id,
+      user: {
+        id: user.id,
+      },
+    });
+
+    //* Save the emeralds
+    user.emeralds = Decimal.fromString(user.emeralds).add(emeralds).toString();
     await saveOneData({
       key: 'users',
       id: user.id,

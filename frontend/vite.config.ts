@@ -56,4 +56,7 @@ export default defineConfig({
     ],
   },
   publicDir: 'src/public',
+  define: {
+    APP_VERSION: JSON.stringify(process.env.npm_package_version),
+  },
 });

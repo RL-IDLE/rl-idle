@@ -25,6 +25,8 @@ import {
   PrestigeBought,
 } from '../prestiges/entities/prestige.entity';
 import { logger } from 'src/lib/logger';
+import { objectDepth } from 'src/lib/utils';
+import { maxDiffTimeUserSpec } from 'src/lib/constant';
 
 @Injectable()
 export class EventsService {
@@ -43,7 +45,11 @@ export class EventsService {
   ) {}
 
   async click(data: IWsEvent['click']['body'], server: Server) {
-    const parsedData = await clickSchema.parseAsync(data);
+    const parsedData = await clickSchema.parseAsync(data).catch((err) => {
+      server.emit(`error:${data.userId}`, err.message);
+      return;
+    });
+    if (!parsedData) return;
     const user = await getOneData({
       databaseRepository: this.usersRepository,
       key: 'users',
@@ -73,7 +79,11 @@ export class EventsService {
   }
 
   async buyItem(data: IWsEvent['buyItem']['body'], server: Server) {
-    const parsedData = await buyItemSchema.parseAsync(data);
+    const parsedData = await buyItemSchema.parseAsync(data).catch((err) => {
+      server.emit(`error:${data.userId}`, err.message);
+      return;
+    });
+    if (!parsedData) return;
     const user = await getOneData({
       databaseRepository: this.usersRepository,
       key: 'users',
@@ -118,7 +128,8 @@ export class EventsService {
       return;
     }
 
-    //* Is click boost
+    //* Mutate
+    //? Is click boost
     if (item.name === 'Click') {
       //? Update user moneyPerClick
       const userMoneyPerClick = Decimal.fromString(user.moneyPerClick);
@@ -127,17 +138,26 @@ export class EventsService {
       );
       user.moneyPerClick = newUserMoneyPerClick.toString();
     }
-
-    //* Mutate
+    const now = new Date();
+    let createdAt = new Date(data.createdAt);
+    //? If the difference between now and the user spec is too big, we use now
+    if (
+      now.getTime() - new Date(data.createdAt).getTime() >
+      maxDiffTimeUserSpec
+    ) {
+      createdAt = now;
+    }
     const userMoneyUsed = Decimal.fromString(user.moneyUsed);
     const newUserMoneyUsed = userMoneyUsed.add(itemPrice);
     user.moneyUsed = newUserMoneyUsed.toString();
-    const itemBought: ItemBought = {
+    const itemBought: Omit<ItemBought, 'user'> & { user: { id: string } } = {
       id: randomUUID(),
       item: item,
-      user: user,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      user: {
+        id: user.id,
+      },
+      createdAt: createdAt,
+      updatedAt: createdAt,
       deletedAt: null as unknown as Date,
     };
     await saveOneData({
@@ -147,14 +167,22 @@ export class EventsService {
     });
     user.itemsBought.push({
       ...itemBought,
-      user: undefined as unknown as User,
+      user: { id: user.id } as unknown as User,
     });
-    await saveOneData({ key: 'users', id: parsedData.userId, data: user });
+    await saveOneData({
+      key: 'users',
+      id: parsedData.userId,
+      data: user,
+    });
     return user;
   }
 
   async buyPrestige(data: IWsEvent['buyPrestige']['body'], server: Server) {
-    const parsedData = await buyPrestigeSchema.parseAsync(data);
+    const parsedData = await buyPrestigeSchema.parseAsync(data).catch((err) => {
+      server.emit(`error:${data.userId}`, err.message);
+      return;
+    });
+    if (!parsedData) return;
     const user = await getOneData({
       databaseRepository: this.usersRepository,
       key: 'users',
@@ -220,7 +248,7 @@ export class EventsService {
     const prestigeBought: PrestigeBought = {
       id: randomUUID(),
       prestige: prestige,
-      user: user,
+      user: objectDepth(user),
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null as unknown as Date,
