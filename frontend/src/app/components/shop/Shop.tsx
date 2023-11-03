@@ -18,7 +18,6 @@ import CreditLogo from '@/assets/credits_icon.webp';
 import GemmesShop from './GemmesShop';
 import memoizeOne from 'memoize-one';
 import { IPrestigeBought } from '@/types/prestige';
-import ClickImage from '@/assets/Cursor.svg';
 import { getHighestPrestigeMult } from '../../../lib/game';
 
 const memoizedPresitgesSorted = memoizeOne((prestiges: IPrestigeBought[]) => {
