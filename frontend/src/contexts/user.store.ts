@@ -210,6 +210,7 @@ export const useUserStore = create<UserState>()(
           set({
             user: {
               id: user.id,
+              username: user.username,
               moneyFromClick: Decimal.fromString(user.moneyFromClick),
               moneyPerClick: Decimal.fromString(user.moneyPerClick),
               moneyUsed: Decimal.fromString(user.moneyUsed),
@@ -258,6 +259,7 @@ export const useUserStore = create<UserState>()(
           set({
             user: {
               id: user.id,
+              username: user.username,
               moneyFromClick: Decimal.fromString(user.moneyFromClick),
               moneyPerClick: Decimal.fromString(user.moneyPerClick),
               moneyUsed: Decimal.fromString(user.moneyUsed),
@@ -443,6 +445,20 @@ export const useUserStore = create<UserState>()(
               })),
             },
           });
+        },
+        async updateUser(user: IUser) {
+          const oldUser = get().user;
+          const id = oldUser?.id;
+          if (!id) {
+            logger.error('User not found');
+            return;
+          }
+          //? Set the user
+          set({ user });
+        },
+        signIn(user: IUser) {
+          //? Set the user
+          set({ user });
         },
       })),
       {
