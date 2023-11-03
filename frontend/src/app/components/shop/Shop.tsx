@@ -15,7 +15,7 @@ import clickSound from '@/assets/audio/buy-item.wav';
 import { useBalance } from '@/contexts/balance/BalanceUtils';
 import { useEffect, useState } from 'react';
 import CreditLogo from '@/assets/credits_icon.webp';
-import GemmesShop from './GemmesShop';
+import EmeraldsShop from './EmeraldsShop';
 import memoizeOne from 'memoize-one';
 import { IPrestigeBought } from '@/types/prestige';
 import { getHighestPrestigeMult } from '../../../lib/game';
@@ -226,7 +226,7 @@ export default function Shop() {
             </p>
           </>
         ) : (
-          <GemmesShop />
+          <EmeraldsShop />
         )}
       </section>
     </div>

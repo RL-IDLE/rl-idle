@@ -1,8 +1,8 @@
 import { cn } from '@/lib/utils';
-import GemmesLogo from '@/assets/Esports_Tokens_icon.webp';
+import EmeraldsLogo from '@/assets/Esports_Tokens_icon.webp';
 
-export default function GemmesShop() {
-  const gemmesPack = [
+export default function Shop() {
+  const emeraldsPack = [
     {
       id: 1,
       name: 'Some emeralds',
@@ -41,19 +41,9 @@ export default function GemmesShop() {
     },
   ];
 
-  //   const handleBuy = (id: string) => {
-  //     buyGemmes(id);
-  //     audio.currentTime = 0;
-  //     audio.play();
-  //   };
-
-  //   const handleChangeCategory = (state: boolean) => {
-  //     setIsCredit(state);
-  //   };
-
   return (
     <ul className="grid grid-cols-3 gap-3 overflow-auto touch-pan-y items-center rounded-xl p-3 ">
-      {gemmesPack.map((item) => (
+      {emeraldsPack.map((item) => (
         <li
           key={item.id}
           className={cn(
@@ -70,7 +60,7 @@ export default function GemmesShop() {
             <img
               width="60"
               height="60"
-              src={GemmesLogo}
+              src={EmeraldsLogo}
               alt="credit"
               className="object-contain"
             />
