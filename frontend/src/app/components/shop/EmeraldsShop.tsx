@@ -1,8 +1,8 @@
 import { cn } from '@/lib/utils';
-import GemmesLogo from '@/assets/Esports_Tokens_icon.webp';
+import EmeraldsLogo from '@/assets/Esports_Tokens_icon.webp';
 
-export default function GemmesShop() {
-  const gemmesPack = [
+export default function Shop() {
+  const emeraldsPack = [
     {
       id: 1,
       name: 'Some emeralds',
@@ -12,13 +12,13 @@ export default function GemmesShop() {
     },
     {
       id: 2,
-      name: 'Handle of emeralds',
+      name: 'Handful of emeralds',
       quantity: 500,
       price: 4.99,
     },
     {
       id: 3,
-      name: 'Heap of emeralds',
+      name: 'Pile of emeralds',
       quantity: 1100,
       price: 9.99,
     },
@@ -42,19 +42,9 @@ export default function GemmesShop() {
     },
   ];
 
-  //   const handleBuy = (id: string) => {
-  //     buyGemmes(id);
-  //     audio.currentTime = 0;
-  //     audio.play();
-  //   };
-
-  //   const handleChangeCategory = (state: boolean) => {
-  //     setIsCredit(state);
-  //   };
-
   return (
     <ul className="grid grid-cols-3 gap-3 overflow-auto touch-pan-y items-center rounded-xl p-3 ">
-      {gemmesPack.map((item) => (
+      {emeraldsPack.map((item) => (
         <li key={item.id}>
           <a
             href={item.link ?? '#'}
@@ -73,15 +63,27 @@ export default function GemmesShop() {
               <img
                 width="60"
                 height="60"
-                src={GemmesLogo}
+                src={EmeraldsLogo}
                 alt="credit"
                 className="object-contain"
               />
               <p className="price text-white flex flex-row text-xl gap-1">
                 {item.quantity}
               </p>
+              <div className="flex flex-col justify-center items-center">
+                <img
+                  width="60"
+                  height="60"
+                  src={EmeraldsLogo}
+                  alt="credit"
+                  className="object-contain"
+                />
+                <p className="price text-white flex flex-row text-xl gap-1">
+                  {item.quantity}
+                </p>
+              </div>
+              <p className="price text-white gap-1 align-bottom self-center text-2xl">{`${item.price}€`}</p>
             </div>
-            <p className="price text-white gap-1 align-bottom self-center text-2xl">{`${item.price}€`}</p>
           </a>
         </li>
       ))}
