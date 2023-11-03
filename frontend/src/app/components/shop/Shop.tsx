@@ -91,10 +91,6 @@ export default function Shop() {
     audio.play();
   };
 
-  const handleChangeCategory = (value: boolean) => {
-    setIsCredit(value);
-  };
-
   return (
     <section className={styles.shop + ' flex flex-col mt-32 rounded-xl pt-5'}>
       <div className="flex justify-center">
