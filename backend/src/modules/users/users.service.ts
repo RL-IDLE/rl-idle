@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { api } from 'src/types/api';
-import { getOneData, saveOneData } from 'src/lib/storage';
+import { getOneData, redisNamespace, saveOneData } from 'src/lib/storage';
 import { maxPassiveIncomeInterval, priceToEmerald } from 'src/lib/constant';
 import { getUserBalance } from 'src/lib/game';
 import Decimal from 'break_infinity.js';
@@ -16,6 +16,7 @@ import {
 import { Item, ItemBought } from '../items/entities/item.entity';
 import { randomUUID } from 'crypto';
 import { bcryptCompare, hash } from 'src/lib/bcrypt';
+import { redis } from 'src/lib/redis';
 import { IConfirmPayment } from 'src/types/user';
 import { Payment } from '../payments/entities/payment.entity';
 import { stripe } from 'src/lib/stripe';
@@ -114,6 +115,11 @@ export class UsersService {
     });
     if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
+    //? Delete all redis keys
+    const keys = await redis.keys(`${redisNamespace}:*`);
+    if (keys.length) {
+      await redis.del(keys);
+    }
     user.moneyFromClick = '0';
     user.moneyPerClick = '1';
     user.moneyUsed = '0';
@@ -289,6 +295,15 @@ export class UsersService {
       options: { noSync: true },
     });
     if (!item) throw new HttpException('Item not found', 400);
+    //? Is click boost
+    if (item.name === 'Click') {
+      //? Update user moneyPerClick
+      const userMoneyPerClick = Decimal.fromString(user.moneyPerClick);
+      const newUserMoneyPerClick = userMoneyPerClick.times(
+        Decimal.fromString(item.moneyPerClickMult),
+      );
+      user.moneyPerClick = newUserMoneyPerClick.toString();
+    }
     const itemBought: ItemBought = {
       id: randomUUID(),
       item: item,

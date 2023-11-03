@@ -83,6 +83,7 @@ export const useUserStore = create<UserState>()(
               return;
             }
             logger.debug('buyItem');
+            //* Mutate
             if (item.name === 'Click') {
               //? Update user moneyPerClick
               const userMoneyPerClick = user.moneyPerClick;
@@ -91,7 +92,6 @@ export const useUserStore = create<UserState>()(
               );
               user.moneyPerClick = newUserMoneyPerClick;
             }
-            //* Mutate
             const itemsLevels: {
               [id: string]: Decimal | undefined;
             } = user.itemsBought.reduce<{
@@ -122,6 +122,7 @@ export const useUserStore = create<UserState>()(
                     itemsLevels[item.id] || Decimal.fromString('0'),
                   );
             user.moneyUsed = user.moneyUsed.add(price);
+            const now = new Date();
             user.itemsBought.push({
               id: Math.random().toString(),
               item: {
@@ -132,12 +133,13 @@ export const useUserStore = create<UserState>()(
                 moneyPerClickMult: item.moneyPerClickMult,
                 image: item.image,
               },
-              createdAt: new Date(),
+              createdAt: now,
             });
             const eventBody: IWsEvent['buyItem']['body'] = {
               type: 'buyItem',
               userId: user.id,
               itemId: item.id,
+              createdAt: now.toISOString(),
             };
             socket.emit('events', eventBody);
           });
@@ -396,6 +398,7 @@ export const useUserStore = create<UserState>()(
           set({
             user: {
               ...oldUser,
+              moneyPerClick: Decimal.fromString(user.moneyPerClick),
               itemsBought: user.itemsBought.map((itemBought) => ({
                 id: itemBought.id,
                 item: {
@@ -463,7 +466,7 @@ export const useUserStore = create<UserState>()(
       })),
       {
         name: 'user',
-        version: 5,
+        version: 6,
         merge: (_, persisted) => {
           return {
             ...persisted,

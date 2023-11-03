@@ -16,6 +16,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { env } from './env';
 import { router } from './lib/api';
 import { useUserStore } from './contexts/user.store';
+import Version from './app/components/Version';
 
 const stripePromise = loadStripe(env.VITE_STRIPE_PUBLIC_KEY);
 
@@ -82,6 +83,7 @@ function App() {
 
   return (
     <div className="flex flex-col flex-1 w-full h-screen overflow-hidden">
+      <Version />
       <Elements stripe={stripePromise}>
         <BalanceProvider>
           <Balance />

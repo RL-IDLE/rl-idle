@@ -6,6 +6,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 import { User } from '../../../modules/users/entities/user.entity';
 
@@ -33,6 +34,7 @@ export class Item extends Timestamp implements IItem {
 }
 
 @Entity('itemBought')
+@Unique(['item', 'user'])
 export class ItemBought extends Timestamp implements IItemBought {
   @PrimaryGeneratedColumn('uuid')
   id: string;
