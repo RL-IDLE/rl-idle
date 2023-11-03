@@ -45,7 +45,11 @@ export class EventsService {
   ) {}
 
   async click(data: IWsEvent['click']['body'], server: Server) {
-    const parsedData = await clickSchema.parseAsync(data);
+    const parsedData = await clickSchema.parseAsync(data).catch((err) => {
+      server.emit(`error:${data.userId}`, err.message);
+      return;
+    });
+    if (!parsedData) return;
     const user = await getOneData({
       databaseRepository: this.usersRepository,
       key: 'users',
@@ -75,7 +79,11 @@ export class EventsService {
   }
 
   async buyItem(data: IWsEvent['buyItem']['body'], server: Server) {
-    const parsedData = await buyItemSchema.parseAsync(data);
+    const parsedData = await buyItemSchema.parseAsync(data).catch((err) => {
+      server.emit(`error:${data.userId}`, err.message);
+      return;
+    });
+    if (!parsedData) return;
     const user = await getOneData({
       databaseRepository: this.usersRepository,
       key: 'users',
@@ -170,7 +178,11 @@ export class EventsService {
   }
 
   async buyPrestige(data: IWsEvent['buyPrestige']['body'], server: Server) {
-    const parsedData = await buyPrestigeSchema.parseAsync(data);
+    const parsedData = await buyPrestigeSchema.parseAsync(data).catch((err) => {
+      server.emit(`error:${data.userId}`, err.message);
+      return;
+    });
+    if (!parsedData) return;
     const user = await getOneData({
       databaseRepository: this.usersRepository,
       key: 'users',
