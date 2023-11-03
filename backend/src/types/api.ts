@@ -1,7 +1,17 @@
 import { z } from 'zod';
 import { unknown } from '.';
 import { IHttpMethod } from './http';
-import { ILoadUser, IUser } from './user';
+import {
+  IGive,
+  IGiveItem,
+  IGivePrestige,
+  ILoadUser,
+  IRemove,
+  IRemoveItem,
+  IRemovePrestige,
+  IReset,
+  IUser,
+} from './user';
 import {
   buyItemSchema,
   buyPrestigeSchema,
@@ -36,7 +46,43 @@ export const api = IApiType({
     reset: {
       method: 'POST',
       url: '/users/reset',
-      body: unknown as { id: string },
+      body: unknown as IReset,
+      response: unknown as IUser,
+    },
+    give: {
+      method: 'POST',
+      url: '/users/give',
+      body: unknown as IGive,
+      response: unknown as IUser,
+    },
+    remove: {
+      method: 'POST',
+      url: '/users/remove',
+      body: unknown as IRemove,
+      response: unknown as IUser,
+    },
+    givePrestige: {
+      method: 'POST',
+      url: '/users/give-prestige',
+      body: unknown as IGivePrestige,
+      response: unknown as IUser,
+    },
+    removePrestige: {
+      method: 'POST',
+      url: '/users/remove-prestige',
+      body: unknown as IRemovePrestige,
+      response: unknown as IUser,
+    },
+    giveItem: {
+      method: 'POST',
+      url: '/users/give-item',
+      body: unknown as IGiveItem,
+      response: unknown as IUser,
+    },
+    removeItem: {
+      method: 'POST',
+      url: '/users/remove-item',
+      body: unknown as IRemoveItem,
       response: unknown as IUser,
     },
   },

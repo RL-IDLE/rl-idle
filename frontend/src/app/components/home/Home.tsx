@@ -5,38 +5,61 @@ import styles from './home.module.scss';
 import { decimalToHumanReadable } from '@/lib/bignumber';
 import clickSound from '@/assets/audio/click.ogg';
 import { getUserMoneyPerClick } from '@/lib/game';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
   const click = useGameStore((state) => state.actions.click);
-  const user = useUserStore((state) => state.user);
+  const itemsBought = useUserStore((state) => state.user?.itemsBought);
+  const moneyPerClick = useUserStore((state) => state.user?.moneyPerClick);
+  const prestigesBought = useUserStore((state) => state.user?.prestigesBought);
 
-  const itemsTab = user?.itemsBought.map((item) => {
+  const itemsTab = (itemsBought ?? []).map((item) => {
     return {
       id: item.item.id,
       moneyPerSecond: item.item.moneyPerSecond,
       image: item.item.image,
     };
   });
-  itemsTab?.sort((a, b) => {
+  itemsTab.sort((a, b) => {
     if (a.moneyPerSecond.gt(b.moneyPerSecond)) return -1;
     if (a.moneyPerSecond.lt(b.moneyPerSecond)) return 1;
     return 0;
   });
 
-  const [audio] = useState(new Audio(clickSound));
+  const [audio, setAudio] = useState<HTMLAudioElement>();
+
+  useEffect(() => {
+    const newAudio = new Audio(clickSound);
+    setAudio(newAudio);
+    return () => {
+      newAudio.remove();
+    };
+  }, []);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     click();
-    audio.currentTime = 0;
-    audio.play();
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play();
+    }
 
     const xAlea = Math.floor(Math.random() * 25);
     const x = e.clientX - xAlea;
     const y = e.clientY - 30;
     const mouse = document.createElement('div');
     mouse.classList.add(styles.mouse);
-    mouse.innerHTML = '+' + decimalToHumanReadable(getUserMoneyPerClick(user));
+    mouse.innerHTML =
+      '+' +
+      decimalToHumanReadable(
+        getUserMoneyPerClick(
+          moneyPerClick && prestigesBought
+            ? {
+                moneyPerClick,
+                prestigesBought,
+              }
+            : null,
+        ),
+      );
     mouse.style.top = y + 'px';
     mouse.style.left = x + 'px';
     document.body.appendChild(mouse);
@@ -53,9 +76,9 @@ export default function Home() {
       >
         <img
           src={
-            itemsTab && itemsTab.length > 0
+            itemsTab.length > 0
               ? itemsTab[0].image
-              : env.VITE_API_URL + '/public/cars/animus-gp--blue.png'
+              : env.VITE_API_URL + '/public/cars/endo--blue.png'
           }
           alt="rocket battle car image"
         />
