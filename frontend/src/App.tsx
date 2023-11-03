@@ -11,12 +11,22 @@ import Balance from './app/components/Balance';
 import './app.scss';
 import PassivePopup from './app/components/PassivePopup';
 import { BalanceProvider } from './contexts/balance/BalanceProvider';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+import { env } from './env';
+
+const stripePromise = loadStripe(env.VITE_STRIPE_PUBLIC_KEY);
 
 function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const loadUser = useGameStore((state) => state.actions.loadUser);
   const loadShop = useGameStore((state) => state.actions.loadShop);
   const loadPrestige = useGameStore((state) => state.actions.loadPrestige);
+
+  const options = {
+    // passing the client secret obtained from the server
+    clientSecret: '{{CLIENT_SECRET}}',
+  };
 
   useEffect(() => {
     function onConnect() {
@@ -53,13 +63,15 @@ function App() {
 
   return (
     <div className="flex flex-col flex-1 w-full h-screen overflow-hidden">
-      <BalanceProvider>
-        <Balance />
-        <Game />
-        <Navbar />
-        <PassivePopup />
-        {!isConnected && <Loading />}
-      </BalanceProvider>
+      <Elements stripe={stripePromise}>
+        <BalanceProvider>
+          <Balance />
+          <Game />
+          <Navbar />
+          <PassivePopup />
+          {!isConnected && <Loading />}
+        </BalanceProvider>
+      </Elements>
     </div>
   );
 }
