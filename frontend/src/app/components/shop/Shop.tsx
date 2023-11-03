@@ -128,23 +128,27 @@ export default function Shop() {
   };
 
   return (
-    <section className={styles.shop + ' flex flex-col mt-32 rounded-xl pt-5'}>
+    <section
+      className={cn(styles.shop + ' flex flex-col mt-32 rounded-xl pt-5', {
+        'after:!hidden': !isCredit,
+      })}
+    >
       <div className="flex justify-center">
         <button className="text-white p-5" onClick={() => setIsCredit(true)}>
           Credits
         </button>
         <button className="text-white p-5" onClick={() => setIsCredit(false)}>
-          Gems
+          Emeralds
         </button>
       </div>
       {isCredit ? (
         <>
-          <ul className="flex flex-col gap-2 overflow-auto touch-pan-y items-center rounded-xl pt-3 pb-3">
+          <ul className="flex flex-col gap-2 overflow-auto touch-pan-y items-center rounded-xl pt-3 pb-3 px-4">
             {itemsWithPrice.map((item) => (
               <li
                 key={item.id}
                 className={cn(
-                  'flex flex-row gap-2 border p-2 cursor-pointer relative transition-all active:scale-[0.98]',
+                  'flex flex-row gap-2 border p-2 cursor-pointer relative transition-all active:scale-[0.98] w-full',
                   {
                     'opacity-[.65]': item.price.gt(balance),
                     'pointer-events-none': item.price.gt(balance),
