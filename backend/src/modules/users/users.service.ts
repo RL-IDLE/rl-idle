@@ -110,6 +110,11 @@ export class UsersService {
     });
     if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
+    //? Delete all redis keys
+    const keys = await redis.keys(`${redisNamespace}:*`);
+    if (keys.length) {
+      await redis.del(keys);
+    }
     user.moneyFromClick = '0';
     user.moneyPerClick = '1';
     user.moneyUsed = '0';
@@ -162,11 +167,6 @@ export class UsersService {
       id: user.id,
       data: user,
     });
-    //? Delete all redis keys
-    const keys = await redis.keys(`${redisNamespace}:*`);
-    if (keys.length) {
-      await redis.del(keys);
-    }
     return user;
   }
 
