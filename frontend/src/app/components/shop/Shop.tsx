@@ -92,7 +92,9 @@ export default function Shop() {
       : Decimal.fromString('0'),
   }));
 
-  const prestigesSorted = memoizedPresitgesSorted(prestigesBought ?? []);
+  const prestigesSorted = memoizedPresitgesSorted(
+    prestigesBought ? [...prestigesBought] : [],
+  );
   const latestPrestigeMult: Decimal =
     prestigesSorted.length > 0
       ? prestigesSorted[0].prestige.moneyMult

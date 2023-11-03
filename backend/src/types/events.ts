@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const clickSchema = z.object({
   type: z.literal('click'),
   userId: z.string(),
+  times: z.string(),
 });
 
 export const buyItemSchema = z.object({

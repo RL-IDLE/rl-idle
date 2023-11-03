@@ -49,17 +49,22 @@ export class EventsService {
       key: 'users',
       id: parsedData.userId,
     });
-    if (!user) throw new HttpException('User not found', 404);
+    if (!user) throw new HttpException('User not found', 400);
     const clicks = await redis.get(`clicks:${user.id}`);
     const maxPerSecond = 20;
-    if (clicks && parseInt(clicks) >= maxPerSecond * 30) {
+    if (
+      clicks &&
+      parseInt(clicks) + parseInt(parsedData.times) >= maxPerSecond * 30
+    ) {
       //? Emit the exception for the correspondig user
       server.emit(`error:${user.id}`, 'You have reached the limit of clicks');
       return;
     }
     const moneyFromClick = Decimal.fromString(user.moneyFromClick);
     const moneyPerClick = getUserMoneyPerClick(user);
-    const newMoneyFromClick = moneyFromClick.add(moneyPerClick);
+    const newMoneyFromClick = moneyFromClick.add(
+      moneyPerClick.times(Decimal.fromString(parsedData.times)),
+    );
     user.moneyFromClick = newMoneyFromClick.toString();
     await saveOneData({ key: 'users', id: parsedData.userId, data: user });
     //? Add a click to the redis click counter
@@ -74,14 +79,14 @@ export class EventsService {
       key: 'users',
       id: parsedData.userId,
     });
-    if (!user) throw new HttpException('User not found', 404);
+    if (!user) throw new HttpException('User not found', 400);
     const item = await getOneData({
       databaseRepository: this.itemsRepository,
       key: 'items',
       id: parsedData.itemId,
       options: { noSync: true },
     });
-    if (!item) throw new HttpException('Item not found', 404);
+    if (!item) throw new HttpException('Item not found', 400);
     const userBalance = getUserBalance(user);
     // const alreadyBought = await this.itemsBoughtRepository
     //   .createQueryBuilder('itemBought')
@@ -155,14 +160,14 @@ export class EventsService {
       key: 'users',
       id: parsedData.userId,
     });
-    if (!user) throw new HttpException('User not found', 404);
+    if (!user) throw new HttpException('User not found', 400);
     const prestige = await getOneData({
       databaseRepository: this.prestigeRepository,
       key: 'prestige',
       id: parsedData.prestigeId,
       options: { noSync: true },
     });
-    if (!prestige) throw new HttpException('Prestige not found', 404);
+    if (!prestige) throw new HttpException('Prestige not found', 400);
     const userBalance = getUserBalance(user);
 
     if (userBalance.lt(prestige.price)) {
@@ -171,10 +176,47 @@ export class EventsService {
       return;
     }
 
+    //? Check if user has already bought this prestige
+    const alreadyBought = user.prestigesBought.filter(
+      (prestigeBought) => prestigeBought.prestige.id === prestige.id,
+    ).length;
+    if (alreadyBought > 0) {
+      //? Emit the exception for the correspondig user
+      server.emit(`error:${user.id}`, 'You have already bought this prestige');
+      return;
+    }
+
+    //? Check that this prestige is the next one
+    const prestigeSorted = user.prestigesBought.sort((a, b) =>
+      Decimal.fromString(a.prestige.moneyMult).cmp(
+        Decimal.fromString(b.prestige.moneyMult),
+      ),
+    );
+    const lastPrestigeBought =
+      prestigeSorted.length > 0
+        ? prestigeSorted[prestigeSorted.length - 1]
+        : null;
+    const prestiges = await this.prestigeRepository.find();
+    const prestigesOrdered = prestiges.sort((a, b) =>
+      Decimal.fromString(a.moneyMult).cmp(Decimal.fromString(b.moneyMult)),
+    );
+    const nextPrestige = prestigesOrdered[
+      prestigesOrdered.reduce((acc, prestige, i) => {
+        if (prestige.id === lastPrestigeBought?.prestige.id) return i;
+        return acc;
+      }, -1) + 1
+    ] as Prestige | null;
+    if (nextPrestige?.id !== prestige.id) {
+      //? Emit the exception for the correspondig user
+      server.emit(
+        `error:${user.id}`,
+        'You have to buy the previous prestige first',
+      );
+      return;
+    }
+
     //* Mutate
-    const userMoneyUsed = Decimal.fromString(user.moneyUsed);
-    const newUserMoneyUsed = userMoneyUsed.add(prestige.id);
-    user.moneyUsed = newUserMoneyUsed.toString();
+    user.moneyUsed = '0';
     const prestigeBought: PrestigeBought = {
       id: randomUUID(),
       prestige: prestige,
@@ -195,7 +237,6 @@ export class EventsService {
     //? Reset user money/items
     user.moneyFromClick = '0';
     user.moneyPerClick = '1';
-    user.moneyUsed = '0';
     user.itemsBought = [];
     await saveOneData({ key: 'users', id: parsedData.userId, data: user });
     return user;
@@ -207,7 +248,7 @@ export class EventsService {
       key: 'users',
       id: data.userId,
     });
-    if (!user) throw new HttpException('User not found', 404);
+    if (!user) throw new HttpException('User not found', 400);
     //? Update user lastSeen
     user.lastSeen = new Date();
     await saveOneData({ key: 'users', id: data.userId, data: user });
