@@ -1,1 +1,17 @@
 export const maxPassiveIncomeInterval = 1000 * 60 * 60 * 8; //? 8 hours
+export const priceToEmerald = (price: number) => {
+  const priceToEmeraldMap = new Map<number, number>([
+    [99, 80],
+    [499, 500],
+    [999, 1100],
+    [1999, 2500],
+    [4999, 6500],
+    [9999, 14000],
+  ]);
+
+  if (priceToEmeraldMap.has(price)) {
+    return priceToEmeraldMap.get(price) as number;
+  } else {
+    throw `Price not found (${price})`;
+  }
+};

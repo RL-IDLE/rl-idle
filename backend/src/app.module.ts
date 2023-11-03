@@ -7,6 +7,7 @@ import configurations from './config';
 import { CronsModule } from './modules/crons/crons.module';
 import { ItemsModule } from './modules/items/items.module';
 import { PrestigesModule } from './modules/prestiges/prestiges.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PrestigesModule } from './modules/prestiges/prestiges.module';
     UsersModule,
     ItemsModule,
     PrestigesModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

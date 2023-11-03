@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { socket } from './lib/socket';
 import Game from './app/components/Game';
@@ -14,6 +14,8 @@ import { BalanceProvider } from './contexts/balance/BalanceProvider';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { env } from './env';
+import { router } from './lib/api';
+import { useUserStore } from './contexts/user.store';
 
 const stripePromise = loadStripe(env.VITE_STRIPE_PUBLIC_KEY);
 
@@ -22,11 +24,28 @@ function App() {
   const loadUser = useGameStore((state) => state.actions.loadUser);
   const loadShop = useGameStore((state) => state.actions.loadShop);
   const loadPrestige = useGameStore((state) => state.actions.loadPrestige);
+  const userId = useUserStore((state) => state.user?.id);
 
-  const options = {
-    // passing the client secret obtained from the server
-    clientSecret: '{{CLIENT_SECRET}}',
-  };
+  const handlePayment = useCallback(async () => {
+    if (!userId) return;
+    //? Get search params
+    const query = window.location.search;
+    const params = new URLSearchParams(query);
+    const checkoutSessionId = params.get('checkout_session_id');
+    if (!checkoutSessionId) return;
+    await router.user.confirmPayment({
+      id: userId,
+      checkoutSessionId,
+    });
+    //? Remove the searchparams
+    params.delete('checkout_session_id');
+    window.location.search = params.toString();
+  }, [userId]);
+
+  useEffect(() => {
+    //? Handle payment callback
+    handlePayment();
+  }, [handlePayment]);
 
   useEffect(() => {
     function onConnect() {

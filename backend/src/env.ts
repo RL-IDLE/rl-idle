@@ -20,6 +20,7 @@ export const env = createEnv({
     REDIS_USE_TLS: z.coerce.boolean(),
     BASE_URL: z.string(),
     PASSWORD_HASHER_SECRET: z.string(),
+    STRIPE_SECRET_KEY: z.string(),
   },
   clientPrefix: 'PUBLIC_',
   client: {},
