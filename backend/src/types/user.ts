@@ -70,3 +70,10 @@ export const RemoveItemSchema = z.object({
 });
 
 export type IRemoveItem = z.infer<typeof RemoveItemSchema>;
+
+export const ConfirmPaymentSchema = z.object({
+  id: z.string(),
+  checkoutSessionId: z.string(),
+});
+
+export type IConfirmPayment = z.infer<typeof ConfirmPaymentSchema>;

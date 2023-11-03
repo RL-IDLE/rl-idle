@@ -40,4 +40,9 @@ export class User extends Timestamp implements IUser {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   lastSeen: Date;
+
+  @Column({
+    default: '0',
+  })
+  emeralds: string;
 }
