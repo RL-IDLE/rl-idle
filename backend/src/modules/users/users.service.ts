@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { api } from 'src/types/api';
-import { getOneData, saveOneData } from 'src/lib/storage';
+import { getOneData, redisNamespace, saveOneData } from 'src/lib/storage';
 import { maxPassiveIncomeInterval } from 'src/lib/constant';
 import { getUserBalance } from 'src/lib/game';
 import Decimal from 'break_infinity.js';
@@ -16,6 +16,7 @@ import {
 import { Item, ItemBought } from '../items/entities/item.entity';
 import { randomUUID } from 'crypto';
 import { bcryptCompare, hash } from 'src/lib/bcrypt';
+import { redis } from 'src/lib/redis';
 
 @Injectable()
 export class UsersService {
@@ -161,6 +162,11 @@ export class UsersService {
       id: user.id,
       data: user,
     });
+    //? Delete all redis keys
+    const keys = await redis.keys(`${redisNamespace}:*`);
+    if (keys.length) {
+      await redis.del(keys);
+    }
     return user;
   }
 
