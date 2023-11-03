@@ -15,6 +15,7 @@ import {
 } from '../prestiges/entities/prestige.entity';
 import { Item, ItemBought } from '../items/entities/item.entity';
 import { randomUUID } from 'crypto';
+import { bcryptCompare, hash } from 'src/lib/bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -51,7 +52,7 @@ export class UsersService {
       key: 'users',
       id: 'id' in loadUser ? loadUser.id : (userId as string),
     });
-    if (!dbUser) throw new HttpException('User not found', 404);
+    if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
 
     //* Max passive income
@@ -106,7 +107,7 @@ export class UsersService {
       key: 'users',
       id: resetUser.id,
     });
-    if (!dbUser) throw new HttpException('User not found', 404);
+    if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
     user.moneyFromClick = '0';
     user.moneyPerClick = '1';
@@ -129,7 +130,7 @@ export class UsersService {
       key: 'users',
       id: give.id,
     });
-    if (!dbUser) throw new HttpException('User not found', 404);
+    if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
     user.moneyFromClick = Decimal.fromString(user.moneyFromClick)
       .add(give.amount)
@@ -150,7 +151,7 @@ export class UsersService {
       key: 'users',
       id: remove.id,
     });
-    if (!dbUser) throw new HttpException('User not found', 404);
+    if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
     user.moneyUsed = Decimal.fromString(user.moneyUsed)
       .sub(remove.amount)
@@ -171,7 +172,7 @@ export class UsersService {
       key: 'users',
       id: givePrestige.id,
     });
-    if (!dbUser) throw new HttpException('User not found', 404);
+    if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
     //* Next prestige
     const prestiges = await this.prestigeRepository.find();
@@ -201,7 +202,7 @@ export class UsersService {
             )
           : true,
       );
-    if (!nextPrestige) throw new HttpException('No next prestige found', 404);
+    if (!nextPrestige) throw new HttpException('No next prestige found', 400);
     //* Give prestige
     const prestigeBought: PrestigeBought = {
       id: randomUUID(),
@@ -237,7 +238,7 @@ export class UsersService {
       key: 'users',
       id: removePrestige.id,
     });
-    if (!dbUser) throw new HttpException('User not found', 404);
+    if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
     //* Find the highest prestige
     const highestPrestige = user.prestigesBought.reduce<Prestige | null>(
@@ -253,7 +254,7 @@ export class UsersService {
       },
       null,
     );
-    if (!highestPrestige) throw new HttpException('No prestige found', 404);
+    if (!highestPrestige) throw new HttpException('No prestige found', 400);
     //* Remove prestige
     user.prestigesBought = user.prestigesBought.filter(
       (prestigeBought) => prestigeBought.prestige.id !== highestPrestige.id,
@@ -274,7 +275,7 @@ export class UsersService {
       key: 'users',
       id: giveItem.id,
     });
-    if (!dbUser) throw new HttpException('User not found', 404);
+    if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
     const item = await getOneData({
       databaseRepository: this.itemRepository,
@@ -282,7 +283,7 @@ export class UsersService {
       id: giveItem.itemId,
       options: { noSync: true },
     });
-    if (!item) throw new HttpException('Item not found', 404);
+    if (!item) throw new HttpException('Item not found', 400);
     const itemBought: ItemBought = {
       id: randomUUID(),
       item: item,
@@ -316,7 +317,7 @@ export class UsersService {
       key: 'users',
       id: removeItem.id,
     });
-    if (!dbUser) throw new HttpException('User not found', 404);
+    if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
     const item = await getOneData({
       databaseRepository: this.itemRepository,
@@ -324,7 +325,7 @@ export class UsersService {
       id: removeItem.itemId,
       options: { noSync: true },
     });
-    if (!item) throw new HttpException('Item not found', 404);
+    if (!item) throw new HttpException('Item not found', 400);
     user.itemsBought = user.itemsBought.filter(
       (itemBought) => itemBought.item.id !== item.id,
     );
@@ -333,6 +334,38 @@ export class UsersService {
       id: user.id,
       data: user,
     });
+    return user;
+  }
+
+  async updateUser(user: User) {
+    const password = hash(user.password, 10);
+
+    if (!user.password || !user.username)
+      throw new HttpException('Missing password or username', 400);
+
+    await saveOneData({
+      key: 'users',
+      id: user.id,
+      data: {
+        password: password,
+        username: user.username,
+      },
+    });
+    return user;
+  }
+
+  async signIn(user: User) {
+    const dbUser = await getOneData({
+      databaseRepository: this.usersRepository,
+      key: 'users',
+      id: user.id,
+    });
+    if (!dbUser) throw new HttpException('User not found', 400);
+
+    if (user.username !== dbUser.username)
+      throw new HttpException('Wrong username', 400);
+    if (!(await bcryptCompare(user.password, dbUser.password)))
+      throw new HttpException('Wrong password', 400);
     return user;
   }
 }

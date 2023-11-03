@@ -4,6 +4,7 @@ import { IPrestigeBought } from './prestige';
 
 export type IUser = {
   id: string;
+  username: string;
   moneyFromClick: Decimal;
   moneyPerClick: Decimal;
   moneyUsed: Decimal;

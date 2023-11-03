@@ -63,8 +63,8 @@ export default function Game() {
     swiper.slideTo(getPageIndex(navigationStore.page));
   }, [navigationStore.page, swiper]);
 
-  //* Expose some functions to the window for debugging
   useEffect(() => {
+    //* Expose some functions to the window for debugging
     if (env.VITE_ENV !== 'development') return;
     (window as unknown as { reset: unknown }).reset =
       useGameStore.getState().actions.reset;
@@ -91,6 +91,15 @@ export default function Game() {
       giveItem: useGameStore.getState().actions.giveItem,
       removeItem: useGameStore.getState().actions.removeItem,
     };
+
+    //* Desactivate right click
+    const handleContextmenu = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+    document.addEventListener('contextmenu', handleContextmenu);
+    return function cleanup() {
+      document.removeEventListener('contextmenu', handleContextmenu);
+    };
   }, []);
 
   //? Expose items object to simplify giveItem and removeItem
@@ -105,6 +114,7 @@ export default function Game() {
   }, [items]);
 
   const pageIndex = getPageIndex(navigationStore.page);
+  const swiperPage = swiper?.activeIndex ?? 0;
 
   return (
     <>
@@ -118,10 +128,10 @@ export default function Game() {
         onSwiper={setSwiper}
         edgeSwipeThreshold={100}
         //? Do not allow swiping to the left on the first page
-        allowSlidePrev={pageIndex !== 0}
+        allowSlidePrev={swiperPage !== 0}
         //? Do not allow swiping to the right on the last page
         allowSlideNext={
-          pageIndex !== pages.filter((p) => !p.disabled).length - 1
+          swiperPage !== pages.filter((p) => !p.disabled).length - 1
         }
       >
         {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}

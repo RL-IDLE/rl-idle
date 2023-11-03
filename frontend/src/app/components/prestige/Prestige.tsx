@@ -8,7 +8,6 @@ import { cn } from '@/lib/utils';
 import Button from '../ui/Button';
 import { useBalance } from '@/contexts/balance/BalanceUtils';
 import ArrowPrestige from '../icons/ArrowPrestige';
-import Decimal from 'break_infinity.js';
 
 export default function Prestige() {
   const prestiges = usePrestigeStore((state) => state.prestiges);
@@ -17,20 +16,16 @@ export default function Prestige() {
   const { balance } = useBalance();
 
   const pSorted = prestiges.sort((a, b) => {
-    if (a.moneyMult.greaterThan(b.moneyMult)) return 1;
-    if (a.moneyMult.lessThan(b.moneyMult)) return -1;
-    return 0;
+    return a.moneyMult.cmp(b.moneyMult);
   });
 
   const pbSorted = prestigesBought
     ? [...prestigesBought].sort((a, b) => {
-        if (a.prestige.moneyMult.greaterThan(b.prestige.moneyMult)) return 1;
-        if (a.prestige.moneyMult.lessThan(b.prestige.moneyMult)) return -1;
-        return 0;
+        return a.prestige.moneyMult.cmp(b.prestige.moneyMult);
       })
     : null;
 
-  const currentPrestige = pbSorted?.[0] || null;
+  const currentPrestige = pbSorted?.[pbSorted.length - 1] || null;
   const currentPrestigeIndex = pSorted.findIndex(
     (prestige) => prestige.id === currentPrestige?.prestige.id,
   );
@@ -67,25 +62,20 @@ export default function Prestige() {
           ) : (
             <img width="150" height="75" src={unrankedIcon} alt="credit" />
           )}
-          <ArrowPrestige className={'w-[100px] self-center'} />
-          {nextPrestige ? (
-            <img
-              width="150"
-              height="75"
-              src={nextPrestige.image}
-              alt="credit"
-            />
-          ) : (
-            <img
-              width="150"
-              height="75"
-              src={currentPrestige?.prestige.image}
-              alt="credit"
-            />
+          {nextPrestige && (
+            <>
+              <ArrowPrestige className={'w-[100px] self-center'} />
+              <img
+                width="150"
+                height="75"
+                src={nextPrestige.image}
+                alt="credit"
+              />
+            </>
           )}
         </div>
         <h3 className="text-center text-xl self-center relative text-white flex flex-col mt-5">
-          Next Prestige Boost !
+          {nextPrestige ? 'Next Prestige Boost !' : 'Max Prestige Boost !'}
         </h3>
         <div className="flex items-center content-center justify-center">
           {currentPrestige ? (
@@ -95,15 +85,13 @@ export default function Prestige() {
           ) : (
             <p className="text-4xl">x1</p>
           )}
-          <ArrowPrestige className={'w-[100px] self-center px-5'} />
-          {nextPrestige ? (
-            <p className="text-4xl">{`x${decimalToHumanReadable(
-              nextPrestige.moneyMult,
-            )}`}</p>
-          ) : (
-            <p className="text-4xl">{`x${decimalToHumanReadable(
-              currentPrestige?.prestige.moneyMult ?? Decimal.fromString('0'),
-            )}`}</p>
+          {nextPrestige && (
+            <>
+              <ArrowPrestige className={'w-[100px] self-center px-5'} />
+              <p className="text-4xl">{`x${decimalToHumanReadable(
+                nextPrestige.moneyMult,
+              )}`}</p>
+            </>
           )}
         </div>
         {nextPrestige && (
