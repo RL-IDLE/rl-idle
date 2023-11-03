@@ -230,7 +230,7 @@ export default function Shop() {
 
                     {/* LEVEL */}
                     <p className="level text-white absolute top-1 right-1">
-                      lvl {decimalToHumanReadable(item.level)}
+                      lvl {decimalToHumanReadable(item.level, true)}
                     </p>
 
                     {/* PERCENTAGE IN BALANCE */}
