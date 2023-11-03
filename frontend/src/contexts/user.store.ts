@@ -16,13 +16,25 @@ import {
   getUserMoneyPerClick,
 } from '@/lib/game';
 
+let clickBuffer: Decimal = Decimal.fromString('0');
+
 interface UserState {
   user: IUser | null;
+  lastClick: Date | null;
+
   click: () => void;
   buyItem: (id: string) => void;
   buyPrestige: (id: string) => void;
   loadUser: () => Promise<string | undefined>;
+
+  /** TEST COMMANDS */
   reset: () => Promise<void>;
+  give: (amount: string) => Promise<void>;
+  remove: (amount: string) => Promise<void>;
+  givePrestige: () => Promise<void>;
+  removePrestige: () => Promise<void>;
+  giveItem: (itemId: string) => Promise<void>;
+  removeItem: (itemId: string) => Promise<void>;
 }
 
 export const useUserStore = create<UserState>()(
@@ -30,18 +42,30 @@ export const useUserStore = create<UserState>()(
     persist(
       immer((set, get) => ({
         user: null,
+        lastClick: null,
         click() {
+          //? If lastClick is too recent (less than 0.1s), return
+          const lastClick = get().lastClick;
+          const timeDiff = lastClick ? Date.now() - lastClick.getTime() : null;
+          if (timeDiff !== null && timeDiff < 100) {
+            clickBuffer = clickBuffer.add(Decimal.fromString('1'));
+            return;
+          }
+          //? Update lastClick
           set((state) => {
+            state.lastClick = new Date();
             const user = state.user;
             if (!user) return;
             logger.debug('click');
             user.moneyFromClick = user.moneyFromClick.add(
-              getUserMoneyPerClick(user),
+              getUserMoneyPerClick(user).times(clickBuffer.add('1')),
             );
             const eventBody: IWsEvent['click']['body'] = {
               type: 'click',
               userId: user.id,
+              times: clickBuffer.add('1').toString(),
             };
+            clickBuffer = Decimal.fromString('0');
             socket.emit('events', eventBody);
           });
         },
@@ -223,7 +247,8 @@ export const useUserStore = create<UserState>()(
           return user.id;
         },
         async reset() {
-          const id = get().user?.id;
+          const oldUser = get().user;
+          const id = oldUser?.id;
           if (!id) {
             logger.error('User not found');
             return;
@@ -269,10 +294,160 @@ export const useUserStore = create<UserState>()(
           });
           return;
         },
+        async give(amount) {
+          const oldUser = get().user;
+          const id = oldUser?.id;
+          if (!id) {
+            logger.error('User not found');
+            return;
+          }
+          const user = await router.user.give({ id, amount });
+          //? Set the user
+          set({
+            user: {
+              ...oldUser,
+              moneyFromClick: Decimal.fromString(user.moneyFromClick),
+            },
+          });
+        },
+        async remove(amount) {
+          const oldUser = get().user;
+          const id = oldUser?.id;
+          if (!id) {
+            logger.error('User not found');
+            return;
+          }
+          const user = await router.user.remove({ id, amount });
+          //? Set the user
+          set({
+            user: {
+              ...oldUser,
+              moneyUsed: Decimal.fromString(user.moneyUsed),
+            },
+          });
+        },
+        async givePrestige() {
+          const oldUser = get().user;
+          const id = oldUser?.id;
+          if (!id) {
+            logger.error('User not found');
+            return;
+          }
+          const user = await router.user.givePrestige({ id });
+          //? Set the user
+          set({
+            user: {
+              ...oldUser,
+              prestigesBought: user.prestigesBought.map((prestigeBought) => ({
+                id: prestigeBought.id,
+                prestige: {
+                  id: prestigeBought.prestige.id,
+                  name: prestigeBought.prestige.name,
+                  price: Decimal.fromString(prestigeBought.prestige.price),
+                  moneyMult: Decimal.fromString(
+                    prestigeBought.prestige.moneyMult,
+                  ),
+                  image: prestigeBought.prestige.image,
+                },
+                createdAt: new Date(prestigeBought.createdAt),
+              })),
+            },
+          });
+        },
+        async removePrestige() {
+          const oldUser = get().user;
+          const id = oldUser?.id;
+          if (!id) {
+            logger.error('User not found');
+            return;
+          }
+          const user = await router.user.removePrestige({ id });
+          //? Set the user
+          set({
+            user: {
+              ...oldUser,
+              prestigesBought: user.prestigesBought.map((prestigeBought) => ({
+                id: prestigeBought.id,
+                prestige: {
+                  id: prestigeBought.prestige.id,
+                  name: prestigeBought.prestige.name,
+                  price: Decimal.fromString(prestigeBought.prestige.price),
+                  moneyMult: Decimal.fromString(
+                    prestigeBought.prestige.moneyMult,
+                  ),
+                  image: prestigeBought.prestige.image,
+                },
+                createdAt: new Date(prestigeBought.createdAt),
+              })),
+            },
+          });
+        },
+        async giveItem(itemId) {
+          const oldUser = get().user;
+          const id = oldUser?.id;
+          if (!id) {
+            logger.error('User not found');
+            return;
+          }
+          const user = await router.user.giveItem({ id, itemId });
+          //? Set the user
+          set({
+            user: {
+              ...oldUser,
+              itemsBought: user.itemsBought.map((itemBought) => ({
+                id: itemBought.id,
+                item: {
+                  id: itemBought.item.id,
+                  name: itemBought.item.name,
+                  price: Decimal.fromString(itemBought.item.price),
+                  moneyPerSecond: Decimal.fromString(
+                    itemBought.item.moneyPerSecond,
+                  ),
+                  moneyPerClickMult: Decimal.fromString(
+                    itemBought.item.moneyPerClickMult,
+                  ),
+                  image: itemBought.item.image,
+                },
+                createdAt: new Date(itemBought.createdAt),
+              })),
+            },
+          });
+        },
+        async removeItem(itemId) {
+          const oldUser = get().user;
+          const id = oldUser?.id;
+          if (!id) {
+            logger.error('User not found');
+            return;
+          }
+          const user = await router.user.removeItem({ id, itemId });
+          //? Set the user
+          set({
+            user: {
+              ...oldUser,
+              itemsBought: user.itemsBought.map((itemBought) => ({
+                id: itemBought.id,
+                item: {
+                  id: itemBought.item.id,
+                  name: itemBought.item.name,
+                  price: Decimal.fromString(itemBought.item.price),
+                  moneyPerSecond: Decimal.fromString(
+                    itemBought.item.moneyPerSecond,
+                  ),
+                  moneyPerClickMult: Decimal.fromString(
+                    itemBought.item.moneyPerClickMult,
+                  ),
+                  image: itemBought.item.image,
+                },
+                createdAt: new Date(itemBought.createdAt),
+              })),
+            },
+          });
+        },
       })),
       {
         name: 'user',
-        version: 3,
+        version: 5,
         merge: (_, persisted) => {
           return {
             ...persisted,

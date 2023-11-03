@@ -16,9 +16,9 @@ function Item({
   return (
     <li
       className={cn(
-        'py-4 flex-1 text-center cursor-pointer h-24 transition-all duration-200 flex flex-col justify-center items-center',
+        'py-4 flex-1 text-center cursor-pointer h-20 transition-all duration-200 flex flex-col justify-center items-center',
         'hover:bg-blue-500/20',
-        '[&>*]:w-10 [&>*]:h-10',
+        '[&>*]:w-6 [&>*]:h-6',
         {
           'bg-blue-500/30': active,
           'opacity-50 pointer-events-none cursor-default': disabled,

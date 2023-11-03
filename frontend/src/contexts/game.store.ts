@@ -15,6 +15,12 @@ interface GameState {
     loadShop: () => Promise<void>;
     loadPrestige: () => Promise<void>;
     reset: () => Promise<void>;
+    give: (amount: string) => Promise<void>;
+    remove: (amount: string) => Promise<void>;
+    givePrestige: () => Promise<void>;
+    removePrestige: () => Promise<void>;
+    giveItem: (itemId: string) => Promise<void>;
+    removeItem: (itemId: string) => Promise<void>;
   };
 }
 
@@ -46,9 +52,35 @@ export const useGameStore = create<GameState>()(
           const { loadPrestige } = usePrestigeStore.getState();
           await loadPrestige();
         },
+
+        /** TEST COMMANDS */
         reset: async () => {
           const { reset } = useUserStore.getState();
           await reset();
+        },
+        give: async (amount: string) => {
+          const { give } = useUserStore.getState();
+          await give(amount);
+        },
+        remove: async (amount: string) => {
+          const { remove } = useUserStore.getState();
+          await remove(amount);
+        },
+        givePrestige: async () => {
+          const { givePrestige } = useUserStore.getState();
+          await givePrestige();
+        },
+        removePrestige: async () => {
+          const { removePrestige } = useUserStore.getState();
+          await removePrestige();
+        },
+        giveItem: async (itemId: string) => {
+          const { giveItem } = useUserStore.getState();
+          await giveItem(itemId);
+        },
+        removeItem: async (itemId: string) => {
+          const { removeItem } = useUserStore.getState();
+          await removeItem(itemId);
         },
       },
     })),
