@@ -5,7 +5,7 @@ import styles from './home.module.scss';
 import { decimalToHumanReadable } from '@/lib/bignumber';
 import clickSound from '@/assets/audio/click.ogg';
 import { getUserMoneyPerClick } from '@/lib/game';
-import { useEffect, useState } from 'react';
+import { MouseEvent, TouchEvent, useEffect, useState } from 'react';
 import Parameters from './Parameters';
 
 export default function Home() {
@@ -37,7 +37,9 @@ export default function Home() {
     };
   }, []);
 
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const handleClick = (
+    e: TouchEvent<HTMLButtonElement> | MouseEvent<HTMLButtonElement>,
+  ) => {
     click();
     if (audio) {
       audio.currentTime = 0;
@@ -45,8 +47,8 @@ export default function Home() {
     }
 
     const xAlea = Math.floor(Math.random() * 25);
-    const x = e.clientX - xAlea;
-    const y = e.clientY - 30;
+    const x = ('clientX' in e ? e.clientX : e.touches[0].clientX) - xAlea;
+    const y = ('clientY' in e ? e.clientY : e.touches[0].clientY) - 30;
     const mouse = document.createElement('div');
     mouse.classList.add(styles.mouse);
     mouse.innerHTML =
@@ -73,7 +75,7 @@ export default function Home() {
   return (
     <section className={styles.home}>
       <button
-        onClick={(e) => handleClick(e)}
+        onPointerDown={(e) => handleClick(e)}
         className="active:scale-[0.97] no-highlight"
       >
         <img
