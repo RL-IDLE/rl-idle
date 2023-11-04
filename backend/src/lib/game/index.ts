@@ -72,13 +72,14 @@ export const getUserMoneyPerClick = (user: IUser) => {
  * beautify(2589) // 3,000
  * beautify(197024772) // 200,000,000
  */
-export const beautify = (num: Decimal) => {
+export const beautify = (num: Decimal, debug?: boolean) => {
   //? Get the 3 firsts digit from the right
   const firstsDigits = num.toString().slice(0, 3);
   const exponent = num.exponent;
-  const firstsDigitsNumber = Number(firstsDigits);
+  const firstsDigitsNumber = Number(firstsDigits.replace('e+', ''));
+  if (debug) console.log(num, firstsDigitsNumber);
   //? If the number is less than 1000, return the number
-  if (exponent < 2) {
+  if (exponent < 2 || firstsDigitsNumber < 100) {
     return num.times(10).round().div(10);
   }
   //? Round firstsDigitsNumber

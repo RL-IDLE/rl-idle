@@ -12,7 +12,8 @@ const insertUser = async () => {
   const connection = await databaseConfiguration.initialize();
 
   const globalGainMult = Decimal.fromString('4');
-  const items: Omit<IItem, 'id'>[] = [
+  const ratio = Decimal.fromString('625');
+  const items: (Omit<IItem, 'id' | 'price'> & { price?: string })[] = [
     {
       url: env.BASE_URL + '/public/cars/endo--blue.png',
       moneyPerClickMult: '2',
@@ -30,412 +31,533 @@ const insertUser = async () => {
       price: Decimal.fromString('20').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/artemis-gxt--blue.png',
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_8BitStandard_0002.ogg',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('0.3').times(globalGainMult),
       ).toString(),
-      name: 'Artemis',
+      name: '8Bit',
+      kind: 'boost',
       price: Decimal.fromString('200').toString(),
+    },
+    {
+      url: env.BASE_URL + '/public/cars/artemis-gxt--blue.png',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('1').times(globalGainMult),
+      ).toString(),
+      name: 'Artemis',
+      price: Decimal.fromString('2500').toString(),
     },
     {
       url: env.BASE_URL + '/public/cars/backfire--blue.png',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
-        Decimal.fromString('1').times(globalGainMult),
+        Decimal.fromString('3').times(globalGainMult),
       ).toString(),
       name: 'Backfire',
-      price: Decimal.fromString('2500').toString(),
     },
     {
       url: env.BASE_URL + '/public/cars/breakout--blue.png',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
-        Decimal.fromString('3').times(globalGainMult),
-      ).toString(),
-      name: 'Breakout',
-      price: Decimal.fromString('8000').toString(),
-    },
-    {
-      url: env.BASE_URL + '/public/cars/breakout-type-s--blue.png',
-      moneyPerClickMult: '0',
-      moneyPerSecond: beautify(
         Decimal.fromString('6').times(globalGainMult),
       ).toString(),
-      name: 'Breakout S',
-      price: Decimal.fromString('20000').toString(),
+      name: 'Breakout',
     },
     {
-      url: env.BASE_URL + '/public/cars/centio-v17--blue.png',
+      name: 'Alien liquid',
+      kind: 'boost',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('15').times(globalGainMult),
       ).toString(),
-      name: 'Centio',
-      price: Decimal.fromString('50000').toString(),
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_AlienLiquid_0004.ogg',
     },
     {
-      url: env.BASE_URL + '/public/cars/chikara-gxt--blue.png',
+      url: env.BASE_URL + '/public/cars/breakout-type-s--blue.png',
+      name: 'Breakout S',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('30').times(globalGainMult),
       ).toString(),
-      name: 'Chikara',
-      price: Decimal.fromString('150000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/cyclone--blue.png',
+      url: env.BASE_URL + '/public/cars/centio-v17--blue.png',
+      name: 'Centio',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('70').times(globalGainMult),
       ).toString(),
-      name: 'Cyclone',
-      price: Decimal.fromString('450000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/delorean-time-machine--blue.png',
+      url: env.BASE_URL + '/public/cars/chikara-gxt--blue.png',
+      name: 'Chikara',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('250').times(globalGainMult),
       ).toString(),
-      name: 'Delorean',
-      price: Decimal.fromString('1200000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/diestro--blue.png',
+      name: 'Aurora',
+      kind: 'boost',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('1000').times(globalGainMult),
       ).toString(),
-      name: 'Diestro',
-      price: Decimal.fromString('5000000').toString(),
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_Aurora_0002.ogg',
     },
     {
-      url: env.BASE_URL + '/public/cars/ecto-1--blue.png',
+      url: env.BASE_URL + '/public/cars/cyclone--blue.png',
+      name: 'Cyclone',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('3000').times(globalGainMult),
       ).toString(),
-      name: 'Ecto 1',
-      price: Decimal.fromString('30000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/endo--blue.png',
+      url: env.BASE_URL + '/public/cars/delorean-time-machine--blue.png',
+      name: 'Delorean',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('8000').times(globalGainMult),
       ).toString(),
-      name: 'Ecto',
-      price: Decimal.fromString('100000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/gizmo--blue.png',
+      url: env.BASE_URL + '/public/cars/diestro--blue.png',
+      name: 'Diestro',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('15000').times(globalGainMult),
       ).toString(),
-      name: 'Gizmo',
-      price: Decimal.fromString('300000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/grog--blue.png',
+      name: 'Beats',
+      kind: 'boost',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('20000').times(globalGainMult),
       ).toString(),
-      name: 'Grog',
-      price: Decimal.fromString('600000000').toString(),
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_BeatS_0004.ogg',
     },
     {
-      url: env.BASE_URL + '/public/cars/guardian-gxt--blue.png',
+      url: env.BASE_URL + '/public/cars/ecto-1--blue.png',
+      name: 'Ecto 1',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('30000').times(globalGainMult),
       ).toString(),
-      name: 'Guardian',
-      price: Decimal.fromString('1500000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/hotshot--blue.png',
+      url: env.BASE_URL + '/public/cars/endo--blue.png',
+      name: 'Ecto',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('50000').times(globalGainMult),
       ).toString(),
-      name: 'Hotshot',
-      price: Decimal.fromString('4000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/imperator-dt5--blue.png',
+      url: env.BASE_URL + '/public/cars/gizmo--blue.png',
+      name: 'Gizmo',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('90000').times(globalGainMult),
       ).toString(),
-      name: 'Imperator',
-      price: Decimal.fromString('10000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/jager-619-rs--blue.png',
+      name: 'Cherry blossom',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('200000').times(globalGainMult),
       ).toString(),
-      name: 'Jager-619',
-      price: Decimal.fromString('25000000000').toString(),
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_CherryBlossom_0001.ogg',
     },
     {
-      url: env.BASE_URL + '/public/cars/jurassic-jeep-wrangler--blue.png',
+      url: env.BASE_URL + '/public/cars/grog--blue.png',
+      name: 'Grog',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('450000').times(globalGainMult),
       ).toString(),
-      name: 'Jurassic Jeep',
-      price: Decimal.fromString('80000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/kitt--blue.png',
+      url: env.BASE_URL + '/public/cars/guardian-gxt--blue.png',
+      name: 'Guardian',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('750000').times(globalGainMult),
       ).toString(),
-      name: 'Kitt',
-      price: Decimal.fromString('150000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/mantis--blue.png',
+      url: env.BASE_URL + '/public/cars/hotshot--blue.png',
+      name: 'Hotshot',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('1500000').times(globalGainMult),
       ).toString(),
-      name: 'Mantis',
-      price: Decimal.fromString('400000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/marauder--blue.png',
+      name: 'Crystal',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('4500000').times(globalGainMult),
       ).toString(),
-      name: 'Marauder',
-      price: Decimal.fromString('1000000000000').toString(),
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_Crystal_0002.ogg',
     },
     {
-      url: env.BASE_URL + '/public/cars/masamune--blue.png',
+      url: env.BASE_URL + '/public/cars/imperator-dt5--blue.png',
+      name: 'Imperator',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('8000000').times(globalGainMult),
       ).toString(),
-      name: 'Masamune',
-      price: Decimal.fromString('3500000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/maverick-gxt--blue.png',
+      url: env.BASE_URL + '/public/cars/jager-619-rs--blue.png',
+      name: 'Jager-619',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('20000000').times(globalGainMult),
       ).toString(),
-      name: 'Maverick',
-      price: Decimal.fromString('10000000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/merc--blue.png',
+      url: env.BASE_URL + '/public/cars/jurassic-jeep-wrangler--blue.png',
+      name: 'Jurassic Jeep',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('45000000').times(globalGainMult),
       ).toString(),
-      name: 'Merc',
-      price: Decimal.fromString('20000000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/mudcat-gxt--blue.png',
+      name: 'Cupid',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('100000000').times(globalGainMult),
       ).toString(),
-      name: 'Mudcat',
-      price: Decimal.fromString('50000000000000').toString(),
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_Cupid_0001.ogg',
     },
     {
-      url: env.BASE_URL + '/public/cars/nemesis--blue.png',
+      url: env.BASE_URL + '/public/cars/kitt--blue.png',
+      name: 'Kitt',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('350000000').times(globalGainMult),
       ).toString(),
-      name: 'Nemesis',
-      price: Decimal.fromString('150000000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/nimbus--blue.png',
+      url: env.BASE_URL + '/public/cars/mantis--blue.png',
+      name: 'Mantis',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('900000000').times(globalGainMult),
       ).toString(),
-      name: 'Nimbus',
-      price: Decimal.fromString('350000000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/octane-zsr--blue.png',
+      url: env.BASE_URL + '/public/cars/marauder--blue.png',
+      name: 'Marauder',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('2000000000').times(globalGainMult),
       ).toString(),
-      name: 'Octane ZSR',
-      price: Decimal.fromString('750000000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/paladin--blue.png',
+      name: 'Digital',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('4000000000').times(globalGainMult),
       ).toString(),
-      name: 'Paladin',
-      price: Decimal.fromString('1500000000000000').toString(),
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_Digital_0001.ogg',
     },
     {
-      url: env.BASE_URL + '/public/cars/ripper--blue.png',
+      url: env.BASE_URL + '/public/cars/masamune--blue.png',
+      name: 'Masamune',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('9000000000').times(globalGainMult),
       ).toString(),
-      name: 'Ripper',
-      price: Decimal.fromString('3000000000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/road-hog--blue.png',
+      url: env.BASE_URL + '/public/cars/maverick-gxt--blue.png',
+      name: 'Maverick',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('15000000000').times(globalGainMult),
       ).toString(),
-      name: 'Road Hog',
-      price: Decimal.fromString('5000000000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/road-hog-xl--blue.png',
+      url: env.BASE_URL + '/public/cars/merc--blue.png',
+      name: 'Merc',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('30000000000').times(globalGainMult),
       ).toString(),
-      name: 'Road Hog XL',
-      price: Decimal.fromString('12000000000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/samurai--blue.png',
-      moneyPerClickMult: '0',
-      moneyPerSecond: beautify(
-        Decimal.fromString('30000000000').times(globalGainMult),
-      ).toString(),
-      name: 'Samurai',
-      price: Decimal.fromString('25000000000000000').toString(),
-    },
-    {
-      url: env.BASE_URL + '/public/cars/scarab--blue.png',
+      name: 'Grass',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('75000000000').times(globalGainMult),
       ).toString(),
-      name: 'Scarab',
-      price: Decimal.fromString('75000000000000000').toString(),
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_Grass_0003.ogg',
     },
     {
-      url: env.BASE_URL + '/public/cars/takumi--blue.png',
+      url: env.BASE_URL + '/public/cars/mudcat-gxt--blue.png',
+      name: 'Mudcat',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('140000000000').times(globalGainMult),
       ).toString(),
-      name: 'Takumi',
-      price: Decimal.fromString('200000000000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/takumi-rx-t--blue.png',
+      url: env.BASE_URL + '/public/cars/nemesis--blue.png',
+      name: 'Nemesis',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('500000000000').times(globalGainMult),
       ).toString(),
-      name: 'Takumi RX',
-      price: Decimal.fromString('500000000000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/twinzer--blue.png',
+      name: 'Quasar',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('1000000000000').times(globalGainMult),
       ).toString(),
-      name: 'Twinzer',
-      price: Decimal.fromString('2000000000000000000').toString(),
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_Quasar_0001.ogg',
     },
     {
-      url: env.BASE_URL + '/public/cars/venom--blue.png',
+      url: env.BASE_URL + '/public/cars/nimbus--blue.png',
+      name: 'Nimbus',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
-        Decimal.fromString('2000000000000').times(globalGainMult),
+        Decimal.fromString('2500000000000').times(globalGainMult),
       ).toString(),
-      name: 'Venom',
-      price: Decimal.fromString('8000000000000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/werewolf--blue.png',
+      url: env.BASE_URL + '/public/cars/octane-zsr--blue.png',
+      name: 'Octane ZSR',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
-        Decimal.fromString('4000000000000').times(globalGainMult),
+        Decimal.fromString('5000000000000').times(globalGainMult),
       ).toString(),
-      name: 'Wereworlf',
-      price: Decimal.fromString('40000000000000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/x-devil--blue.png',
+      url: env.BASE_URL + '/public/cars/paladin--blue.png',
+      name: 'Paladin',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('7500000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      name: 'Taco',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('10000000000000').times(globalGainMult),
       ).toString(),
-      name: 'Devil',
-      price: Decimal.fromString('80000000000000000000').toString(),
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_Taco_0007.ogg',
     },
     {
-      url: env.BASE_URL + '/public/cars/x-devil-mk2--blue.png',
+      url: env.BASE_URL + '/public/cars/ripper--blue.png',
+      name: 'Ripper',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('12500000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      url: env.BASE_URL + '/public/cars/road-hog--blue.png',
+      name: 'Road Hog',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('15000000000000').times(globalGainMult),
       ).toString(),
-      name: 'Devil MK2',
-      price: Decimal.fromString('200000000000000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/zippy--blue.png',
+      name: 'WispySmoke',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('40000000000000').times(globalGainMult),
       ).toString(),
-      name: 'Zippy',
-      price: Decimal.fromString('400000000000000000000').toString(),
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_WispySmoke_0002.ogg',
     },
     {
-      url: env.BASE_URL + '/public/cars/octane--blue.png',
+      url: env.BASE_URL + '/public/cars/road-hog-xl--blue.png',
+      name: 'Road Hog XL',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('100000000000000').times(globalGainMult),
       ).toString(),
-      name: 'Octane',
-      price: Decimal.fromString('1000000000000000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/fennec--blue.png',
+      url: env.BASE_URL + '/public/cars/samurai--blue.png',
+      name: 'Samurai',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('500000000000000').times(globalGainMult),
       ).toString(),
-      name: 'Fennec',
-      price: Decimal.fromString('50000000000000000000000').toString(),
     },
     {
-      url: env.BASE_URL + '/public/cars/dominus--blue.png',
+      url: env.BASE_URL + '/public/cars/scarab--blue.png',
+      name: 'Scarab',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('10000000000000000').times(globalGainMult),
       ).toString(),
+    },
+    {
+      name: 'Ink',
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_Ink_0001.ogg',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('25000000000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      url: env.BASE_URL + '/public/cars/takumi--blue.png',
+      name: 'Takumi',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('50000000000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      url: env.BASE_URL + '/public/cars/takumi-rx-t--blue.png',
+      name: 'Takumi RX',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('100000000000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      name: 'Clown',
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_Clown_0002.ogg',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('250000000000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      url: env.BASE_URL + '/public/cars/twinzer--blue.png',
+      name: 'Twinzer',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('500000000000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      url: env.BASE_URL + '/public/cars/venom--blue.png',
+      name: 'Venom',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('1000000000000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      url: env.BASE_URL + '/public/cars/werewolf--blue.png',
+      name: 'Wereworlf',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('2000000000000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      name: 'Bubbles',
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_Bubbles_0001.ogg',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('5000000000000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      url: env.BASE_URL + '/public/cars/x-devil--blue.png',
+      name: 'Devil',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('10000000000000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      url: env.BASE_URL + '/public/cars/x-devil-mk2--blue.png',
+      name: 'Devil MK2',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('20000000000000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      name: 'Bass',
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_BassBoost_0001.ogg',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('50000000000000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      url: env.BASE_URL + '/public/cars/zippy--blue.png',
+      name: 'Zippy',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('100000000000000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      url: env.BASE_URL + '/public/cars/octane--blue.png',
+      name: 'Octane',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('200000000000000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      url: env.BASE_URL + '/public/cars/fennec--blue.png',
+      name: 'Fennec',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('400000000000000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      name: 'Alpha',
+      url: env.BASE_URL + '/public/boosts/SFX_Boost_Alpha_0001.ogg',
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('1000000000000000000000').times(globalGainMult),
+      ).toString(),
+    },
+    {
+      url: env.BASE_URL + '/public/cars/dominus--blue.png',
       name: 'Dominus',
-      price: Decimal.fromString('400000000000000000000000').toString(),
+      moneyPerClickMult: '0',
+      moneyPerSecond: beautify(
+        Decimal.fromString('2000000000000000000000').times(globalGainMult),
+      ).toString(),
     },
   ];
-  for (const item of items) {
+
+  const itemsWithPrice: Omit<IItem, 'id'>[] = items.map((item) => {
+    return {
+      ...item,
+      price:
+        item.price ??
+        beautify(
+          Decimal.fromString(item.moneyPerSecond).times(ratio),
+        ).toString(),
+    };
+  });
+
+  //? Check that all item have a boost sup to the previous one
+  for (let i = 1; i < itemsWithPrice.length - 1; i++) {
+    const item = itemsWithPrice[i];
+    const nextItem = itemsWithPrice[i + 1];
+    if (Decimal.fromString(item.moneyPerSecond).gte(nextItem.moneyPerSecond)) {
+      Logger.error(
+        `Item ${item.name} have a moneyPerSecond of ${item.moneyPerSecond} and the next one have a moneyPerSecond of ${nextItem.moneyPerSecond}`,
+      );
+      process.exit(1);
+    }
+  }
+
+  for (const item of itemsWithPrice) {
     try {
       await connection.manager.save('item', item);
     } catch (error) {
