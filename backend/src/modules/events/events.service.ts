@@ -160,11 +160,11 @@ export class EventsService {
       updatedAt: createdAt,
       deletedAt: null as unknown as Date,
     };
-    await saveOneData({
-      key: 'itemsBought',
-      data: itemBought,
-      id: itemBought.id,
-    });
+    // await saveOneData({
+    //   key: 'itemsBought',
+    //   data: itemBought,
+    //   id: itemBought.id,
+    // });
     user.itemsBought.push({
       ...itemBought,
       user: { id: user.id } as unknown as User,
@@ -253,11 +253,11 @@ export class EventsService {
       updatedAt: new Date(),
       deletedAt: null as unknown as Date,
     };
-    await saveOneData({
-      key: 'prestigesBought',
-      data: prestigeBought,
-      id: prestige.id,
-    });
+    // await saveOneData({
+    //   key: 'prestigesBought',
+    //   data: prestigeBought,
+    //   id: prestige.id,
+    // });
     user.prestigesBought.push({
       ...prestigeBought,
       user: undefined as unknown as User,

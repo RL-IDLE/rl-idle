@@ -8,7 +8,6 @@ import {
 } from '@/lib/game';
 import { cn } from '@/lib/utils';
 import Decimal from 'break_infinity.js';
-import { logger } from '@/lib/logger';
 import { decimalToHumanReadable } from '@/lib/bignumber';
 import styles from './shop.module.scss';
 import clickSound from '@/assets/audio/buy-item.wav';
@@ -20,6 +19,7 @@ import memoizeOne from 'memoize-one';
 import { IPrestigeBought } from '@/types/prestige';
 import { getHighestPrestigeMult } from '../../../lib/game';
 import { IItemBought } from '@/types/item';
+import { logger } from '@/lib/logger';
 
 const memoizedPresitgesSorted = memoizeOne((prestiges: IPrestigeBought[]) => {
   return prestiges.sort((a, b) =>
@@ -217,7 +217,7 @@ export default function Shop() {
                         alt="credit"
                         className="object-contain"
                       />
-                      {decimalToHumanReadable(item.price)}
+                      {decimalToHumanReadable(item.price, true)}
                     </p>
                     {/* Money per Click */}
                     <p className="text-white text-xs">

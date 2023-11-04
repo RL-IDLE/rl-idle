@@ -15,13 +15,17 @@ import {
   getPriceOfItem,
   getUserMoneyPerClick,
 } from '@/lib/game';
-import { clickRefreshInterval } from '@/lib/constant';
+import { clickRefreshInterval, clickWsRefreshInterval } from '@/lib/constant';
 
+let lastClick: Date | null = null;
 let clickBuffer: Decimal = Decimal.fromString('0');
+let clickBufferTimeout: NodeJS.Timeout | null = null;
+let lastWs: Date | null = null;
+let wsBuffer: Decimal = Decimal.fromString('0');
+let wsBufferTimeout: NodeJS.Timeout | null = null;
 
 interface UserState {
   user: IUser | null;
-  lastClick: Date | null;
 
   click: () => void;
   buyItem: (id: string) => void;
@@ -43,32 +47,51 @@ export const useUserStore = create<UserState>()(
     persist(
       immer((set, get) => ({
         user: null,
-        lastClick: null,
         click() {
-          //? If lastClick is too recent (less than 0.1s), return
-          const lastClick = get().lastClick;
-          const timeDiff = lastClick ? Date.now() - lastClick.getTime() : null;
-          if (timeDiff !== null && timeDiff < clickRefreshInterval) {
-            clickBuffer = clickBuffer.add(Decimal.fromString('1'));
-            return;
+          if (clickBufferTimeout) {
+            clearTimeout(clickBufferTimeout);
           }
-          //? Update lastClick
-          set((state) => {
-            state.lastClick = new Date();
-            const user = state.user;
-            if (!user) return;
-            logger.debug('click');
-            user.moneyFromClick = user.moneyFromClick.add(
-              getUserMoneyPerClick(user).times(clickBuffer.add('1')),
-            );
-            const eventBody: IWsEvent['click']['body'] = {
-              type: 'click',
-              userId: user.id,
-              times: clickBuffer.add('1').toString(),
-            };
-            clickBuffer = Decimal.fromString('0');
-            socket.emit('events', eventBody);
-          });
+          //? If lastClick is too recent (less than 0.1s), return
+          const timeDiff = lastClick ? Date.now() - lastClick.getTime() : null;
+          clickBuffer = clickBuffer.add(Decimal.fromString('1'));
+          clickBufferTimeout = setTimeout(
+            () => {
+              //? Update lastClick
+              set((state) => {
+                lastClick = new Date();
+                const user = state.user;
+                if (!user) return;
+                logger.debug('click');
+                user.moneyFromClick = user.moneyFromClick.add(
+                  getUserMoneyPerClick(user).times(clickBuffer),
+                );
+                if (wsBufferTimeout) {
+                  clearTimeout(wsBufferTimeout);
+                }
+                const wsTimeDiff = lastWs
+                  ? Date.now() - lastWs.getTime()
+                  : null;
+                const userId = user.id;
+                wsBuffer = wsBuffer.add(clickBuffer);
+                wsBufferTimeout = setTimeout(
+                  () => {
+                    lastWs = new Date();
+                    //? Send event to server
+                    const eventBody: IWsEvent['click']['body'] = {
+                      type: 'click',
+                      userId: userId,
+                      times: wsBuffer.toString(),
+                    };
+                    wsBuffer = Decimal.fromString('0');
+                    socket.emit('events', eventBody);
+                  },
+                  wsTimeDiff ? clickWsRefreshInterval - wsTimeDiff : 0,
+                );
+                clickBuffer = Decimal.fromString('0');
+              });
+            },
+            timeDiff ? clickRefreshInterval - timeDiff : 0,
+          );
         },
         buyItem(id) {
           set((state) => {
@@ -342,10 +365,17 @@ export const useUserStore = create<UserState>()(
             return;
           }
           const user = await router.user.givePrestige({ id });
+          user.moneyFromClick = '0';
+          user.moneyPerClick = '1';
+          user.moneyUsed = '0';
           //? Set the user
           set({
             user: {
               ...oldUser,
+              moneyFromClick: Decimal.fromString(user.moneyFromClick),
+              moneyPerClick: Decimal.fromString(user.moneyPerClick),
+              moneyUsed: Decimal.fromString(user.moneyUsed),
+              itemsBought: [],
               prestigesBought: user.prestigesBought.map((prestigeBought) => ({
                 id: prestigeBought.id,
                 prestige: {
@@ -472,7 +502,7 @@ export const useUserStore = create<UserState>()(
       })),
       {
         name: 'user',
-        version: 6,
+        version: 8,
         merge: (_, persisted) => {
           return {
             ...persisted,
