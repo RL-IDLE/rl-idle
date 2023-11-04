@@ -126,7 +126,7 @@ export default function Game() {
           navigationStore.setPage(indexToPage(swiper.activeIndex, true));
         }}
         onSwiper={setSwiper}
-        edgeSwipeThreshold={200}
+        threshold={20}
         //? Do not allow swiping to the left on the first page
         allowSlidePrev={swiperPage !== 0}
         //? Do not allow swiping to the right on the last page
