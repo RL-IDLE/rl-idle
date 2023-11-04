@@ -6,7 +6,7 @@ config();
 
 export const env = createEnv({
   server: {
-    ENV: z.enum(['development', 'production']),
+    ENV: z.enum(['development', 'production', 'stagging']),
     DATABASE_HOST: z.string(),
     DATABASE_PORT: z.string(),
     DATABASE_USER: z.string(),
