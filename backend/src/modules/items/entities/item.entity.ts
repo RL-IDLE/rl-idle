@@ -15,8 +15,15 @@ export class Item extends Timestamp implements IItem {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  image: string;
+  @Column({
+    default: '',
+  })
+  url: string;
+
+  @Column({
+    default: 'car',
+  })
+  kind: string;
 
   @Column({
     unique: true,

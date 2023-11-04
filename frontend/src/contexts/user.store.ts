@@ -15,6 +15,7 @@ import {
   getPriceOfItem,
   getUserMoneyPerClick,
 } from '@/lib/game';
+import { clickRefreshInterval } from '@/lib/constant';
 
 let clickBuffer: Decimal = Decimal.fromString('0');
 
@@ -47,7 +48,7 @@ export const useUserStore = create<UserState>()(
           //? If lastClick is too recent (less than 0.1s), return
           const lastClick = get().lastClick;
           const timeDiff = lastClick ? Date.now() - lastClick.getTime() : null;
-          if (timeDiff !== null && timeDiff < 100) {
+          if (timeDiff !== null && timeDiff < clickRefreshInterval) {
             clickBuffer = clickBuffer.add(Decimal.fromString('1'));
             return;
           }
@@ -131,7 +132,8 @@ export const useUserStore = create<UserState>()(
                 price: item.price,
                 moneyPerSecond: item.moneyPerSecond,
                 moneyPerClickMult: item.moneyPerClickMult,
-                image: item.image,
+                url: item.url,
+                kind: item.kind,
               },
               createdAt: now,
             });
@@ -228,7 +230,8 @@ export const useUserStore = create<UserState>()(
                   moneyPerClickMult: Decimal.fromString(
                     itemBought.item.moneyPerClickMult,
                   ),
-                  image: itemBought.item.image,
+                  url: itemBought.item.url,
+                  kind: itemBought.item.kind,
                 },
                 createdAt: new Date(itemBought.createdAt),
               })),
@@ -277,7 +280,8 @@ export const useUserStore = create<UserState>()(
                   moneyPerClickMult: Decimal.fromString(
                     itemBought.item.moneyPerClickMult,
                   ),
-                  image: itemBought.item.image,
+                  url: itemBought.item.url,
+                  kind: itemBought.item.kind,
                 },
                 createdAt: new Date(itemBought.createdAt),
               })),
@@ -411,7 +415,8 @@ export const useUserStore = create<UserState>()(
                   moneyPerClickMult: Decimal.fromString(
                     itemBought.item.moneyPerClickMult,
                   ),
-                  image: itemBought.item.image,
+                  url: itemBought.item.url,
+                  kind: itemBought.item.kind,
                 },
                 createdAt: new Date(itemBought.createdAt),
               })),
@@ -442,7 +447,8 @@ export const useUserStore = create<UserState>()(
                   moneyPerClickMult: Decimal.fromString(
                     itemBought.item.moneyPerClickMult,
                   ),
-                  image: itemBought.item.image,
+                  url: itemBought.item.url,
+                  kind: itemBought.item.kind,
                 },
                 createdAt: new Date(itemBought.createdAt),
               })),
@@ -496,7 +502,8 @@ export const useUserStore = create<UserState>()(
                       moneyPerClickMult: Decimal.fromString(
                         itemBought.item.moneyPerClickMult as unknown as string,
                       ),
-                      image: itemBought.item.image,
+                      url: itemBought.item.url,
+                      kind: itemBought.item.kind,
                     },
                     createdAt: new Date(itemBought.createdAt),
                   })),

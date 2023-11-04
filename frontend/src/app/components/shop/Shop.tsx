@@ -200,7 +200,7 @@ export default function Shop() {
                   }}
                 >
                   <img
-                    src={item.image}
+                    src={item.url}
                     alt={item.name}
                     className="max-w-[6rem] h-full object-contain"
                   />

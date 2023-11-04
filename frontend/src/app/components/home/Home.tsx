@@ -18,7 +18,7 @@ export default function Home() {
     return {
       id: item.item.id,
       moneyPerSecond: item.item.moneyPerSecond,
-      image: item.item.image,
+      image: item.item.url,
     };
   });
   itemsTab.sort((a, b) => {
