@@ -3,7 +3,6 @@ import { useUserStore } from '@/contexts/user.store';
 import { env } from '@/env';
 import styles from './home.module.scss';
 import { decimalToHumanReadable } from '@/lib/bignumber';
-import clickSound from '@/assets/audio/click.ogg';
 import { getUserMoneyPerClick } from '@/lib/game';
 import { MouseEvent, TouchEvent, useEffect, useState } from 'react';
 import Parameters from './Parameters';
@@ -18,7 +17,8 @@ export default function Home() {
     return {
       id: item.item.id,
       moneyPerSecond: item.item.moneyPerSecond,
-      image: item.item.url,
+      url: item.item.url,
+      kind: item.item.kind,
     };
   });
   itemsTab.sort((a, b) => {
@@ -26,24 +26,34 @@ export default function Home() {
     if (a.moneyPerSecond.lt(b.moneyPerSecond)) return 1;
     return 0;
   });
+  const firstCar = itemsTab.find((item) => item.kind === 'car');
+  const firstBoost = itemsTab.find((item) => item.kind === 'boost');
 
-  const [audio, setAudio] = useState<HTMLAudioElement>();
+  const [audio, setAudio] = useState<{
+    audio: HTMLAudioElement;
+    url: string;
+  }>();
 
   useEffect(() => {
-    const newAudio = new Audio(clickSound);
-    setAudio(newAudio);
+    const url =
+      firstBoost?.url ??
+      env.VITE_API_URL + '/public/boosts/SFX_Boost_2d_Smoke_0001.ogg';
+    if (audio?.url === url) return;
+    const newAudio = new Audio(url);
+    newAudio.volume = 0.3;
+    setAudio({ audio: newAudio, url });
     return () => {
       newAudio.remove();
     };
-  }, []);
+  }, [firstBoost, audio]);
 
   const handleClick = (
     e: TouchEvent<HTMLButtonElement> | MouseEvent<HTMLButtonElement>,
   ) => {
     click();
     if (audio) {
-      audio.currentTime = 0;
-      audio.play();
+      audio.audio.currentTime = 0;
+      audio.audio.play();
     }
 
     const xAlea = Math.floor(Math.random() * 25);
@@ -81,7 +91,7 @@ export default function Home() {
         <img
           src={
             itemsTab.length > 0
-              ? itemsTab[0].image
+              ? firstCar?.url
               : env.VITE_API_URL + '/public/cars/endo--blue.png'
           }
           alt="rocket battle car image"

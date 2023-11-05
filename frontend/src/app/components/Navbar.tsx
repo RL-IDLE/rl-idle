@@ -33,6 +33,7 @@ function Item({
 
 export default function Navbar() {
   const navigationStore = useNavigationStore();
+
   return (
     <nav className="absolute bottom-0 left-0 min-w-full z-50">
       <ul
@@ -43,7 +44,9 @@ export default function Navbar() {
         {pages.map((page) => (
           <Item
             active={navigationStore.page === page.name}
-            onClick={() => navigationStore.setPage(page.name)}
+            onClick={() => {
+              navigationStore.setPage(page.name);
+            }}
             disabled={page.disabled}
             key={page.name}
           >

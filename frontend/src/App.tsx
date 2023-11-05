@@ -17,6 +17,7 @@ import { env } from './env';
 import { router } from './lib/api';
 import { useUserStore } from './contexts/user.store';
 import Version from './app/components/Version';
+import PaymentValidation from './app/components/PaymentValidation';
 
 const stripePromise = loadStripe(env.VITE_STRIPE_PUBLIC_KEY);
 
@@ -26,6 +27,21 @@ function App() {
   const loadShop = useGameStore((state) => state.actions.loadShop);
   const loadPrestige = useGameStore((state) => state.actions.loadPrestige);
   const userId = useUserStore((state) => state.user?.id);
+  const [audio, setAudio] = useState<HTMLAudioElement>();
+  const [paymentValidationReceived, setPaymentValidationReceived] = useState<
+    false | number
+  >(false);
+
+  useEffect(() => {
+    const newAudio = new Audio(
+      env.VITE_API_URL + '/public/emeralds/after-pay.ogg',
+    );
+    newAudio.volume = 0.5;
+    setAudio(newAudio);
+    return () => {
+      newAudio.remove();
+    };
+  }, []);
 
   const handlePayment = useCallback(async () => {
     if (!userId) return;
@@ -34,14 +50,23 @@ function App() {
     const params = new URLSearchParams(query);
     const checkoutSessionId = params.get('checkout_session_id');
     if (!checkoutSessionId) return;
-    await router.user.confirmPayment({
+    const res = await router.user.confirmPayment({
       id: userId,
       checkoutSessionId,
     });
+    setPaymentValidationReceived(res.emeralds);
     //? Remove the searchparams
     params.delete('checkout_session_id');
-    window.location.search = params.toString();
+    window.history.replaceState({}, '', `${window.location.pathname}`);
   }, [userId]);
+
+  const closePaymentValidation = useCallback(() => {
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play();
+    }
+    setPaymentValidationReceived(false);
+  }, [audio]);
 
   useEffect(() => {
     //? Handle payment callback
@@ -93,6 +118,13 @@ function App() {
           {!isConnected && <Loading />}
         </BalanceProvider>
       </Elements>
+      {paymentValidationReceived && (
+        <PaymentValidation close={closePaymentValidation}>
+          <p className="text-center text-xl self-center relative text-white flex flex-col mt-5">
+            + {paymentValidationReceived} Emeralds !
+          </p>
+        </PaymentValidation>
+      )}
     </div>
   );
 }

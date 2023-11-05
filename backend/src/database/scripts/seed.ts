@@ -161,6 +161,7 @@ const insertUser = async () => {
       moneyPerClickMult: '2',
       moneyPerSecond: '0',
       name: 'Click',
+      kind: 'click',
       price: Decimal.fromString('20').toString(),
     },
     {
@@ -313,6 +314,7 @@ const insertUser = async () => {
       moneyPerSecond: beautify(
         Decimal.fromString('200000').times(globalGainMult),
       ).toString(),
+      kind: 'boost',
       url: env.BASE_URL + '/public/boosts/SFX_Boost_CherryBlossom_0001.ogg',
     },
     {
@@ -345,6 +347,7 @@ const insertUser = async () => {
       moneyPerSecond: beautify(
         Decimal.fromString('4500000').times(globalGainMult),
       ).toString(),
+      kind: 'boost',
       url: env.BASE_URL + '/public/boosts/SFX_Boost_Crystal_0002.ogg',
     },
     {
@@ -377,6 +380,7 @@ const insertUser = async () => {
       moneyPerSecond: beautify(
         Decimal.fromString('100000000').times(globalGainMult),
       ).toString(),
+      kind: 'boost',
       url: env.BASE_URL + '/public/boosts/SFX_Boost_Cupid_0001.ogg',
     },
     {
@@ -409,6 +413,7 @@ const insertUser = async () => {
       moneyPerSecond: beautify(
         Decimal.fromString('4000000000').times(globalGainMult),
       ).toString(),
+      kind: 'boost',
       url: env.BASE_URL + '/public/boosts/SFX_Boost_Digital_0001.ogg',
     },
     {
@@ -441,6 +446,7 @@ const insertUser = async () => {
       moneyPerSecond: beautify(
         Decimal.fromString('75000000000').times(globalGainMult),
       ).toString(),
+      kind: 'boost',
       url: env.BASE_URL + '/public/boosts/SFX_Boost_Grass_0003.ogg',
     },
     {
@@ -465,6 +471,7 @@ const insertUser = async () => {
       moneyPerSecond: beautify(
         Decimal.fromString('1000000000000').times(globalGainMult),
       ).toString(),
+      kind: 'boost',
       url: env.BASE_URL + '/public/boosts/SFX_Boost_Quasar_0001.ogg',
     },
     {
@@ -497,6 +504,7 @@ const insertUser = async () => {
       moneyPerSecond: beautify(
         Decimal.fromString('10000000000000').times(globalGainMult),
       ).toString(),
+      kind: 'boost',
       url: env.BASE_URL + '/public/boosts/SFX_Boost_Taco_0007.ogg',
     },
     {
@@ -521,6 +529,7 @@ const insertUser = async () => {
       moneyPerSecond: beautify(
         Decimal.fromString('40000000000000').times(globalGainMult),
       ).toString(),
+      kind: 'boost',
       url: env.BASE_URL + '/public/boosts/SFX_Boost_WispySmoke_0002.ogg',
     },
     {
@@ -554,6 +563,7 @@ const insertUser = async () => {
       moneyPerSecond: beautify(
         Decimal.fromString('25000000000000000').times(globalGainMult),
       ).toString(),
+      kind: 'boost',
     },
     {
       url: env.BASE_URL + '/public/cars/takumi--blue.png',
@@ -578,6 +588,7 @@ const insertUser = async () => {
       moneyPerSecond: beautify(
         Decimal.fromString('250000000000000000').times(globalGainMult),
       ).toString(),
+      kind: 'boost',
     },
     {
       url: env.BASE_URL + '/public/cars/twinzer--blue.png',
@@ -610,6 +621,7 @@ const insertUser = async () => {
       moneyPerSecond: beautify(
         Decimal.fromString('5000000000000000000').times(globalGainMult),
       ).toString(),
+      kind: 'boost',
     },
     {
       url: env.BASE_URL + '/public/cars/x-devil--blue.png',
@@ -634,6 +646,7 @@ const insertUser = async () => {
       moneyPerSecond: beautify(
         Decimal.fromString('50000000000000000000').times(globalGainMult),
       ).toString(),
+      kind: 'boost',
     },
     {
       url: env.BASE_URL + '/public/cars/zippy--blue.png',
@@ -666,6 +679,7 @@ const insertUser = async () => {
       moneyPerSecond: beautify(
         Decimal.fromString('1000000000000000000000').times(globalGainMult),
       ).toString(),
+      kind: 'boost',
     },
     {
       url: env.BASE_URL + '/public/cars/dominus--blue.png',
