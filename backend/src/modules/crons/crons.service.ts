@@ -1,13 +1,13 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { env } from 'src/env';
 import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
-import { redisNamespace } from 'src/lib/storage';
-import { redis } from 'src/lib/redis';
 import { ItemBought } from '../items/entities/item.entity';
 import { PrestigeBought } from '../prestiges/entities/prestige.entity';
+import { Cron } from '@nestjs/schedule';
+import { redis } from 'src/lib/redis';
+import { redisNamespace } from 'src/lib/storage';
 
 @Injectable()
 export class CronsService implements OnModuleInit {
@@ -34,8 +34,14 @@ export class CronsService implements OnModuleInit {
   /**
    * @description Sync database with redis
    */
-  @Cron(env.ENV !== 'development' ? '0 */2 * * * *' : '*/5 * * * * *')
+  @Cron(env.ENV !== 'development' ? '0 */2 * * * *' : '*/30 * * * * *')
   async syncDB() {
+    //? Check if lock exists
+    const lock = await redis.get(`lock:${redisNamespace}`);
+    if (lock) {
+      this.logger.debug('Lock exists, skipping syncDB');
+      return;
+    }
     //? Lock the database
     await redis.setex(`lock:${redisNamespace}`, 10, 'true'); // 10 seconds max
     //? We store all the redis value under the prefix 'async' (async:users, async:posts, etc.) in database
@@ -57,11 +63,25 @@ export class CronsService implements OnModuleInit {
       //? Get the data for the current key
       const data = parsedData[i];
       if (namespace === 'users') {
+        if (data.itemsBought.length > 0) {
+          //? Save itemsBought
+          for (const itemBought of data.itemsBought) {
+            await this.itemsBoughtRepository.save(itemBought);
+          }
+        }
+        if (data.prestigesBought.length > 0) {
+          //? Save prestigesBought
+          for (const prestigeBought of data.prestigesBought) {
+            await this.prestigesBoughtRepository.save(prestigeBought);
+          }
+        }
+        //? Save user
         await this.usersRepository.save(data);
-      } else if (namespace === 'itemsBought') {
-        await this.itemsBoughtRepository.save(data);
-      } else if (namespace === 'prestigesBought') {
-        await this.prestigesBoughtRepository.save(data);
+        // } else if (namespace === 'itemsBought') {
+        //   totalItemsBought++;
+        //   await this.itemsBoughtRepository.save(data);
+        // } else if (namespace === 'prestigesBought') {
+        //   await this.prestigesBoughtRepository.save(data);
       } else {
         this.logger.error(`Unknown namespace ${namespace}`);
       }

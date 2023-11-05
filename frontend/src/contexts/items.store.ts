@@ -28,14 +28,15 @@ export const useItemsStore = create<ItemsState>()(
             price: Decimal.fromString(item.price),
             moneyPerSecond: Decimal.fromString(item.moneyPerSecond),
             moneyPerClickMult: Decimal.fromString(item.moneyPerClickMult),
-            image: item.image,
+            url: item.url,
+            kind: item.kind,
           }));
           set({ items: itemsMapped });
         },
       })),
       {
         name: 'items',
-        version: 1.1,
+        version: 2,
         merge: (_, persisted) => {
           return {
             ...persisted,

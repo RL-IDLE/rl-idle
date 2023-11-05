@@ -215,23 +215,32 @@ export class UsersService {
       );
     if (!nextPrestige) throw new HttpException('No next prestige found', 400);
     //* Give prestige
-    const prestigeBought: PrestigeBought = {
+    user.moneyUsed = '0';
+    const prestigeBought: Omit<PrestigeBought, 'user'> & {
+      user: { id: string };
+    } = {
       id: randomUUID(),
       prestige: nextPrestige,
-      user: user,
+      user: {
+        id: user.id,
+      },
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null as unknown as Date,
     };
-    await saveOneData({
-      key: 'prestigesBought',
-      data: prestigeBought,
-      id: nextPrestige.id,
-    });
+    // await saveOneData({
+    //   key: 'prestigesBought',
+    //   data: prestigeBought,
+    //   id: nextPrestige.id,
+    // });
     user.prestigesBought.push({
       ...prestigeBought,
       user: objectDepth(user),
     });
+    //? Reset user money/items
+    user.moneyFromClick = '0';
+    user.moneyPerClick = '1';
+    user.itemsBought = [];
 
     await saveOneData({
       key: 'users',
@@ -312,11 +321,11 @@ export class UsersService {
       updatedAt: new Date(),
       deletedAt: null as unknown as Date,
     };
-    await saveOneData({
-      key: 'itemsBought',
-      data: itemBought,
-      id: itemBought.id,
-    });
+    // await saveOneData({
+    //   key: 'itemsBought',
+    //   data: itemBought,
+    //   id: itemBought.id,
+    // });
     user.itemsBought.push({
       ...itemBought,
       user: objectDepth(user),

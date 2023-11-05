@@ -4,7 +4,8 @@ export type IItem = {
   id: string;
   moneyPerSecond: Decimal;
   moneyPerClickMult: Decimal;
-  image: string;
+  url: string;
+  kind: string | undefined;
   name: string;
   price: Decimal;
 };
