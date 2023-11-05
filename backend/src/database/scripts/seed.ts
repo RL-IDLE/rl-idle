@@ -8,6 +8,148 @@ import { IPrestige } from 'src/types/prestige';
 import { beautify } from '../../lib/game';
 dotenv.config();
 
+//? basePres (8+8*0.1 x)^(x)
+const prestiges: Omit<IPrestige, 'id'>[] = [
+  // {
+  //   image: env.BASE_URL + '/public/prestige/Unranked_icon.webp',
+  //   moneyMult: '1',
+  //   name: 'Unranked',
+  //   price: Decimal.fromString('0').toString(),
+  // },
+  {
+    image: env.BASE_URL + '/public/prestige/Bronze1_rank_icon.webp',
+    moneyMult: '2',
+    name: 'Bronze I',
+    price: Decimal.fromString('1000000').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Bronze2_rank_icon.webp',
+    moneyMult: '4',
+    name: 'Bronze II',
+    price: Decimal.fromString('50000000').toString(), //? Do not follow the formula
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Bronze3_rank_icon.webp',
+    moneyMult: '8',
+    name: 'Bronze III',
+    price: Decimal.fromString('250000000').toString(), //? Do not follow the formula
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Silver1_rank_icon.webp',
+    moneyMult: '16',
+    name: 'Silver I',
+    price: Decimal.fromString('1000000000').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Silver2_rank_icon.webp',
+    moneyMult: '32',
+    name: 'Silver II',
+    price: Decimal.fromString('15000000000').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Silver3_rank_icon.webp',
+    moneyMult: '64',
+    name: 'Silver III',
+    price: Decimal.fromString('250000000000').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Gold1_rank_icon.webp',
+    moneyMult: '128',
+    name: 'Gold I',
+    price: Decimal.fromString('4500000000000').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Gold2_rank_icon.webp',
+    moneyMult: '256',
+    name: 'Gold II',
+    price: Decimal.fromString('85000000000000').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Gold3_rank_icon.webp',
+    moneyMult: '512',
+    name: 'Gold III',
+    price: Decimal.fromString('2000000000000000').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Platinium1_rank_icon.webp',
+    moneyMult: '1024',
+    name: 'Platinium I',
+    price: Decimal.fromString('40000000000000000').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Platinium2_rank_icon.webp',
+    moneyMult: '2048',
+    name: 'Platinium II',
+    price: Decimal.fromString('1000000000000000000').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Platinium3_rank_icon.webp',
+    moneyMult: '4096',
+    name: 'Platinium III',
+    price: Decimal.fromString('30000000000000000000').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Diamond1_rank_icon.webp',
+    moneyMult: '8192',
+    name: 'Diamond I',
+    price: Decimal.fromString('850000000000000000000').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Diamond2_rank_icon.webp',
+    moneyMult: '16384',
+    name: 'Diamond II',
+    price: Decimal.fromString('2.75*10e22').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Diamond3_rank_icon.webp',
+    moneyMult: '32768',
+    name: 'Diamond III',
+    price: Decimal.fromString('9.25*e23').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Champion1_rank_icon.webp',
+    moneyMult: '65536',
+    name: 'Champion I',
+    price: Decimal.fromString('3.25*e25').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Champion2_rank_icon.webp',
+    moneyMult: '131072',
+    name: 'Champion II',
+    price: Decimal.fromString('1.25*e27').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Champion3_rank_icon.webp',
+    moneyMult: '262144',
+    name: 'Champion III',
+    price: Decimal.fromString('4.85e28').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Grand_champion1_rank_icon.webp',
+    moneyMult: '524288',
+    name: 'Grand Champion I',
+    price: Decimal.fromString('2*e30').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Grand_champion2_rank_icon.webp',
+    moneyMult: '1048576',
+    name: 'Grand Champion II',
+    price: Decimal.fromString('8.8*e31').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Grand_champion3_rank_icon.webp',
+    moneyMult: '2097152',
+    name: 'Grand Champion III',
+    price: Decimal.fromString('4*e33').toString(),
+  },
+  {
+    image: env.BASE_URL + '/public/prestige/Supersonic_Legend_rank_icon.webp',
+    moneyMult: '4194304',
+    name: 'Supersonic Legend',
+    price: Decimal.fromString('1.9e35').toString(),
+  },
+];
+
 const insertUser = async () => {
   const connection = await databaseConfiguration.initialize();
 
@@ -53,15 +195,16 @@ const insertUser = async () => {
       url: env.BASE_URL + '/public/cars/backfire--blue.png',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
-        Decimal.fromString('3').times(globalGainMult),
+        Decimal.fromString('5').times(globalGainMult),
       ).toString(),
       name: 'Backfire',
+      price: Decimal.fromString('15000').toString(),
     },
     {
       url: env.BASE_URL + '/public/cars/breakout--blue.png',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
-        Decimal.fromString('6').times(globalGainMult),
+        Decimal.fromString('30').times(globalGainMult),
       ).toString(),
       name: 'Breakout',
     },
@@ -70,7 +213,7 @@ const insertUser = async () => {
       kind: 'boost',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
-        Decimal.fromString('15').times(globalGainMult),
+        Decimal.fromString('70').times(globalGainMult),
       ).toString(),
       url: env.BASE_URL + '/public/boosts/SFX_Boost_AlienLiquid_0004.ogg',
     },
@@ -79,7 +222,7 @@ const insertUser = async () => {
       name: 'Breakout S',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
-        Decimal.fromString('30').times(globalGainMult),
+        Decimal.fromString('150').times(globalGainMult),
       ).toString(),
     },
     {
@@ -87,7 +230,7 @@ const insertUser = async () => {
       name: 'Centio',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
-        Decimal.fromString('70').times(globalGainMult),
+        Decimal.fromString('250').times(globalGainMult),
       ).toString(),
     },
     {
@@ -95,7 +238,7 @@ const insertUser = async () => {
       name: 'Chikara',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
-        Decimal.fromString('250').times(globalGainMult),
+        Decimal.fromString('500').times(globalGainMult),
       ).toString(),
     },
     {
@@ -533,17 +676,65 @@ const insertUser = async () => {
       ).toString(),
     },
   ];
-
-  const itemsWithPrice: Omit<IItem, 'id'>[] = items.map((item) => {
+  //? Override moneyPerSecond
+  const offset = 8;
+  const ipRatio = items.length / prestiges.length;
+  const itemsWithMoneyPerSecond = items.map((item, i) => {
+    if (item.moneyPerSecond === '0' || i < offset) return item;
+    const index = Math.floor((i - offset) / ipRatio);
+    const previousPrestige =
+      prestiges.length > index && index > 0
+        ? prestiges[index - 1]
+        : {
+            image: '',
+            moneyMult: '1',
+            name: 'Manual',
+            price: Decimal.fromString('300000').toString(),
+          };
+    const nextPrestige = prestiges.length > index + 1 ? prestiges[index] : null;
+    const modulo = (i - offset + 0.0001) % ipRatio;
+    const diff = Decimal.fromString(
+      nextPrestige?.price ??
+        Decimal.fromString(previousPrestige.price).times('10').toString(),
+    ).minus(previousPrestige.price);
+    const ratio = Decimal.fromString(modulo.toString()).div(ipRatio);
+    const moneyPerSecond = Decimal.fromString(diff.toString())
+      .times(ratio)
+      .plus(previousPrestige.price);
+    // console.log({
+    //   name: item.name,
+    //   previousPrestigeName: previousPrestige.name,
+    //   previousPrestigePrice: previousPrestige.price,
+    //   nextPrestigeName: nextPrestige?.name,
+    //   nextPrestigePrice: nextPrestige?.price,
+    //   moneyPerSecond,
+    //   modulo,
+    //   ratio,
+    // });
     return {
       ...item,
-      price:
-        item.price ??
-        beautify(
-          Decimal.fromString(item.moneyPerSecond).times(ratio),
-        ).toString(),
+      moneyPerSecond: beautify(moneyPerSecond).toString(),
     };
   });
+
+  const itemsWithPrice: Omit<IItem, 'id'>[] = itemsWithMoneyPerSecond.map(
+    (item, i) => {
+      return {
+        ...item,
+        price:
+          item.price ??
+          beautify(
+            Decimal.fromString(item.moneyPerSecond)
+              .times(ratio)
+              .times(
+                Decimal.fromString('2').pow(
+                  Decimal.fromNumber(i).div(items.length / prestiges.length),
+                ),
+              ),
+          ).toString(),
+      };
+    },
+  );
 
   //? Check that all item have a boost sup to the previous one
   for (let i = 1; i < itemsWithPrice.length - 1; i++) {
@@ -588,148 +779,6 @@ const insertUser = async () => {
 
 const insertPrestige = async () => {
   const connection = await databaseConfiguration.initialize();
-
-  //? basePres (8+8*0.1 x)^(x)
-  const prestiges: Omit<IPrestige, 'id'>[] = [
-    // {
-    //   image: env.BASE_URL + '/public/prestige/Unranked_icon.webp',
-    //   moneyMult: '1',
-    //   name: 'Unranked',
-    //   price: Decimal.fromString('0').toString(),
-    // },
-    {
-      image: env.BASE_URL + '/public/prestige/Bronze1_rank_icon.webp',
-      moneyMult: '2',
-      name: 'Bronze I',
-      price: Decimal.fromString('1000000').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Bronze2_rank_icon.webp',
-      moneyMult: '4',
-      name: 'Bronze II',
-      price: Decimal.fromString('50000000').toString(), //? Do not follow the formula
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Bronze3_rank_icon.webp',
-      moneyMult: '8',
-      name: 'Bronze III',
-      price: Decimal.fromString('250000000').toString(), //? Do not follow the formula
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Silver1_rank_icon.webp',
-      moneyMult: '16',
-      name: 'Silver I',
-      price: Decimal.fromString('1000000000').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Silver2_rank_icon.webp',
-      moneyMult: '32',
-      name: 'Silver II',
-      price: Decimal.fromString('15000000000').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Silver3_rank_icon.webp',
-      moneyMult: '64',
-      name: 'Silver III',
-      price: Decimal.fromString('250000000000').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Gold1_rank_icon.webp',
-      moneyMult: '128',
-      name: 'Gold I',
-      price: Decimal.fromString('4500000000000').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Gold2_rank_icon.webp',
-      moneyMult: '256',
-      name: 'Gold II',
-      price: Decimal.fromString('85000000000000').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Gold3_rank_icon.webp',
-      moneyMult: '512',
-      name: 'Gold III',
-      price: Decimal.fromString('2000000000000000').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Platinium1_rank_icon.webp',
-      moneyMult: '1024',
-      name: 'Platinium I',
-      price: Decimal.fromString('40000000000000000').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Platinium2_rank_icon.webp',
-      moneyMult: '2048',
-      name: 'Platinium II',
-      price: Decimal.fromString('1000000000000000000').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Platinium3_rank_icon.webp',
-      moneyMult: '4096',
-      name: 'Platinium III',
-      price: Decimal.fromString('30000000000000000000').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Diamond1_rank_icon.webp',
-      moneyMult: '8192',
-      name: 'Diamond I',
-      price: Decimal.fromString('850000000000000000000').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Diamond2_rank_icon.webp',
-      moneyMult: '16384',
-      name: 'Diamond II',
-      price: Decimal.fromString('2.75*10e22').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Diamond3_rank_icon.webp',
-      moneyMult: '32768',
-      name: 'Diamond III',
-      price: Decimal.fromString('9.25*e23').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Champion1_rank_icon.webp',
-      moneyMult: '65536',
-      name: 'Champion I',
-      price: Decimal.fromString('3.25*e25').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Champion2_rank_icon.webp',
-      moneyMult: '131072',
-      name: 'Champion II',
-      price: Decimal.fromString('1.25*e27').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Champion3_rank_icon.webp',
-      moneyMult: '262144',
-      name: 'Champion III',
-      price: Decimal.fromString('4.85e28').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Grand_champion1_rank_icon.webp',
-      moneyMult: '524288',
-      name: 'Grand Champion I',
-      price: Decimal.fromString('2*e30').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Grand_champion2_rank_icon.webp',
-      moneyMult: '1048576',
-      name: 'Grand Champion II',
-      price: Decimal.fromString('8.8*e31').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Grand_champion3_rank_icon.webp',
-      moneyMult: '2097152',
-      name: 'Grand Champion III',
-      price: Decimal.fromString('4*e33').toString(),
-    },
-    {
-      image: env.BASE_URL + '/public/prestige/Supersonic_Legend_rank_icon.webp',
-      moneyMult: '4194304',
-      name: 'Supersonic Legend',
-      price: Decimal.fromString('1.9e35').toString(),
-    },
-  ];
 
   for (const prestige of prestiges) {
     try {
