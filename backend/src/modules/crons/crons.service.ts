@@ -34,7 +34,7 @@ export class CronsService implements OnModuleInit {
   /**
    * @description Sync database with redis
    */
-  @Cron(env.ENV !== 'development' ? '0 */2 * * * *' : '*/5 * * * * *')
+  @Cron(env.ENV !== 'development' ? '0 */2 * * * *' : '*/30 * * * * *')
   async syncDB() {
     //? Check if lock exists
     const lock = await redis.get(`lock:${redisNamespace}`);

@@ -32,7 +32,14 @@ function intToBase26String(_num: Decimal) {
   return num.mantissa.toString().replace(floatRegex, '$1') + ' ' + str;
 }
 
-function _decimalToHumanReadable(decimal: Decimal, round?: boolean): string {
+function _decimalToHumanReadable(
+  decimal: Decimal,
+  round?: boolean,
+  debug?: boolean,
+): string {
+  if (debug === true) {
+    console.log(decimal, debug);
+  }
   if (decimal.exponent < 3) {
     const mantissa = decimal.mantissa * 10 ** decimal.exponent;
     return (round ? Math.round(mantissa) : mantissa)
@@ -40,16 +47,16 @@ function _decimalToHumanReadable(decimal: Decimal, round?: boolean): string {
       .replace(floatRegex1, '$1');
   }
 
-  const entier = Math.floor(decimal.exponent / 3);
-  const index = entier + 1;
+  const entier = Decimal.fromNumber(decimal.exponent).div(3).floor();
+  const index = entier.add(1);
 
-  if (index === 0) {
+  if (index.eq(0)) {
     return decimal.mantissa.toString();
-  } else if (index > tabsDecimal.length) {
+  } else if (index.gt(tabsDecimal.length)) {
     return intToBase26String(decimal);
   }
 
-  const decimalTab = tabsDecimal[index - 1];
+  const decimalTab = tabsDecimal[parseInt(index.minus(1).toString())];
 
   const mantissa =
     decimal.mantissa * 10 ** (decimal.exponent - decimalTab.value);

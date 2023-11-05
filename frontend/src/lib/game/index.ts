@@ -45,14 +45,19 @@ export const getMoneyFromInvestmentsPerSeconds = (
   return moneyFromInvestments.times(highestPrestige);
 };
 
-export const getPriceOfItem = (basePrice: Decimal, step: Decimal) =>
+export const getPriceOfItem = (
+  basePrice: Decimal,
+  step: Decimal,
+  debug?: boolean,
+) =>
   beautify(
     Decimal.fromString('0.1')
       .mul(basePrice)
-      .mul(step.pow(1.5))
+      .mul(step.pow(2))
       // .add(Decimal.fromString('0.4').mul(step).mul(basePrice))
       .add(basePrice)
       .round(),
+    debug,
   );
 
 //? basePrice (3 (x + x * 0.2))^(x / 2) * 11x
@@ -90,13 +95,16 @@ export const getUserMoneyPerClick = (
  * beautify(2589) // 3,000
  * beautify(197024772) // 200,000,000
  */
-const beautify = (num: Decimal) => {
+export const beautify = (num: Decimal, debug?: boolean) => {
   //? Get the 3 firsts digit from the right
   const firstsDigits = num.toString().slice(0, 3);
   const exponent = num.exponent;
-  const firstsDigitsNumber = Number(firstsDigits);
+  const firstsDigitsNumber = Number(firstsDigits.replace('e+', ''));
+  if (debug) console.log(num, firstsDigitsNumber);
   //? If the number is less than 1000, return the number
-  if (exponent < 2) return num;
+  if (exponent < 2 || firstsDigitsNumber < 100) {
+    return num.times(10).round().div(10);
+  }
   //? Round firstsDigitsNumber
   const roundedFirstsDigitsNumber = Math.round(firstsDigitsNumber / 10) * 10;
   return Decimal.fromString(

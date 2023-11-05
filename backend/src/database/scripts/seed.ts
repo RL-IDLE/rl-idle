@@ -142,7 +142,7 @@ const insertUser = async () => {
     },
     {
       url: env.BASE_URL + '/public/cars/ecto-1--blue.png',
-      name: 'Ecto 1',
+      name: 'Ecto',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('30000').times(globalGainMult),
@@ -150,7 +150,7 @@ const insertUser = async () => {
     },
     {
       url: env.BASE_URL + '/public/cars/endo--blue.png',
-      name: 'Ecto',
+      name: 'Endo',
       moneyPerClickMult: '0',
       moneyPerSecond: beautify(
         Decimal.fromString('50000').times(globalGainMult),
@@ -576,7 +576,7 @@ const insertUser = async () => {
     }
   }
   //? Delete old items
-  const oldItemsName = ['-Devil', '-Devil MK2'];
+  const oldItemsName = ['-Devil', '-Devil MK2', 'Ecto 1'];
   for (const oldItemName of oldItemsName) {
     await connection.manager.delete('item', { name: oldItemName });
   }
