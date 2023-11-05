@@ -74,7 +74,7 @@ export default function PassivePopup() {
             className="mt-5 bg-green-700 hover:bg-green-800 text-white rounded-xl px-5 py-2"
             onClick={() => setShowPopup(false)}
           >
-            Récupérer
+            Claim
           </button>
         </div>
       )}

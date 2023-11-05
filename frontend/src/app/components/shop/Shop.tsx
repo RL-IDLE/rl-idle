@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 import Decimal from 'break_infinity.js';
 import { decimalToHumanReadable } from '@/lib/bignumber';
 import styles from './shop.module.scss';
-import clickSound from '@/assets/audio/buy-item.wav';
 import { useBalance } from '@/contexts/balance/BalanceUtils';
 import { useEffect, useState } from 'react';
 import CreditLogo from '@/assets/credits_icon.webp';
@@ -20,6 +19,9 @@ import { IPrestigeBought } from '@/types/prestige';
 import { getHighestPrestigeMult } from '../../../lib/game';
 import { IItemBought } from '@/types/item';
 import { logger } from '@/lib/logger';
+import { env } from '@/env';
+import cursorSvg from '@/assets/Cursor.svg';
+import boostImage from '@/assets/Standard_rocket_boost_icon.png';
 
 const memoizedPresitgesSorted = memoizeOne((prestiges: IPrestigeBought[]) => {
   return prestiges.sort((a, b) =>
@@ -38,11 +40,12 @@ export default function Shop() {
   const { balance } = useBalance();
   const [isCredit, setIsCredit] = useState(true);
   const items = useItemsStore((state) => state.items);
-  const [audio, setAudio] = useState<HTMLAudioElement>();
+  const [audios, setAudios] = useState<HTMLAudioElement[]>([]);
   const moneyPerSecond = getMoneyFromInvestmentsPerSeconds({
     itemsBought: itemsBought ?? [],
     prestigesBought: prestigesBought ?? [],
   });
+  const [navAudio, setNavAudio] = useState<HTMLAudioElement>();
 
   const itemsLevels: {
     [id: string]: Decimal | undefined;
@@ -134,16 +137,46 @@ export default function Shop() {
       : Decimal.fromString('1');
 
   useEffect(() => {
-    const newAudio = new Audio(clickSound);
-    setAudio(newAudio);
+    const audio1 = new Audio(
+      env.VITE_API_URL + '/public/items/buy/SFX_UI_MainMenu_0025.ogg',
+    );
+    audio1.volume = 0.5;
+    const audio2 = new Audio(
+      env.VITE_API_URL + '/public/items/buy/SFX_UI_MainMenu_0026.ogg',
+    );
+    audio2.volume = 0.5;
+    const audio3 = new Audio(
+      env.VITE_API_URL + '/public/items/buy/SFX_UI_MainMenu_0027.ogg',
+    );
+    audio3.volume = 0.5;
+    const audio4 = new Audio(
+      env.VITE_API_URL + '/public/items/buy/SFX_UI_MainMenu_0030.ogg',
+    );
+    audio4.volume = 0.5;
+    const audio5 = new Audio(
+      env.VITE_API_URL + '/public/items/buy/SFX_UI_MainMenu_0031.ogg',
+    );
+    audio5.volume = 0.5;
+    setAudios([audio1, audio2, audio3, audio4, audio5]);
+    const navAudio = new Audio(
+      env.VITE_API_URL + '/public/ui/SFX_UI_MainMenu_0002.ogg',
+    );
+    navAudio.volume = 0.5;
+    setNavAudio(navAudio);
     return () => {
-      newAudio.remove();
+      audio1.remove();
+      audio2.remove();
+      audio3.remove();
+      audio4.remove();
+      audio5.remove();
+      navAudio.remove();
     };
   }, []);
 
   const handleBuy = (id: string) => {
     buyItem(id);
-    if (audio) {
+    if (audios.length > 0) {
+      const audio = audios[Math.floor(Math.random() * audios.length)];
       audio.currentTime = 0;
       audio.play();
     }
@@ -160,7 +193,13 @@ export default function Shop() {
           className={cn('text-white p-3 w-full rounded-xl', {
             'bg-[#1f3358]': isCredit,
           })}
-          onClick={() => setIsCredit(true)}
+          onClick={() => {
+            if (navAudio) {
+              navAudio.currentTime = 0;
+              navAudio.play();
+            }
+            setIsCredit(true);
+          }}
         >
           Credits
         </button>
@@ -168,7 +207,13 @@ export default function Shop() {
           className={cn('text-white p-3 w-full rounded-xl', {
             'bg-[#1f3358]': !isCredit,
           })}
-          onClick={() => setIsCredit(false)}
+          onClick={() => {
+            if (navAudio) {
+              navAudio.currentTime = 0;
+              navAudio.play();
+            }
+            setIsCredit(false);
+          }}
         >
           Emeralds
         </button>
@@ -185,7 +230,7 @@ export default function Shop() {
                 <li
                   key={item.id}
                   className={cn(
-                    'flex flex-row gap-2 border p-2 cursor-pointer relative transition-all active:scale-[0.98] w-full',
+                    'flex flex-row gap-2 border p-2 cursor-pointer relative transition-all active:scale-[0.98] w-full items-center',
                     {
                       'opacity-[.65]': item.price.gt(balance),
                       'pointer-events-none': item.price.gt(balance),
@@ -199,11 +244,31 @@ export default function Shop() {
                     handleBuy(item.id);
                   }}
                 >
-                  <img
-                    src={item.url}
-                    alt={item.name}
-                    className="max-w-[6rem] h-full object-contain"
-                  />
+                  {item.kind === 'car' ? (
+                    <img
+                      src={item.url}
+                      alt={item.name}
+                      className="max-w-[6rem] h-full object-contain"
+                    />
+                  ) : item.kind === 'click' ? (
+                    <img
+                      src={cursorSvg}
+                      alt={item.name}
+                      className="w-[6rem] h-[4rem] object-contain"
+                    />
+                  ) : item.kind === 'boost' ? (
+                    <img
+                      src={boostImage}
+                      alt={item.name}
+                      className="w-[6rem] h-[4rem] object-contain"
+                    />
+                  ) : (
+                    <img
+                      src={item.url}
+                      alt={item.name}
+                      className="max-w-[6rem] h-full object-contain"
+                    />
+                  )}
                   <div className="flex flex-col gap-2">
                     {/* NAME */}
                     <p className="text-white">{item.name}</p>

@@ -8,12 +8,26 @@ import { cn } from '@/lib/utils';
 import Button from '../ui/Button';
 import { useBalance } from '@/contexts/balance/BalanceUtils';
 import ArrowPrestige from '../icons/ArrowPrestige';
+import { useEffect, useState } from 'react';
+import { env } from '@/env';
 
 export default function Prestige() {
   const prestiges = usePrestigeStore((state) => state.prestiges);
   const buyPrestige = useGameStore((state) => state.actions.buyPrestige);
   const prestigesBought = useUserStore((state) => state.user?.prestigesBought);
   const { balance } = useBalance();
+  const [audio, setAudio] = useState<HTMLAudioElement>();
+
+  useEffect(() => {
+    const newAudio = new Audio(
+      env.VITE_API_URL + '/public/prestige/pass-prestige.ogg',
+    );
+    newAudio.volume = 0.5;
+    setAudio(newAudio);
+    return () => {
+      newAudio.remove();
+    };
+  }, []);
 
   const pSorted = prestiges.sort((a, b) => {
     return a.moneyMult.cmp(b.moneyMult);
@@ -98,6 +112,10 @@ export default function Prestige() {
           <div className="flex justify-center p-5">
             <Button
               onClick={() => {
+                if (audio) {
+                  audio.currentTime = 0;
+                  audio.play();
+                }
                 buyPrestige(nextPrestige.id);
               }}
               disabled={balance.lt(nextPrestige.price)}

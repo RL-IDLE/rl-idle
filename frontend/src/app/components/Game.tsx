@@ -31,6 +31,7 @@ export default function Game() {
   const userId = useUserStore((state) => state.user?.id);
   const loadUser = useGameStore((state) => state.actions.loadUser);
   const items = useItemsStore((state) => state.items);
+  const [audio, setAudio] = useState<HTMLAudioElement>();
 
   useEffect(() => {
     const handleError = (data: unknown) => {
@@ -97,8 +98,15 @@ export default function Game() {
       e.preventDefault();
     };
     document.addEventListener('contextmenu', handleContextmenu);
+
+    //* Audio
+    const newAudio = new Audio(env.VITE_API_URL + '/public/ui/navbar.ogg');
+    newAudio.volume = 0.5;
+    setAudio(newAudio);
+
     return function cleanup() {
       document.removeEventListener('contextmenu', handleContextmenu);
+      newAudio.remove();
     };
   }, []);
 
@@ -123,6 +131,10 @@ export default function Game() {
         className="flex-1 w-screen"
         initialSlide={pageIndex}
         onSlideChange={(swiper) => {
+          if (audio) {
+            audio.currentTime = 0;
+            audio.play();
+          }
           navigationStore.setPage(indexToPage(swiper.activeIndex, true));
         }}
         onSwiper={setSwiper}

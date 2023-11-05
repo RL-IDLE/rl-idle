@@ -438,6 +438,11 @@ export class UsersService {
       id: user.id,
       data: user,
     });
-    return user;
+
+    logger.info(
+      `User ${user.id} bought ${emeralds} emeralds for ${checkout.amount_total} cents`,
+    );
+
+    return { emeralds };
   }
 }

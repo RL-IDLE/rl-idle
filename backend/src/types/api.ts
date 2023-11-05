@@ -102,7 +102,7 @@ export const api = IApiType({
       method: 'POST',
       url: '/users/confirm-payment',
       body: unknown as IConfirmPayment,
-      response: unknown,
+      response: unknown as { emeralds: number },
     },
   },
   items: {
