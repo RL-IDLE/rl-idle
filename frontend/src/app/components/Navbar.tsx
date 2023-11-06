@@ -38,7 +38,7 @@ export default function Navbar() {
     <nav className="absolute bottom-0 left-0 min-w-full z-50">
       <ul
         className={cn(
-          'flex flex-row justify-between rounded-t-2xl overflow-hidden border-2 border-[#245184] bg-gradient-to-t from-gradient-dark to-gradient-light text-white',
+          'flex flex-row justify-between rounded-t-2xl overflow-hidden border-2 border-background bg-gradient-to-t from-gradient-dark to-gradient-light text-white',
         )}
       >
         {pages.map((page) => (
