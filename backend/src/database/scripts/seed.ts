@@ -195,6 +195,7 @@ const insertUser = async () => {
         Decimal.fromString('30').times(globalGainMult),
       ).toString(),
       name: 'Breakout',
+      price: Decimal.fromString('200000').toString(),
     },
     {
       name: 'Alien liquid',
@@ -204,6 +205,7 @@ const insertUser = async () => {
         Decimal.fromString('70').times(globalGainMult),
       ).toString(),
       url: env.BASE_URL + '/public/boosts/SFX_Boost_AlienLiquid_0004.ogg',
+      price: Decimal.fromString('1000000').toString(),
     },
     {
       url: env.BASE_URL + '/public/cars/breakout-type-s--blue.png',
@@ -220,6 +222,7 @@ const insertUser = async () => {
       moneyPerSecond: beautify(
         Decimal.fromString('250').times(globalGainMult),
       ).toString(),
+      price: Decimal.fromString('70000000').toString(),
     },
     {
       url: env.BASE_URL + '/public/cars/chikara-gxt--blue.png',
@@ -228,6 +231,7 @@ const insertUser = async () => {
       moneyPerSecond: beautify(
         Decimal.fromString('500').times(globalGainMult),
       ).toString(),
+      price: Decimal.fromString('500000000').toString(),
     },
     {
       name: 'Aurora',

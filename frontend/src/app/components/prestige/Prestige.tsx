@@ -61,7 +61,7 @@ export default function Prestige() {
       />
       <div
         className={cn(
-          'justify-between rounded-xl overflow-hidden text-white m-10 w-[calc(100%-40px)]',
+          'justify-between rounded-xl overflow-hidden text-white m-10 w-[calc(100%-40px)] flex flex-col items-center ',
         )}
         style={{
           backgroundImage: `url(${gradient})`,
@@ -71,7 +71,7 @@ export default function Prestige() {
         <h2 className="text-4xl text-center relative text-white flex flex-col p-5">
           Prestige !
         </h2>
-        <div className="flex">
+        <div className="flex text-sm">
           {currentPrestige ? (
             <div className="flex flex-col items-center justify-center font-bold">
               <img
@@ -106,21 +106,21 @@ export default function Prestige() {
         <h3 className="text-center text-xl self-center relative text-white flex flex-col mt-5">
           {nextPrestige ? 'Next Prestige Boost !' : 'Max Prestige Boost !'}
         </h3>
-        <div className="flex items-center content-center justify-center">
+        <div className="flex items-center content-center justify-center font-bold mb-5">
           {currentPrestige ? (
-            <p className="text-4xl">
+            <p className="text-xl">
               {`x${decimalToHumanReadable(
                 currentPrestige.prestige.moneyMult,
                 true,
               )}`}
             </p>
           ) : (
-            <p className="text-4xl">x1</p>
+            <p className="text-xl">x1</p>
           )}
           {nextPrestige && (
             <>
               <ArrowPrestige className={'w-[100px] self-center px-5'} />
-              <p className="text-4xl">{`x${decimalToHumanReadable(
+              <p className="text-xl">{`x${decimalToHumanReadable(
                 nextPrestige.moneyMult,
                 true,
               )}`}</p>
@@ -128,7 +128,7 @@ export default function Prestige() {
           )}
         </div>
         {nextPrestige && (
-          <div className="flex justify-center p-5">
+          <div className="flex justify-center p-5 pt-0">
             <Button
               onClick={() => {
                 buyPrestige(nextPrestige.id);

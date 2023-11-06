@@ -37,9 +37,6 @@ function _decimalToHumanReadable(
   round?: boolean,
   debug?: boolean,
 ): string {
-  if (debug === true) {
-    console.log(decimal, debug);
-  }
   if (decimal.exponent < 3) {
     const mantissa = decimal.mantissa * 10 ** decimal.exponent;
     return (round ? Math.round(mantissa) : mantissa)
@@ -58,19 +55,18 @@ function _decimalToHumanReadable(
 
   const decimalTab = tabsDecimal[parseInt(index.minus(1).toString())];
 
-  const mantissa =
-    decimal.mantissa * 10 ** (decimal.exponent - decimalTab.value);
+  const mantissa = Decimal.fromNumber(decimal.mantissa)
+    .mul(Decimal.fromString('10').pow(decimal.exponent - decimalTab.value))
+    .toString();
 
   let decimalFromRegex = floatRegex.exec(mantissa.toString())?.[1];
   if (decimalFromRegex === '.000') {
     decimalFromRegex = '';
   }
-  const value = mantissa.toString().replace(floatRegex, decimalFromRegex ?? '');
+  const value = mantissa.replace(floatRegex, decimalFromRegex ?? '');
   const decimalReadable =
     (round
-      ? Decimal.fromString(
-          mantissa.toString().replace(floatRegex, decimalFromRegex ?? ''),
-        )
+      ? Decimal.fromString(mantissa.replace(floatRegex, decimalFromRegex ?? ''))
           .mul(100)
           .round()
           .div(100)

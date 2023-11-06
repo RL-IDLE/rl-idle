@@ -3,8 +3,6 @@ import EmeraldsLogo from '@/assets/Esports_Tokens_icon.webp';
 import { env } from '@/env';
 import Button from '../ui/Button';
 import { useUserStore } from '@/contexts/user.store';
-import { decimalToHumanReadable } from '@/lib/bignumber';
-import Decimal from 'break_infinity.js';
 
 const emeraldsPack = [
   {
@@ -89,7 +87,7 @@ export default function Shop() {
         <p className="text-white">Balance:</p>
         <div className="flex flex-row justify-center items-center gap-1">
           <p className="price text-white flex flex-row text-base gap-1">
-            {decimalToHumanReadable(emeraldsBalance ?? Decimal.fromString('0'))}
+            {emeraldsBalance?.toString() ?? '0'}
           </p>
           <img
             width="20"

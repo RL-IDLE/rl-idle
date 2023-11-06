@@ -27,21 +27,9 @@ function App() {
   const loadShop = useGameStore((state) => state.actions.loadShop);
   const loadPrestige = useGameStore((state) => state.actions.loadPrestige);
   const userId = useUserStore((state) => state.user?.id);
-  const [audio, setAudio] = useState<HTMLAudioElement>();
   const [paymentValidationReceived, setPaymentValidationReceived] = useState<
     false | number
   >(false);
-
-  useEffect(() => {
-    const newAudio = new Audio(
-      env.VITE_API_URL + '/public/emeralds/after-pay.ogg',
-    );
-    newAudio.volume = 0.5;
-    setAudio(newAudio);
-    return () => {
-      newAudio.remove();
-    };
-  }, []);
 
   const handlePayment = useCallback(async () => {
     if (!userId) return;
@@ -54,19 +42,16 @@ function App() {
       id: userId,
       checkoutSessionId,
     });
+    loadUser();
     setPaymentValidationReceived(res.emeralds);
     //? Remove the searchparams
     params.delete('checkout_session_id');
     window.history.replaceState({}, '', `${window.location.pathname}`);
-  }, [userId]);
+  }, [userId, loadUser]);
 
   const closePaymentValidation = useCallback(() => {
-    if (audio) {
-      audio.currentTime = 0;
-      audio.play();
-    }
     setPaymentValidationReceived(false);
-  }, [audio]);
+  }, []);
 
   useEffect(() => {
     //? Handle payment callback
@@ -120,7 +105,7 @@ function App() {
       </Elements>
       {paymentValidationReceived && (
         <PaymentValidation close={closePaymentValidation}>
-          <p className="text-center text-xl self-center relative text-white flex flex-col mt-5">
+          <p className="text-center text-xl self-center relative text-white flex flex-col">
             + {paymentValidationReceived} Emeralds !
           </p>
         </PaymentValidation>
