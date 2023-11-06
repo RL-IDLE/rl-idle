@@ -8,26 +8,20 @@ import { cn } from '@/lib/utils';
 import Button from '../ui/Button';
 import { useBalance } from '@/contexts/balance/BalanceUtils';
 import ArrowPrestige from '../icons/ArrowPrestige';
-import { useEffect, useState } from 'react';
-import { env } from '@/env';
+import { useState } from 'react';
+import gradient from '@/assets/gradient.png';
+import PassPrestigeAnimation from './PassPrestigeAnimation';
 
 export default function Prestige() {
   const prestiges = usePrestigeStore((state) => state.prestiges);
-  const buyPrestige = useGameStore((state) => state.actions.buyPrestige);
+  const _buyPrestige = useGameStore((state) => state.actions.buyPrestige);
   const prestigesBought = useUserStore((state) => state.user?.prestigesBought);
   const { balance } = useBalance();
-  const [audio, setAudio] = useState<HTMLAudioElement>();
 
-  useEffect(() => {
-    const newAudio = new Audio(
-      env.VITE_API_URL + '/public/prestige/pass-prestige.ogg',
-    );
-    newAudio.volume = 0.5;
-    setAudio(newAudio);
-    return () => {
-      newAudio.remove();
-    };
-  }, []);
+  const [passPrestigeAnimation, setPassPrestigeAnimation] = useState<{
+    old: NonNullable<typeof prestigesBought>[number]['prestige'] | null;
+    new: NonNullable<typeof prestigesBought>[number]['prestige'] | null;
+  } | null>(null);
 
   const pSorted = prestiges.sort((a, b) => {
     return a.moneyMult.cmp(b.moneyMult);
@@ -48,6 +42,14 @@ export default function Prestige() {
       ? null
       : pSorted[currentPrestigeIndex + 1];
 
+  const buyPrestige = (id: string) => {
+    setPassPrestigeAnimation({
+      old: currentPrestige?.prestige || null,
+      new: nextPrestige,
+    });
+    _buyPrestige(id);
+  };
+
   return (
     <section className="flex flex-col items-center h-full justify-center">
       <img
@@ -59,32 +61,45 @@ export default function Prestige() {
       />
       <div
         className={cn(
-          'justify-between rounded-t-2xl overflow-hidden border-2 border-[#245184] bg-gradient-to-t from-gradient-dark to-gradient-light text-white m-10',
+          'justify-between rounded-xl overflow-hidden text-white m-10 w-[calc(100%-40px)]',
         )}
+        style={{
+          backgroundImage: `url(${gradient})`,
+          backgroundSize: 'cover',
+        }}
       >
         <h2 className="text-4xl text-center relative text-white flex flex-col p-5">
           Prestige !
         </h2>
         <div className="flex">
           {currentPrestige ? (
-            <img
-              width="150"
-              height="75"
-              src={currentPrestige.prestige.image}
-              alt="credit"
-            />
-          ) : (
-            <img width="150" height="75" src={unrankedIcon} alt="credit" />
-          )}
-          {nextPrestige && (
-            <>
-              <ArrowPrestige className={'w-[100px] self-center'} />
+            <div className="flex flex-col items-center justify-center font-bold">
               <img
                 width="150"
                 height="75"
-                src={nextPrestige.image}
+                src={currentPrestige.prestige.image}
                 alt="credit"
               />
+              {currentPrestige.prestige.name}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center">
+              <img width="150" height="75" src={unrankedIcon} alt="unranked" />
+              Unranked
+            </div>
+          )}
+          {nextPrestige && (
+            <>
+              <ArrowPrestige className={'w-[40px] self-center'} />
+              <div className="flex flex-col items-center justify-center font-bold">
+                <img
+                  width="150"
+                  height="75"
+                  src={nextPrestige.image}
+                  alt="credit"
+                />
+                {nextPrestige.name}
+              </div>
             </>
           )}
         </div>
@@ -116,10 +131,6 @@ export default function Prestige() {
           <div className="flex justify-center p-5">
             <Button
               onClick={() => {
-                if (audio) {
-                  audio.currentTime = 0;
-                  audio.play();
-                }
                 buyPrestige(nextPrestige.id);
               }}
               disabled={balance.lt(nextPrestige.price)}
@@ -131,6 +142,10 @@ export default function Prestige() {
           </div>
         )}
       </div>
+      <PassPrestigeAnimation
+        passPrestigeAnimation={passPrestigeAnimation}
+        setPassPrestigeAnimation={setPassPrestigeAnimation}
+      />
     </section>
   );
 }
