@@ -2,6 +2,9 @@ import { cn } from '@/lib/utils';
 import EmeraldsLogo from '@/assets/Esports_Tokens_icon.webp';
 import { env } from '@/env';
 import Button from '../ui/Button';
+import { useUserStore } from '@/contexts/user.store';
+import { decimalToHumanReadable } from '@/lib/bignumber';
+import Decimal from 'break_infinity.js';
 
 const emeraldsPack = [
   {
@@ -79,41 +82,59 @@ const emeraldsPack = [
 ];
 
 export default function Shop() {
+  const emeraldsBalance = useUserStore((state) => state.user?.emeralds);
   return (
-    <ul className="grid grid-cols-2 gap-3 overflow-auto touch-pan-y items-center rounded-xl p-3 ">
-      {emeraldsPack.map((item) => (
-        <li key={item.id} className="w-full h-full active:scale-[0.98]">
-          <Button noStyle className="w-full h-full">
-            <a
-              href={item.link}
-              rel="noreferrer"
-              className={cn(
-                'gap-2 border p-2 rounded-lg cursor-pointer relative transition-all w-full h-full flex flex-col justify-between items-center',
-                {
-                  'opacity-50': !item.link,
-                },
-              )}
-            >
-              <p className="text-white self-center text-md text-center">
-                {item.name}
-              </p>
-              <div className="flex flex-col justify-center items-center">
-                <img
-                  width="60"
-                  height="60"
-                  src={EmeraldsLogo}
-                  alt="credit"
-                  className="object-contain"
-                />
-                <p className="price text-white flex flex-row text-xl gap-1">
-                  {item.quantity}
+    <>
+      <div className="flex flex-row justify-between items-center gap-2 p-1 px-2 border mx-3 mt-2 mb-2 rounded-lg">
+        <p className="text-white">Balance:</p>
+        <div className="flex flex-row justify-center items-center gap-1">
+          <p className="price text-white flex flex-row text-base gap-1">
+            {decimalToHumanReadable(emeraldsBalance ?? Decimal.fromString('0'))}
+          </p>
+          <img
+            width="20"
+            height="20"
+            src={EmeraldsLogo}
+            alt="credit"
+            className="object-contain"
+          />
+        </div>
+      </div>
+      <ul className="grid grid-cols-2 gap-3 overflow-auto touch-pan-y items-center rounded-xl p-3 ">
+        {emeraldsPack.map((item) => (
+          <li key={item.id} className="w-full h-full active:scale-[0.98]">
+            <Button noStyle className="w-full h-full">
+              <a
+                href={item.link}
+                rel="noreferrer"
+                className={cn(
+                  'gap-2 border p-2 rounded-lg cursor-pointer relative transition-all w-full h-full flex flex-col justify-between items-center',
+                  {
+                    'opacity-50': !item.link,
+                  },
+                )}
+              >
+                <p className="text-white self-center text-md text-center">
+                  {item.name}
                 </p>
-              </div>
-              <p className="price text-white gap-1 align-bottom self-center text-2xl">{`${item.price}€`}</p>
-            </a>
-          </Button>
-        </li>
-      ))}
-    </ul>
+                <div className="flex flex-col justify-center items-center">
+                  <img
+                    width="60"
+                    height="60"
+                    src={EmeraldsLogo}
+                    alt="credit"
+                    className="object-contain"
+                  />
+                  <p className="price text-white flex flex-row text-xl gap-1">
+                    {item.quantity}
+                  </p>
+                </div>
+                <p className="price text-white gap-1 align-bottom self-center text-2xl">{`${item.price}€`}</p>
+              </a>
+            </Button>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }

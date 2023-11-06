@@ -259,6 +259,7 @@ export const useUserStore = create<UserState>()(
               moneyFromClick: Decimal.fromString(user.moneyFromClick),
               moneyPerClick: Decimal.fromString(user.moneyPerClick),
               moneyUsed: Decimal.fromString(user.moneyUsed),
+              emeralds: Decimal.fromString(user.emeralds),
               itemsBought: user.itemsBought.map((itemBought) => ({
                 id: itemBought.id,
                 item: {
@@ -309,6 +310,7 @@ export const useUserStore = create<UserState>()(
               moneyFromClick: Decimal.fromString(user.moneyFromClick),
               moneyPerClick: Decimal.fromString(user.moneyPerClick),
               moneyUsed: Decimal.fromString(user.moneyUsed),
+              emeralds: Decimal.fromString(user.emeralds),
               itemsBought: user.itemsBought.map((itemBought) => ({
                 id: itemBought.id,
                 item: {
