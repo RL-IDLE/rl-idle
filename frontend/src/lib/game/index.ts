@@ -78,7 +78,7 @@ export const getPriceOfItem = (
 //? Test: 20 (8+8*0.1 x)^(x)
 export const getPriceForClickItem = (basePrice: Decimal, step: Decimal) => {
   return beautify(
-    basePrice.times(Decimal.fromString('8').pow(step.times('0.7'))).round(),
+    basePrice.times(Decimal.fromString('6').pow(step.times('0.6'))).round(),
   );
 };
 

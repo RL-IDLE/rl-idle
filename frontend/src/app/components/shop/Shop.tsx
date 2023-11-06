@@ -22,6 +22,7 @@ import { env } from '@/env';
 import cursorSvg from '@/assets/Cursor.svg';
 import boostImage from '@/assets/Standard_rocket_boost_icon.png';
 import gradient from '@/assets/gradient.png';
+import { logger } from '@/lib/logger';
 
 const memoizedPresitgesSorted = memoizeOne((prestiges: IPrestigeBought[]) => {
   return prestiges.sort((a, b) =>
@@ -241,16 +242,16 @@ export default function Shop() {
                   key={item.id}
                   className={cn(
                     'flex flex-row gap-2 border p-2 cursor-pointer relative transition-all active:scale-[0.98] w-full items-center rounded-lg',
-                    // {
-                    //   'opacity-[.65]': item.price.gt(balance),
-                    //   'pointer-events-none': item.price.gt(balance),
-                    // },
+                    {
+                      'opacity-[.65]': item.price.gt(balance),
+                      'pointer-events-none': item.price.gt(balance),
+                    },
                   )}
                   onClick={() => {
-                    // if (item.price.gt(balance)) {
-                    //   logger.debug('Not enough money to buy item');
-                    //   return;
-                    // }
+                    if (item.price.gt(balance)) {
+                      logger.debug('Not enough money to buy item');
+                      return;
+                    }
                     handleBuy(item.id);
                   }}
                 >

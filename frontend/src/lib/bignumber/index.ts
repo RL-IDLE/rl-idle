@@ -22,14 +22,16 @@ function intToBase26String(_num: Decimal) {
 
   let str = '';
 
-  while (num.exponent > 0) {
-    num.exponent--;
-    const charCode = num.exponent % 26;
+  const baseExponent = num.exponent === 1 ? 1 : num.exponent - 1;
+  let exponent = baseExponent / 3;
+  const mult = 10 ** ((num.exponent - 1) % 3);
+  while (exponent > 0) {
+    const charCode = Math.floor(exponent) % 26;
     str = String.fromCharCode(97 + charCode) + str;
-    num.exponent = Math.floor(num.exponent / 26);
+    exponent = Math.floor(Math.floor(exponent) / 26);
   }
 
-  return num.mantissa.toString().replace(floatRegex, '$1') + ' ' + str;
+  return (num.mantissa * mult).toString().replace(floatRegex, '$1') + ' ' + str;
 }
 
 function _decimalToHumanReadable(decimal: Decimal, round?: boolean): string {
