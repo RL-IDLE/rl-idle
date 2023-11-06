@@ -49,7 +49,7 @@ export class EventsService {
       server.emit(`error:${data.userId}`, err.message);
       return;
     });
-    if (!parsedData) return;
+    if (!parsedData) return { success: false };
     const user = await getOneData({
       databaseRepository: this.usersRepository,
       key: 'users',
@@ -67,7 +67,7 @@ export class EventsService {
     ) {
       //? Emit the exception for the correspondig user
       server.emit(`error:${user.id}`, 'You have reached the limit of clicks');
-      return;
+      return { success: false };
     }
     const moneyFromClick = Decimal.fromString(user.moneyFromClick);
     const moneyPerClick = getUserMoneyPerClick(user);
@@ -82,7 +82,7 @@ export class EventsService {
       timeBuffer,
       parseInt(parsedData.times),
     );
-    return user;
+    return { success: true };
   }
 
   async buyItem(data: IWsEvent['buyItem']['body'], server: Server) {
@@ -90,7 +90,7 @@ export class EventsService {
       server.emit(`error:${data.userId}`, err.message);
       return;
     });
-    if (!parsedData) return;
+    if (!parsedData) return { success: false };
     const user = await getOneData({
       databaseRepository: this.usersRepository,
       key: 'users',
@@ -132,7 +132,7 @@ export class EventsService {
           item.name
         } but didn't have enough money (${userBalance.toString()} < ${itemPrice.toString()})`,
       );
-      return;
+      return { success: false };
     }
 
     //* Mutate
@@ -181,7 +181,7 @@ export class EventsService {
       id: parsedData.userId,
       data: user,
     });
-    return user;
+    return { success: true };
   }
 
   async buyPrestige(data: IWsEvent['buyPrestige']['body'], server: Server) {
@@ -189,7 +189,7 @@ export class EventsService {
       server.emit(`error:${data.userId}`, err.message);
       return;
     });
-    if (!parsedData) return;
+    if (!parsedData) return { success: false };
     const user = await getOneData({
       databaseRepository: this.usersRepository,
       key: 'users',
@@ -208,7 +208,7 @@ export class EventsService {
     if (userBalance.lt(prestige.price)) {
       //? Emit the exception for the correspondig user
       server.emit(`error:${user.id}`, 'Not enough money to prestige');
-      return;
+      return { success: false };
     }
 
     //? Check if user has already bought this prestige
@@ -218,7 +218,7 @@ export class EventsService {
     if (alreadyBought > 0) {
       //? Emit the exception for the correspondig user
       server.emit(`error:${user.id}`, 'You have already bought this prestige');
-      return;
+      return { success: false };
     }
 
     //? Check that this prestige is the next one
@@ -247,7 +247,7 @@ export class EventsService {
         `error:${user.id}`,
         'You have to buy the previous prestige first',
       );
-      return;
+      return { success: false };
     }
 
     //* Mutate
@@ -274,7 +274,7 @@ export class EventsService {
     user.moneyPerClick = '1';
     user.itemsBought = [];
     await saveOneData({ key: 'users', id: parsedData.userId, data: user });
-    return user;
+    return { success: true };
   }
 
   async livelinessProbe(data: IWsEvent['livelinessProbe']['body']) {
