@@ -94,7 +94,10 @@ export default function Prestige() {
         <div className="flex items-center content-center justify-center">
           {currentPrestige ? (
             <p className="text-4xl">
-              {`x${decimalToHumanReadable(currentPrestige.prestige.moneyMult)}`}
+              {`x${decimalToHumanReadable(
+                currentPrestige.prestige.moneyMult,
+                true,
+              )}`}
             </p>
           ) : (
             <p className="text-4xl">x1</p>
@@ -104,6 +107,7 @@ export default function Prestige() {
               <ArrowPrestige className={'w-[100px] self-center px-5'} />
               <p className="text-4xl">{`x${decimalToHumanReadable(
                 nextPrestige.moneyMult,
+                true,
               )}`}</p>
             </>
           )}
@@ -121,7 +125,7 @@ export default function Prestige() {
               disabled={balance.lt(nextPrestige.price)}
             >
               <p className="text-3xl">
-                {decimalToHumanReadable(nextPrestige.price)} Buy
+                {decimalToHumanReadable(nextPrestige.price, true)} Buy
               </p>
             </Button>
           </div>

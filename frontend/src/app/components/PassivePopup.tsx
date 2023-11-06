@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import CreditLogo from '@/assets/credits_icon.webp';
 import { popupMinOfflineTime } from '@/lib/constant';
 import { maxPassiveIncomeInterval } from '../../../../backend/src/lib/constant';
+import Button from './ui/Button';
 
 export default function PassivePopup() {
   const user = useUserStore((state) => state.user);
@@ -70,12 +71,7 @@ export default function PassivePopup() {
                 })}
             </p>
           </div>
-          <button
-            className="mt-5 bg-green-700 hover:bg-green-800 text-white rounded-xl px-5 py-2"
-            onClick={() => setShowPopup(false)}
-          >
-            Claim
-          </button>
+          <Button onClick={() => setShowPopup(false)}>Claim</Button>
         </div>
       )}
     </div>

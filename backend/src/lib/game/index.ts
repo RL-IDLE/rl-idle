@@ -39,19 +39,25 @@ export const getPriceOfItem = (basePrice: Decimal, step: Decimal) =>
       .round(),
   );
 
-//? basePrice (3 (x + x * 0.2))^(x / 2) * 11x
+//? old: basePrice (3 (x + x * 0.2))^(x / 2) * 11x
+// export const getPriceForClickItem = (basePrice: Decimal, step: Decimal) => {
+//   return beautify(
+//     basePrice
+//       .times(
+//         Decimal.fromString('1.5')
+//           .times(step.plus(step.times('0.1')))
+//           .pow(step.div('2')),
+//       )
+//       .times(
+//         step.times('3').eq('0') ? Decimal.fromString('1') : step.times('3'),
+//       )
+//       .round(),
+//   );
+// };
+//? Test: 20 (8+8*0.1 x)^(x)
 export const getPriceForClickItem = (basePrice: Decimal, step: Decimal) => {
   return beautify(
-    basePrice
-      .times(
-        Decimal.fromString('3')
-          .times(step.plus(step.times('0.2')))
-          .pow(step.div('2')),
-      )
-      .times(
-        step.times('11').eq('0') ? Decimal.fromString('1') : step.times('3.5'),
-      )
-      .round(),
+    basePrice.times(Decimal.fromString('8').pow(step.times('0.7'))).round(),
   );
 };
 

@@ -282,11 +282,7 @@ export default function Shop() {
                         alt="credit"
                         className="object-contain"
                       />
-                      {decimalToHumanReadable(
-                        item.price,
-                        true,
-                        // item.name === 'Twinzer',
-                      )}
+                      {decimalToHumanReadable(item.price, true)}
                     </p>
                     {/* Money per Click */}
                     <p className="text-white text-xs">

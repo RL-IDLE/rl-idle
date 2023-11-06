@@ -3,15 +3,21 @@ import { useUserStore } from '@/contexts/user.store';
 import { env } from '@/env';
 import styles from './home.module.scss';
 import { decimalToHumanReadable } from '@/lib/bignumber';
-import { getUserMoneyPerClick } from '@/lib/game';
+import { beautify, getUserMoneyPerClick } from '@/lib/game';
 import { MouseEvent, TouchEvent, useEffect, useState } from 'react';
 import Parameters from './Parameters';
+import BoostMeter from '../BoostMeter';
+import { useClickStore } from '@/contexts/click.store';
+import { fullBoostMultiplier, fullBoostNumberOfClicks } from '@/lib/constant';
 
 export default function Home() {
   const click = useGameStore((state) => state.actions.click);
   const itemsBought = useUserStore((state) => state.user?.itemsBought);
   const moneyPerClick = useUserStore((state) => state.user?.moneyPerClick);
   const prestigesBought = useUserStore((state) => state.user?.prestigesBought);
+  const getLast5SecondsClicks = useClickStore(
+    (state) => state.getLast5SecondsClicks,
+  );
 
   const itemsTab = (itemsBought ?? []).map((item) => {
     return {
@@ -40,7 +46,7 @@ export default function Home() {
       env.VITE_API_URL + '/public/boosts/SFX_Boost_2d_Smoke_0001.ogg';
     if (audio?.url === url) return;
     const newAudio = new Audio(url);
-    newAudio.volume = 0.3;
+    newAudio.volume = 0.15;
     setAudio({ audio: newAudio, url });
     return () => {
       newAudio.remove();
@@ -59,19 +65,30 @@ export default function Home() {
     const xAlea = Math.floor(Math.random() * 25);
     const x = ('clientX' in e ? e.clientX : e.touches[0].clientX) - xAlea;
     const y = ('clientY' in e ? e.clientY : e.touches[0].clientY) - 30;
+    const perSecond = getLast5SecondsClicks() / 5;
+    const isFullBoost = useClickStore.getState().isFullBoost;
+    let realPercentage = perSecond / fullBoostNumberOfClicks;
+    if (realPercentage > 1) realPercentage = 1;
+    const multiplicator = isFullBoost
+      ? fullBoostMultiplier
+      : Math.floor(1 + realPercentage * 4);
     const mouse = document.createElement('div');
     mouse.classList.add(styles.mouse);
     mouse.innerHTML =
       '+' +
       decimalToHumanReadable(
-        getUserMoneyPerClick(
-          moneyPerClick && prestigesBought
-            ? {
-                moneyPerClick,
-                prestigesBought,
-              }
-            : null,
+        beautify(
+          getUserMoneyPerClick(
+            moneyPerClick && prestigesBought
+              ? {
+                  moneyPerClick,
+                  prestigesBought,
+                }
+              : null,
+            multiplicator,
+          ),
         ),
+        true,
       );
     mouse.style.top = y + 'px';
     mouse.style.left = x + 'px';
@@ -90,14 +107,15 @@ export default function Home() {
       >
         <img
           src={
-            itemsTab.length > 0
-              ? firstCar?.url
-              : env.VITE_API_URL + '/public/cars/endo--blue.png'
+            firstCar
+              ? firstCar.url
+              : env.VITE_API_URL + '/public/cars/animus-gp--blue.png'
           }
           alt="rocket battle car image"
         />
       </button>
       <Parameters />
+      <BoostMeter />
     </section>
   );
 }

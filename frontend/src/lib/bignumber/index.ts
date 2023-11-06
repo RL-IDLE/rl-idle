@@ -3,6 +3,7 @@ import memoizee from 'memoizee';
 
 const floatRegex = /(\.\d{3})\d+/;
 const floatRegex1 = /(\.\d{1})\d+/;
+const leadingZeroRegex = /\.0+/;
 
 const tabsDecimal = [
   { value: 0, label: '' },
@@ -65,8 +66,17 @@ function _decimalToHumanReadable(
   if (decimalFromRegex === '.000') {
     decimalFromRegex = '';
   }
+  const value = mantissa.toString().replace(floatRegex, decimalFromRegex ?? '');
   const decimalReadable =
-    mantissa.toString().replace(floatRegex, decimalFromRegex ?? '') +
+    (round
+      ? Decimal.fromString(
+          mantissa.toString().replace(floatRegex, decimalFromRegex ?? ''),
+        )
+          .mul(100)
+          .round()
+          .div(100)
+          .toString()
+      : value) +
     ' ' +
     decimalTab.label;
 
