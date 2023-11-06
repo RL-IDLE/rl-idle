@@ -15,7 +15,7 @@ export default function PaymentValidation({
       )}
       onClick={() => close()}
     >
-      <div className="rounded-xl p-5 flex flex-col items-center rounded-t-2xl overflow-hidden border-2 border-[#245184] bg-gradient-to-t from-[#111429] to-[#1F3358] text-white">
+      <div className="rounded-xl p-5 flex flex-col items-center rounded-t-2xl overflow-hidden border-2 border-[#245184] bg-gradient-to-t from-gradient-dark to-gradient-light text-white">
         <div className="flex flex-col gap-3">{children}</div>
         <Button onClick={() => close()}>Claim</Button>
       </div>

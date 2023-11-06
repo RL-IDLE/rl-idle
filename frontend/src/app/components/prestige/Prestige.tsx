@@ -59,7 +59,7 @@ export default function Prestige() {
       />
       <div
         className={cn(
-          'justify-between rounded-t-2xl overflow-hidden border-2 border-[#245184] bg-gradient-to-t from-[#111429] to-[#1F3358] text-white m-10',
+          'justify-between rounded-t-2xl overflow-hidden border-2 border-[#245184] bg-gradient-to-t from-gradient-dark to-gradient-light text-white m-10',
         )}
       >
         <h2 className="text-4xl text-center relative text-white flex flex-col p-5">

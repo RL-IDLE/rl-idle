@@ -20,6 +20,11 @@ module.exports = {
         numberUpdate: 'numberUpdate 0.2s linear',
         bigNumberUpdate: 'bigNumberUpdate 0.3s linear',
       },
+      colors: {
+        background: 'hsl(var(--background-hsl))',
+        'gradient-dark': 'var(--gradient-dark)',
+        'gradient-light': 'var(--gradient-light)',
+      },
     },
   },
   plugins: [],

@@ -18,7 +18,7 @@ const emeraldsPack = [
   },
   {
     id: 2,
-    name: 'Handful of emeralds',
+    name: 'Pouch of emeralds',
     quantity: 500,
     price: 4.99,
     link:
@@ -80,21 +80,21 @@ const emeraldsPack = [
 
 export default function Shop() {
   return (
-    <ul className="grid grid-cols-3 gap-3 overflow-auto touch-pan-y items-center rounded-xl p-3 ">
+    <ul className="grid grid-cols-2 gap-3 overflow-auto touch-pan-y items-center rounded-xl p-3 ">
       {emeraldsPack.map((item) => (
-        <li key={item.id}>
-          <Button noStyle>
+        <li key={item.id} className="w-full h-full active:scale-[0.98]">
+          <Button noStyle className="w-full h-full">
             <a
               href={item.link}
               rel="noreferrer"
               className={cn(
-                'gap-2 border p-2 cursor-pointer relative transition-all active:scale-[0.98] w-full h-full flex flex-col justify-between items-center',
+                'gap-2 border p-2 rounded-lg cursor-pointer relative transition-all w-full h-full flex flex-col justify-between items-center',
                 {
                   'opacity-50': !item.link,
                 },
               )}
             >
-              <p className="text-white self-center text-lg text-center">
+              <p className="text-white self-center text-md text-center">
                 {item.name}
               </p>
               <div className="flex flex-col justify-center items-center">

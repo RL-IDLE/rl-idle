@@ -52,7 +52,7 @@ export default function PassivePopup() {
       onClick={() => setShowPopup(false)}
     >
       {typeof showPopup === 'object' && (
-        <div className="rounded-xl p-5 flex flex-col items-center rounded-t-2xl overflow-hidden border-2 border-[#245184] bg-gradient-to-t from-[#111429] to-[#1F3358] text-white">
+        <div className="rounded-xl p-5 flex flex-col items-center rounded-t-2xl overflow-hidden border-2 border-[#245184] bg-gradient-to-t from-gradient-dark to-gradient-light text-white">
           <div className="flex flex-col gap-3">
             <h2 className="text-2xl text-center flex flex-row gap-2">
               + {decimalToHumanReadable(showPopup)}

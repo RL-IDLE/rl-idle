@@ -31,9 +31,9 @@ export default function Button({
       className={
         !noStyle
           ? cn(
-              'px-4 py-2 rounded-lg bg-[#264783] text-white transition-all duration-200',
-              'hover:bg-[#1f3d6d]',
-              'disabled:bg-[#264783]/70 disabled:cursor-not-allowed',
+              'px-4 py-2 rounded-lg bg-background text-white transition-all duration-200',
+              'hover:bg-gradient-light',
+              'disabled:bg-background/70 disabled:cursor-not-allowed',
               className,
             )
           : className

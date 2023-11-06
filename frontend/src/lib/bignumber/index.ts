@@ -3,7 +3,6 @@ import memoizee from 'memoizee';
 
 const floatRegex = /(\.\d{3})\d+/;
 const floatRegex1 = /(\.\d{1})\d+/;
-const leadingZeroRegex = /\.0+/;
 
 const tabsDecimal = [
   { value: 0, label: '' },
