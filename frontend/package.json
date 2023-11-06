@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@redux-devtools/extension": "^3.2.5",
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "@stripe/react-stripe-js": "^2.3.1",
     "@stripe/stripe-js": "^2.1.11",
     "@t3-oss/env-core": "^0.7.0",
@@ -31,6 +32,7 @@
     "postcss": "^8.4.31",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "rollup-plugin-typescript": "^1.0.1",
     "sass": "^1.69.4",
     "socket.io-client": "^4.7.2",
     "swiper": "^11.0.0",

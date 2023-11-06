@@ -74,6 +74,8 @@ function App() {
       }, 3000);
     }
 
+    Notification.requestPermission();
+
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('reconnect', onConnect);
