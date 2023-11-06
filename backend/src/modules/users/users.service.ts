@@ -165,7 +165,7 @@ export class UsersService {
     if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
     user.moneyUsed = Decimal.fromString(user.moneyUsed)
-      .sub(remove.amount)
+      .add(remove.amount)
       .toString();
     await saveOneData({
       key: 'users',
