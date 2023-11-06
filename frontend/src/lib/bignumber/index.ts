@@ -32,11 +32,7 @@ function intToBase26String(_num: Decimal) {
   return num.mantissa.toString().replace(floatRegex, '$1') + ' ' + str;
 }
 
-function _decimalToHumanReadable(
-  decimal: Decimal,
-  round?: boolean,
-  debug?: boolean,
-): string {
+function _decimalToHumanReadable(decimal: Decimal, round?: boolean): string {
   if (decimal.exponent < 3) {
     const mantissa = decimal.mantissa * 10 ** decimal.exponent;
     return (round ? Math.round(mantissa) : mantissa)
