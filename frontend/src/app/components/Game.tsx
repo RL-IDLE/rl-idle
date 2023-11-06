@@ -101,7 +101,7 @@ export default function Game() {
 
     //* Audio
     const newAudio = new Audio(env.VITE_API_URL + '/public/ui/navbar.ogg');
-    newAudio.volume = 0.5;
+    newAudio.volume = 0.3;
     setAudio(newAudio);
 
     return function cleanup() {

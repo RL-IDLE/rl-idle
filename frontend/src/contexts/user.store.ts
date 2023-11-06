@@ -15,7 +15,13 @@ import {
   getPriceOfItem,
   getUserMoneyPerClick,
 } from '@/lib/game';
-import { clickRefreshInterval, clickWsRefreshInterval } from '@/lib/constant';
+import {
+  clickRefreshInterval,
+  clickWsRefreshInterval,
+  fullBoostMultiplier,
+  fullBoostNumberOfClicks,
+} from '@/lib/constant';
+import { useClickStore } from './click.store';
 
 let lastClick: Date | null = null;
 let clickBuffer: Decimal = Decimal.fromString('0');
@@ -48,12 +54,24 @@ export const useUserStore = create<UserState>()(
       immer((set, get) => ({
         user: null,
         click() {
+          useClickStore.getState().addClick({ date: new Date() });
+          const getLast5SecondsClicks =
+            useClickStore.getState().getLast5SecondsClicks;
+          const isFullBoost = useClickStore.getState().isFullBoost;
           if (clickBufferTimeout) {
             clearTimeout(clickBufferTimeout);
           }
           //? If lastClick is too recent (less than 0.1s), return
           const timeDiff = lastClick ? Date.now() - lastClick.getTime() : null;
-          clickBuffer = clickBuffer.add(Decimal.fromString('1'));
+          const perSecond = getLast5SecondsClicks() / 5;
+          let realPercentage = perSecond / fullBoostNumberOfClicks;
+          if (realPercentage > 1) realPercentage = 1;
+          const multiplicator = isFullBoost
+            ? fullBoostMultiplier
+            : Math.floor(1 + realPercentage * 4);
+          clickBuffer = clickBuffer.add(
+            Decimal.fromString('1').times(multiplicator),
+          );
           clickBufferTimeout = setTimeout(
             () => {
               //? Update lastClick
@@ -63,7 +81,7 @@ export const useUserStore = create<UserState>()(
                 if (!user) return;
                 logger.debug('click');
                 user.moneyFromClick = user.moneyFromClick.add(
-                  getUserMoneyPerClick(user).times(clickBuffer),
+                  getUserMoneyPerClick(user, false).times(clickBuffer),
                 );
                 if (wsBufferTimeout) {
                   clearTimeout(wsBufferTimeout);
@@ -241,6 +259,7 @@ export const useUserStore = create<UserState>()(
               moneyFromClick: Decimal.fromString(user.moneyFromClick),
               moneyPerClick: Decimal.fromString(user.moneyPerClick),
               moneyUsed: Decimal.fromString(user.moneyUsed),
+              emeralds: Decimal.fromString(user.emeralds),
               itemsBought: user.itemsBought.map((itemBought) => ({
                 id: itemBought.id,
                 item: {
@@ -291,6 +310,7 @@ export const useUserStore = create<UserState>()(
               moneyFromClick: Decimal.fromString(user.moneyFromClick),
               moneyPerClick: Decimal.fromString(user.moneyPerClick),
               moneyUsed: Decimal.fromString(user.moneyUsed),
+              emeralds: Decimal.fromString(user.emeralds),
               itemsBought: user.itemsBought.map((itemBought) => ({
                 id: itemBought.id,
                 item: {

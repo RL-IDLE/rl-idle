@@ -16,3 +16,4 @@ export const priceToEmerald = (price: number) => {
     throw `Price not found (${price})`;
   }
 };
+export const fullBoostMultiplier = 10;

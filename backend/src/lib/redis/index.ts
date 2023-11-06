@@ -13,7 +13,7 @@ const options: RedisOptions = {
         local current = redis.call('get', KEYS[1])
         if current then
           redis.call('incr', KEYS[1])
-          return current + 1
+          return current + ARGV[2]
         else
           redis.call('setex', KEYS[1], ARGV[1], ARGV[2])
           return ARGV[2]
@@ -32,7 +32,7 @@ declare module 'ioredis' {
     increx(
       key: string,
       ttl: number,
-      defaultValue: number,
+      increment: number,
       callback?: Callback<string>,
     ): Result<string, Context>;
   }

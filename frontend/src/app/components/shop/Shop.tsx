@@ -22,6 +22,7 @@ import { logger } from '@/lib/logger';
 import { env } from '@/env';
 import cursorSvg from '@/assets/Cursor.svg';
 import boostImage from '@/assets/Standard_rocket_boost_icon.png';
+import gradient from '@/assets/gradient.png';
 
 const memoizedPresitgesSorted = memoizeOne((prestiges: IPrestigeBought[]) => {
   return prestiges.sort((a, b) =>
@@ -186,13 +187,11 @@ export default function Shop() {
     <div className="flex flex-col mt-32 pb-6 h-full">
       <div
         className={cn(
-          'bg-gradient-to-t from-[#111429] from-0% to-[#1f3358] to-100% justify-evenly flex touch-pan-y w-10/12 self-center mb-2 rounded-xl p-1',
+          'bg-gradient-to-t relative from-gradient-dark from-0% to-gradient-light to-100% justify-evenly flex touch-pan-y w-[calc(100%-40px)] self-center mb-2 rounded-xl p-1',
         )}
       >
         <button
-          className={cn('text-white p-3 w-full rounded-xl', {
-            'bg-[#1f3358]': isCredit,
-          })}
+          className={cn('text-white p-3 py-1 w-full rounded-[8px] z-10')}
           onClick={() => {
             if (navAudio) {
               navAudio.currentTime = 0;
@@ -204,9 +203,7 @@ export default function Shop() {
           Credits
         </button>
         <button
-          className={cn('text-white p-3 w-full rounded-xl', {
-            'bg-[#1f3358]': !isCredit,
-          })}
+          className={cn('text-white p-3 py-1 w-full rounded-[8px] z-10')}
           onClick={() => {
             if (navAudio) {
               navAudio.currentTime = 0;
@@ -217,20 +214,34 @@ export default function Shop() {
         >
           Emeralds
         </button>
+        <div
+          className="bg-gradient-light border border-background absolute top-0 h-[calc(100%-8px)] w-[calc(50%-4px)] left-0 m-1 rounded-[8px] transition-all duration-200 ease-in"
+          style={{
+            transform: isCredit ? 'translateX(0%)' : 'translateX(100%)',
+          }}
+        ></div>
       </div>
       <section
-        className={cn(styles.shop + ' flex flex-col rounded-xl pt-5', {
+        className={cn(styles.shop + ' flex flex-col rounded-xl', {
           'after:!hidden': !isCredit,
         })}
+        style={{
+          backgroundImage: `url(${gradient})`,
+          backgroundSize: 'cover',
+        }}
       >
         {isCredit ? (
           <>
-            <ul className="flex flex-col gap-2 overflow-auto touch-pan-y items-center rounded-xl pt-3 pb-3 px-4">
+            <ul
+              className={cn(
+                'flex flex-col gap-1.5 overflow-auto touch-pan-y relative items-center rounded-xl pt-3 px-3 pb-10',
+              )}
+            >
               {itemsDisplayList.map((item) => (
                 <li
                   key={item.id}
                   className={cn(
-                    'flex flex-row gap-2 border p-2 cursor-pointer relative transition-all active:scale-[0.98] w-full items-center',
+                    'flex flex-row gap-2 border p-2 cursor-pointer relative transition-all active:scale-[0.98] w-full items-center rounded-lg',
                     {
                       'opacity-[.65]': item.price.gt(balance),
                       'pointer-events-none': item.price.gt(balance),
@@ -248,30 +259,37 @@ export default function Shop() {
                     <img
                       src={item.url}
                       alt={item.name}
-                      className="max-w-[6rem] h-full object-contain"
+                      className="max-w-[4rem] h-full object-contain"
                     />
                   ) : item.kind === 'click' ? (
                     <img
                       src={cursorSvg}
                       alt={item.name}
-                      className="w-[6rem] h-[4rem] object-contain"
+                      className="w-[4rem] h-[2.5rem] object-contain"
                     />
                   ) : item.kind === 'boost' ? (
                     <img
                       src={boostImage}
                       alt={item.name}
-                      className="w-[6rem] h-[4rem] object-contain"
+                      className="w-[4rem] h-[2.5rem] object-contain"
                     />
                   ) : (
                     <img
                       src={item.url}
                       alt={item.name}
-                      className="max-w-[6rem] h-full object-contain"
+                      className="max-w-[4rem] h-full object-contain"
                     />
                   )}
-                  <div className="flex flex-col gap-2">
-                    {/* NAME */}
-                    <p className="text-white">{item.name}</p>
+                  <div className="flex flex-col gap-1 flex-1 justify-between h-full">
+                    <div className="flex flex-row space-x-1 items-center">
+                      {/* NAME */}
+                      <p className="text-white text-sm">{item.name}</p>
+                      {item.percentageInBalance.gt(0) && (
+                        <p className="text-white/80 whitespace-nowrap percentage text-xs">
+                          ({item.percentageInBalance.toFixed(1).toString()}%)
+                        </p>
+                      )}
+                    </div>
 
                     {/* PRICE */}
                     <p className="price text-white flex flex-row gap-1 text-lg">
@@ -282,38 +300,40 @@ export default function Shop() {
                         alt="credit"
                         className="object-contain"
                       />
-                      {decimalToHumanReadable(
-                        item.price,
-                        true,
-                        // item.name === 'Twinzer',
-                      )}
+                      {decimalToHumanReadable(item.price, true)}
                     </p>
+                  </div>
+                  <div className="gap-1 flex flex-col justify-between h-full">
                     {/* Money per Click */}
-                    <p className="text-white text-xs">
+                    <p className="text-white text-xs text-end">
                       {item.moneyPerSecond.eq(0)
-                        ? `x${item.moneyPerClickMult.toString()} per click`
+                        ? `x${item.moneyPerClickMult.toString()}/click`
                         : `+${decimalToHumanReadable(
                             item.moneyPerSecond.mul(latestPrestigeMult),
-                          )} per second`}
+                          )}/s`}
                     </p>
-
                     {/* LEVEL */}
-                    <p className="level text-white absolute top-1 right-1">
+                    <p className="level text-white text-end">
                       lvl {decimalToHumanReadable(item.level, true)}
                     </p>
-
-                    {/* PERCENTAGE IN BALANCE */}
-                    {item.percentageInBalance.gt(0) && (
-                      <p className="text-white percentage absolute bottom-1 right-1">
-                        {item.percentageInBalance.toFixed(1).toString()} %
-                      </p>
-                    )}
                   </div>
+
+                  {/* LEVEL */}
+                  {/* <p className="level text-white absolute top-1 right-1">
+                      lvl {decimalToHumanReadable(item.level, true)}
+                    </p> */}
+
+                  {/* PERCENTAGE IN BALANCE */}
+                  {/* {item.percentageInBalance.gt(0) && (
+                    <p className="text-white percentage absolute bottom-1 right-1">
+                      {item.percentageInBalance.toFixed(1).toString()} %
+                    </p>
+                  )} */}
                 </li>
               ))}
             </ul>
-            <p className="text-white text-end opacity-70 mr-4 text-sm">
-              % of total clicks per second
+            <p className="text-white text-end text-sm absolute bottom-1 rounded-xl px-2 overflow-hidden right-2 backdrop-blur-sm bg-background/40 p-1">
+              % =&gt; gains impact
             </p>
           </>
         ) : (

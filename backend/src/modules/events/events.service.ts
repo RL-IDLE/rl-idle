@@ -26,7 +26,7 @@ import {
 } from '../prestiges/entities/prestige.entity';
 import { logger } from 'src/lib/logger';
 import { objectDepth } from 'src/lib/utils';
-import { maxDiffTimeUserSpec } from 'src/lib/constant';
+import { fullBoostMultiplier, maxDiffTimeUserSpec } from 'src/lib/constant';
 
 @Injectable()
 export class EventsService {
@@ -58,9 +58,12 @@ export class EventsService {
     if (!user) throw new HttpException('User not found', 400);
     const clicks = await redis.get(`clicks:${user.id}`);
     const maxPerSecond = 20;
+    const maxMultiplier = fullBoostMultiplier; //? x5 per click, max front-end mult
+    const timeBuffer = 30;
     if (
       clicks &&
-      parseInt(clicks) + parseInt(parsedData.times) >= maxPerSecond * 30
+      parseInt(clicks) + parseInt(parsedData.times) >=
+        maxPerSecond * maxMultiplier * timeBuffer
     ) {
       //? Emit the exception for the correspondig user
       server.emit(`error:${user.id}`, 'You have reached the limit of clicks');
@@ -69,12 +72,16 @@ export class EventsService {
     const moneyFromClick = Decimal.fromString(user.moneyFromClick);
     const moneyPerClick = getUserMoneyPerClick(user);
     const newMoneyFromClick = moneyFromClick.add(
-      moneyPerClick.times(Decimal.fromString(parsedData.times)),
+      moneyPerClick.times(parsedData.times),
     );
     user.moneyFromClick = newMoneyFromClick.toString();
     await saveOneData({ key: 'users', id: parsedData.userId, data: user });
     //? Add a click to the redis click counter
-    await redis.increx(`clicks:${user.id}`, 30, 1);
+    await redis.increx(
+      `clicks:${user.id}`,
+      timeBuffer,
+      parseInt(parsedData.times),
+    );
     return user;
   }
 

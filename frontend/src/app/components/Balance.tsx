@@ -19,7 +19,7 @@ export default function Balance() {
       }
     >
       <h2 className="text-center relative w-fit text-white flex flex-col">
-        {decimalToHumanReadable(balance, true)}
+        {decimalToHumanReadable(balance, balance.lt('1000') ? true : false)}
         <span>+{decimalToHumanReadable(moneyPerSecond)} /s</span>
       </h2>
       <img width="45" height="45" src={CreditLogo} alt="credit" />
