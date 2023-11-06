@@ -42,11 +42,14 @@ export const socket = {
       socket._isEmitting = true;
       const { args } = socket._emitQueue.shift()!;
       await new Promise<void>((resolve) => {
-        initialSocket.emit(...args, resolve);
-        setTimeout(() => {
+        const tId = setTimeout(() => {
           logger.error('Socket emit timeout');
           resolve();
         }, 2000);
+        initialSocket.emit(...args, () => {
+          clearTimeout(tId);
+          resolve();
+        });
       });
       socket._isEmitting = false;
       await socket._executeEmitInQueue();
