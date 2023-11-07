@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import CreditLogo from '@/assets/credits_icon.webp';
 import { maxPassiveIncomeInterval } from '../../../../backend/src/lib/constant';
 import Button from './ui/Button';
+import { popupMinOfflineTime } from '@/lib/constant';
 
 export default function PassivePopup() {
   const user = useUserStore((state) => state.user);
@@ -23,8 +24,8 @@ export default function PassivePopup() {
 
     //? If the user has been offline for more than 1 minute, show a popup
     if (
-      // now - parseInt(lastBalanceTime || '0') > popupMinOfflineTime &&
-      now - parseInt(lastBalanceTime || '0') > 0 &&
+      now - parseInt(lastBalanceTime || '0') > popupMinOfflineTime &&
+      // now - parseInt(lastBalanceTime || '0') > 0 &&
       lastBalance
     ) {
       const realInactiveTime = new Date(parseInt(lastBalanceTime || '0'));

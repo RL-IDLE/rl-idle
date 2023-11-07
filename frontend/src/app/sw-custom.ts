@@ -10,44 +10,28 @@ self.importScripts(
 //   console.log('Installing service worker...');
 // });
 
-// Function to check passive income status and notify the user
-async function checkPassiveIncomeStatus() {
-  const lastBalance = await localforage.getItem('lastBalance');
-  const lastBalanceTime = await localforage.getItem('lastBalanceTime');
-  const maxPassiveIncomeInterval = await localforage.getItem(
-    'maxPassiveIncomeInterval',
-  );
-
-  if (lastBalance && lastBalanceTime && maxPassiveIncomeInterval) {
-    const currentTime = new Date().getTime();
-    const lastTime = parseInt(lastBalanceTime, 10);
-    const interval = parseInt(maxPassiveIncomeInterval, 10);
-
-    const notificationSent = await localforage.getItem('notificationSent');
-    if (currentTime - lastTime >= interval && !notificationSent) {
-      // Passive income has stopped, notify the user
-      sw.registration.showNotification('Claim your rewards!', {
-        body: 'Your passive income has stopped. Please check your account.',
-        icon: '/manifest-icon-512.maskable.png',
-        vibrate: [200, 100, 200],
-      });
-      localforage.setItem('notificationSent', true);
-    } else if (currentTime - lastTime < interval && notificationSent) {
-      localforage.setItem('notificationSent', false);
-    }
-  }
-}
-
-// Schedule the check to run every minute (60,000 milliseconds)
-setInterval(checkPassiveIncomeStatus, 10000);
-
-sw.addEventListener('message', (event) => {
-  if (event.data.kind === 'save') {
-    localforage.setItem('lastBalance', event.data.lastBalance);
-    localforage.setItem('lastBalanceTime', event.data.lastBalanceTime);
-    localforage.setItem(
-      'maxPassiveIncomeInterval',
-      event.data.maxPassiveIncomeInterval,
+// Register event listener for the 'push' event.
+sw.addEventListener('push', function (event) {
+  // Retrieve the textual payload from event.data (a PushMessageData object).
+  // Other formats are supported (ArrayBuffer, Blob, JSON), check out the documentation
+  // on https://developer.mozilla.org/en-US/docs/Web/API/PushMessageData.
+  const payload = event.data
+    ? (JSON.parse(event.data.text()) as {
+        title: string;
+        body: string;
+        icon: string;
+      })
+    : null;
+  if (payload) {
+    console.log('Received a push message', payload);
+    // Keep the service worker alive until the notification is created.
+    event.waitUntil(
+      // Show a notification with title 'ServiceWorker Cookbook' and use the payload
+      // as the body.
+      sw.registration.showNotification(payload.title, {
+        body: payload.body,
+        icon: payload.icon,
+      }),
     );
   }
 });

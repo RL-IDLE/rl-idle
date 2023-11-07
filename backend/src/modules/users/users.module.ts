@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { Subscription, User } from './entities/user.entity';
 import {
   Prestige,
   PrestigeBought,
@@ -14,6 +14,7 @@ import { Payment } from '../payments/entities/payment.entity';
   imports: [
     TypeOrmModule.forFeature([
       User,
+      Subscription,
       Prestige,
       PrestigeBought,
       Item,

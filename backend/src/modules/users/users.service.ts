@@ -1,6 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { Subscription, User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { api } from 'src/types/api';
 import { getOneData, redisNamespace, saveOneData } from 'src/lib/storage';
@@ -20,6 +20,8 @@ import { redis } from 'src/lib/redis';
 import { IConfirmPayment } from 'src/types/user';
 import { Payment } from '../payments/entities/payment.entity';
 import { stripe } from 'src/lib/stripe';
+import { env } from 'src/env';
+import webPush from 'web-push';
 
 @Injectable()
 export class UsersService {
@@ -27,6 +29,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @InjectRepository(Subscription)
+    private readonly subscriptionRepository: Repository<Subscription>,
     @InjectRepository(Prestige)
     private readonly prestigeRepository: Repository<Prestige>,
     @InjectRepository(PrestigeBought)
@@ -37,7 +41,13 @@ export class UsersService {
     private readonly itemBoughtRepository: Repository<ItemBought>,
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
-  ) {}
+  ) {
+    webPush.setVapidDetails(
+      'mailto:louis@huort.com',
+      env.VAPID_PUBLIC_KEY,
+      env.VAPID_PRIVATE_KEY,
+    );
+  }
 
   async load(
     loadUser: typeof api.user.load.body,
@@ -444,5 +454,34 @@ export class UsersService {
     );
 
     return { emeralds };
+  }
+
+  /**
+   * Notifications
+   */
+  getVapidPublicKey() {
+    return { vapidPublicKey: env.VAPID_PUBLIC_KEY };
+  }
+
+  async registerSubscription(subscription: PushSubscription, userId: string) {
+    //? Before saving check if the subscription already exists
+    const exists = await this.subscriptionRepository.findOne({
+      where: {
+        subscription: subscription,
+      },
+    });
+    if (exists) {
+      return { success: true };
+    }
+    //? Save the subscription
+    await this.subscriptionRepository.save({
+      id: randomUUID(),
+      user: {
+        id: userId,
+      },
+      subscription: subscription,
+    });
+
+    return { success: true };
   }
 }
