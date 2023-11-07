@@ -10,6 +10,9 @@ export function BalanceProvider({ children }: { children: React.ReactNode }) {
   const user = useUserStore((state) => state.user);
 
   const [balance, setBalance] = useState<Decimal>(new Decimal(0));
+  const [difference, setDifference] = useState<Decimal | null>(
+    Decimal.fromString('0'),
+  );
 
   useEffect(() => {
     let lastTimeSaved = Date.now();
@@ -44,7 +47,13 @@ export function BalanceProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   return (
-    <BalanceContext.Provider value={{ balance }}>
+    <BalanceContext.Provider
+      value={{
+        balance,
+        difference,
+        setDifference,
+      }}
+    >
       {children}
     </BalanceContext.Provider>
   );
