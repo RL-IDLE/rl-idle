@@ -9,6 +9,7 @@ import Parameters from './Parameters';
 import BoostMeter from '../BoostMeter';
 import { useClickStore } from '@/contexts/click.store';
 import { fullBoostMultiplier, fullBoostNumberOfClicks } from '@/lib/constant';
+import { useItemsStore } from '@/contexts/items.store';
 
 export default function Home() {
   const click = useGameStore((state) => state.actions.click);
@@ -18,6 +19,8 @@ export default function Home() {
   const getLast5SecondsClicks = useClickStore(
     (state) => state.getLast5SecondsClicks,
   );
+  const selectedCar = useItemsStore((state) => state.currentCar);
+  const selectedBoost = useItemsStore((state) => state.currentBoost);
 
   const itemsTab = (itemsBought ?? []).map((item) => {
     return {
@@ -35,6 +38,9 @@ export default function Home() {
   const firstCar = itemsTab.find((item) => item.kind === 'car');
   const firstBoost = itemsTab.find((item) => item.kind === 'boost');
 
+  const currentCar = selectedCar ?? firstCar;
+  const currentBoost = selectedBoost ?? firstBoost;
+
   const [audio, setAudio] = useState<{
     audio: HTMLAudioElement;
     url: string;
@@ -42,7 +48,7 @@ export default function Home() {
 
   useEffect(() => {
     const url =
-      firstBoost?.url ??
+      currentBoost?.url ??
       env.VITE_API_URL + '/public/boosts/SFX_Boost_2d_Smoke_0001.ogg';
     if (audio?.url === url) return;
     const newAudio = new Audio(url);
@@ -51,7 +57,7 @@ export default function Home() {
     return () => {
       newAudio.remove();
     };
-  }, [firstBoost, audio]);
+  }, [currentBoost, audio]);
 
   const handleClick = (
     e: TouchEvent<HTMLButtonElement> | MouseEvent<HTMLButtonElement>,
@@ -107,8 +113,8 @@ export default function Home() {
       >
         <img
           src={
-            firstCar
-              ? firstCar.url
+            currentCar
+              ? currentCar.url
               : env.VITE_API_URL + '/public/cars/animus-gp--blue.png'
           }
           alt="rocket battle car image"
