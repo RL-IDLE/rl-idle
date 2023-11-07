@@ -23,6 +23,7 @@ import cursorSvg from '@/assets/Cursor.svg';
 import boostImage from '@/assets/Standard_rocket_boost_icon.png';
 import gradient from '@/assets/gradient.png';
 import { logger } from '@/lib/logger';
+import { useLongPress } from '@uidotdev/usehooks';
 
 const memoizedPresitgesSorted = memoizeOne((prestiges: IPrestigeBought[]) => {
   return prestiges.sort((a, b) =>
@@ -238,98 +239,13 @@ export default function Shop() {
               )}
             >
               {itemsDisplayList.map((item) => (
-                <li
+                <ShopItem
                   key={item.id}
-                  className={cn(
-                    'flex flex-row gap-2 border p-2 cursor-pointer relative transition-all active:scale-[0.98] w-full items-center rounded-lg',
-                    {
-                      'opacity-[.65]': item.price.gt(balance),
-                      'pointer-events-none': item.price.gt(balance),
-                    },
-                  )}
-                  onClick={() => {
-                    if (item.price.gt(balance)) {
-                      logger.debug('Not enough money to buy item');
-                      return;
-                    }
-                    handleBuy(item.id);
-                  }}
-                >
-                  {item.kind === 'car' ? (
-                    <img
-                      src={item.url}
-                      alt={item.name}
-                      className="max-w-[4rem] h-full object-contain"
-                    />
-                  ) : item.kind === 'click' ? (
-                    <img
-                      src={cursorSvg}
-                      alt={item.name}
-                      className="w-[4rem] h-[2.5rem] object-contain"
-                    />
-                  ) : item.kind === 'boost' ? (
-                    <img
-                      src={boostImage}
-                      alt={item.name}
-                      className="w-[4rem] h-[2.5rem] object-contain"
-                    />
-                  ) : (
-                    <img
-                      src={item.url}
-                      alt={item.name}
-                      className="max-w-[4rem] h-full object-contain"
-                    />
-                  )}
-                  <div className="flex flex-col gap-1 flex-1 justify-between h-full">
-                    <div className="flex flex-row space-x-1 items-center">
-                      {/* NAME */}
-                      <p className="text-white text-sm">{item.name}</p>
-                      {item.percentageInBalance.gt(0) && (
-                        <p className="text-white/80 whitespace-nowrap percentage text-xs">
-                          ({item.percentageInBalance.toFixed(1).toString()}%)
-                        </p>
-                      )}
-                    </div>
-
-                    {/* PRICE */}
-                    <p className="price text-white flex flex-row gap-1 text-lg">
-                      <img
-                        width="20"
-                        height="20"
-                        src={CreditLogo}
-                        alt="credit"
-                        className="object-contain"
-                      />
-                      {decimalToHumanReadable(item.price, true)}
-                    </p>
-                  </div>
-                  <div className="gap-1 flex flex-col justify-between h-full">
-                    {/* Money per Click */}
-                    <p className="text-white text-xs text-end">
-                      {item.moneyPerSecond.eq(0)
-                        ? `x${item.moneyPerClickMult.toString()}/click`
-                        : `+${decimalToHumanReadable(
-                            item.moneyPerSecond.mul(latestPrestigeMult),
-                          )}/s`}
-                    </p>
-                    {/* LEVEL */}
-                    <p className="level text-white text-end">
-                      lvl {decimalToHumanReadable(item.level, true)}
-                    </p>
-                  </div>
-
-                  {/* LEVEL */}
-                  {/* <p className="level text-white absolute top-1 right-1">
-                      lvl {decimalToHumanReadable(item.level, true)}
-                    </p> */}
-
-                  {/* PERCENTAGE IN BALANCE */}
-                  {/* {item.percentageInBalance.gt(0) && (
-                    <p className="text-white percentage absolute bottom-1 right-1">
-                      {item.percentageInBalance.toFixed(1).toString()} %
-                    </p>
-                  )} */}
-                </li>
+                  item={item}
+                  handleBuy={handleBuy}
+                  balance={balance}
+                  latestPrestigeMult={latestPrestigeMult}
+                />
               ))}
             </ul>
             <p className="text-white text-end text-sm absolute bottom-1 rounded-xl px-2 overflow-hidden right-2 backdrop-blur-sm bg-background/40 p-1">
@@ -341,5 +257,141 @@ export default function Shop() {
         )}
       </section>
     </div>
+  );
+}
+
+function ShopItem({
+  item,
+  balance,
+  handleBuy,
+  latestPrestigeMult,
+}: {
+  item: {
+    price: Decimal;
+    level: Decimal;
+    ernPerSecond: Decimal;
+    percentageInBalance: Decimal;
+    id: string;
+    moneyPerSecond: Decimal;
+    moneyPerClickMult: Decimal;
+    url: string;
+    kind: string | undefined;
+    name: string;
+  };
+  balance: Decimal;
+  handleBuy: (id: string) => void;
+  latestPrestigeMult: Decimal;
+}) {
+  const setCurrentCar = useItemsStore((state) => state.setCurrentCar);
+  const setCurrentBoost = useItemsStore((state) => state.setCurrentBoost);
+  const currentCar = useItemsStore((state) => state.currentCar);
+  const currentBoost = useItemsStore((state) => state.currentBoost);
+  const bind = useLongPress(
+    () => {
+      if (item.kind === 'car') {
+        setCurrentCar(item);
+      } else if (item.kind === 'boost') {
+        setCurrentBoost(item);
+      }
+    },
+    {
+      threshold: 800,
+    },
+  );
+
+  return (
+    <li
+      key={item.id}
+      className={cn(
+        'flex flex-row gap-2 border p-2 cursor-pointer relative transition-all active:scale-[0.98] w-full items-center rounded-lg',
+        {
+          'opacity-[.65]': item.price.gt(balance),
+          'pointer-events-none': item.price.gt(balance),
+          'border-[#C6F0FF] border-2':
+            (item.kind === 'boost' && currentBoost?.id === item.id) ||
+            (item.kind === 'car' && currentCar?.id === item.id),
+        },
+      )}
+      onClick={() => {
+        if (item.price.gt(balance)) {
+          logger.debug('Not enough money to buy item');
+          return;
+        }
+        handleBuy(item.id);
+      }}
+      {...bind}
+    >
+      {item.kind === 'car' ? (
+        <img
+          src={item.url}
+          alt={item.name}
+          className="max-w-[4rem] h-full object-contain"
+        />
+      ) : item.kind === 'click' ? (
+        <img
+          src={cursorSvg}
+          alt={item.name}
+          className="w-[4rem] h-[2.5rem] object-contain"
+        />
+      ) : item.kind === 'boost' ? (
+        <img
+          src={boostImage}
+          alt={item.name}
+          className="w-[4rem] h-[2.5rem] object-contain"
+        />
+      ) : (
+        <img
+          src={item.url}
+          alt={item.name}
+          className="max-w-[4rem] h-full object-contain"
+        />
+      )}
+      <div className="flex flex-col gap-1 flex-1 justify-between h-full">
+        <div className="flex flex-row space-x-1 items-center">
+          {/* NAME */}
+          <p className="text-white text-sm">{item.name}</p>
+          {item.percentageInBalance.gt(0) && (
+            <p className="text-white/80 whitespace-nowrap percentage text-xs">
+              ({item.percentageInBalance.toFixed(1).toString()}%)
+            </p>
+          )}
+        </div>
+
+        {/* PRICE */}
+        <p className="price text-white flex flex-row gap-1 text-lg">
+          <img
+            width="20"
+            height="20"
+            src={CreditLogo}
+            alt="credit"
+            className="object-contain"
+          />
+          {decimalToHumanReadable(item.price, true)}
+        </p>
+      </div>
+      <div className="gap-1 flex flex-col justify-between h-full">
+        {/* Money per Click */}
+        <p className="text-white text-xs text-end">
+          {item.moneyPerSecond.eq(0)
+            ? `x${item.moneyPerClickMult.toString()}/click`
+            : `+${decimalToHumanReadable(
+                item.moneyPerSecond.mul(latestPrestigeMult),
+              )}/s`}
+        </p>
+        {/* LEVEL */}
+        <p className="level text-white text-end">
+          lvl {decimalToHumanReadable(item.level, true)}
+        </p>
+      </div>
+
+      <div className="absolute left-1 top-1">
+        {item.kind === 'car' && currentCar?.id === item.id && (
+          <div className="bg-[#C6F0FF] w-2.5 h-2.5 rounded-full"></div>
+        )}
+        {item.kind === 'boost' && currentBoost?.id === item.id && (
+          <div className="bg-[#C6F0FF] w-2.5 h-2.5 rounded-full"></div>
+        )}
+      </div>
+    </li>
   );
 }
