@@ -1,0 +1,22 @@
+.balance{
+  // style like rocket leaugue game interface
+  background: linear-gradient(0, #111429 0%, #1F3358 100%);
+  border: solid 2px #245184;
+  font-size: 30px;
+  width: calc(100% - 40px);
+
+  h2{
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0 auto;
+    transform: translateX(25px);
+    font-family: 'Jost', sans-serif;
+    font-weight: 500;
+    
+    span{
+      white-space: nowrap;
+      font-size: .8rem;
+      font-weight: normal;  
+    }
+  }
+}

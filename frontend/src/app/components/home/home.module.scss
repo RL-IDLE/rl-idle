@@ -1,0 +1,55 @@
+.home {
+    height: 100vh;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+
+    button {
+        margin: auto;
+        position: relative;
+
+        &:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            width: 50%;
+            height: 50%;
+            background-color: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            filter: blur(100px);
+
+        }
+    }
+}
+
+.mouse {
+    animation: mouse 1s;
+    animation-fill-mode: forwards;
+    position: fixed;
+    z-index: 1000;
+    transition: all 0.3s ease-in-out;
+    opacity: 0.5;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-shadow: 0 0 0 #000;
+    user-select: none;
+    pointer-events: none;
+}
+
+@keyframes mouse {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}

@@ -3,7 +3,7 @@ version: "3.8"
 services:
   api:
     image: rg.fr-par.scw.cloud/rl-idle/api-stagging:latest
-    container_name: rl-idle_api-production
+    container_name: rl-idle_api-stagging
     restart: unless-stopped
     logging:
       driver: "json-file"
@@ -17,20 +17,20 @@ services:
 
   app:
     image: rg.fr-par.scw.cloud/rl-idle/app-stagging:latest
-    container_name: rl-idle_app-production
+    container_name: rl-idle_app-stagging
     restart: unless-stopped
     logging:
       driver: "json-file"
       options:
         max-size: "50m"
     ports:
-      - "10058:3000"
+      - "10058:80"
     networks:
       - frontend
 
   db:
     image: postgres:latest
-    container_name: rl-idle_db-production
+    container_name: rl-idle_db-stagging
     restart: unless-stopped
     volumes:
       - rl-idle-postgres-data:/var/lib/postgresql/data
@@ -50,7 +50,7 @@ services:
 
   redis:
     restart: unless-stopped
-    container_name: rl-idle_redis-production
+    container_name: rl-idle_redis-stagging
     image: redis:latest
     command: /bin/sh -c "redis-server --requirepass ${REDIS_PASSWORD}"
     logging:

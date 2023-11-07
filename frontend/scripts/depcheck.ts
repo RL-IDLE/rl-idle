@@ -8,7 +8,15 @@ const rootPath = path.join(__dirname, '..');
 
 const options = {
   skipMissing: false,
-  ignoreMatches: ['@semantic-release/*', 'env.mjs', 'i18n-config', 'sharp'],
+  ignoreMatches: [
+    '@semantic-release/*',
+    'env.mjs',
+    'i18n-config',
+    'sharp',
+    'postcss',
+    'tailwindcss',
+    'autoprefixer',
+  ],
 };
 
 console.log('Checking for unused dependencies...');
