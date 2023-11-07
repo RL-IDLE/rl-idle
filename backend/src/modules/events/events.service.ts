@@ -286,6 +286,7 @@ export class EventsService {
     if (!user) throw new HttpException('User not found', 400);
     //? Update user lastSeen
     user.lastSeen = new Date();
+    user.passiveNotificationSent = false;
     await saveOneData({ key: 'users', id: data.userId, data: user });
 
     return data;

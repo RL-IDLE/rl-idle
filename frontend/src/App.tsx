@@ -18,6 +18,7 @@ import { router } from './lib/api';
 import { useUserStore } from './contexts/user.store';
 import Version from './app/components/Version';
 import PaymentValidation from './app/components/PaymentValidation';
+import ServiceWorker from './app/components/ServiceWorker';
 
 const stripePromise = loadStripe(env.VITE_STRIPE_PUBLIC_KEY);
 
@@ -110,6 +111,7 @@ function App() {
           </p>
         </PaymentValidation>
       )}
+      <ServiceWorker />
     </div>
   );
 }

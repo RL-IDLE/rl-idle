@@ -1,13 +1,15 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { env } from 'src/env';
-import { User } from '../users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { Subscription, User } from '../users/entities/user.entity';
+import { LessThan, Repository } from 'typeorm';
 import { ItemBought } from '../items/entities/item.entity';
 import { PrestigeBought } from '../prestiges/entities/prestige.entity';
 import { Cron } from '@nestjs/schedule';
 import { redis } from 'src/lib/redis';
 import { redisNamespace } from 'src/lib/storage';
+import webPush, { PushSubscription } from 'web-push';
+import { maxPassiveIncomeInterval } from 'src/lib/constant';
 
 @Injectable()
 export class CronsService implements OnModuleInit {
@@ -18,6 +20,8 @@ export class CronsService implements OnModuleInit {
     private readonly itemsBoughtRepository: Repository<ItemBought>,
     @InjectRepository(PrestigeBought)
     private readonly prestigesBoughtRepository: Repository<PrestigeBought>,
+    @InjectRepository(Subscription)
+    private readonly subscriptionsRepository: Repository<Subscription>,
   ) {}
 
   private readonly logger = new Logger(CronsService.name);
@@ -27,6 +31,11 @@ export class CronsService implements OnModuleInit {
     this.logger.debug(
       `Running syncDB every ${
         env.ENV !== 'development' ? '2 minutes' : '30 seconds'
+      }`,
+    );
+    this.logger.debug(
+      `Running notifications every ${
+        env.ENV !== 'development' ? '1 minute' : '30 seconds'
       }`,
     );
   }
@@ -91,5 +100,56 @@ export class CronsService implements OnModuleInit {
     await redis.del(keys);
     //? Delete lock
     await redis.del(`lock:${redisNamespace}`);
+  }
+
+  /**
+   * @description Notifications cron
+   */
+  @Cron(env.ENV !== 'development' ? '0 * * * * *' : '*/30 * * * * *')
+  async passiveIncomeNotification() {
+    const users = await this.usersRepository.find({
+      where: {
+        lastSeen: LessThan(new Date(Date.now() - maxPassiveIncomeInterval)),
+        passiveNotificationSent: false,
+      },
+      relations: ['subscriptions'],
+    });
+    await Promise.all(
+      users.map(async (user) => {
+        const subs = user.subscriptions;
+        //? Update user
+        await this.usersRepository.update(
+          { id: user.id },
+          { passiveNotificationSent: true },
+        );
+        if (!subs.length) {
+          return;
+        }
+        //? Send notification
+        await Promise.all(
+          subs.map(async (sub) => {
+            const payload = JSON.stringify({
+              title: 'Claim your rewards!',
+              body: 'You have reached the maximum passive income. Come back to get more!',
+              icon: env.BASE_URL + '/public/logo.webp',
+            });
+            try {
+              await webPush.sendNotification(
+                sub.subscription as PushSubscription,
+                payload,
+              );
+              this.logger.debug('Notification sent to: ' + user.id);
+            } catch (err) {
+              if (err.statusCode === 410) {
+                //? Delete subscription
+                await this.subscriptionsRepository.delete({ id: sub.id });
+              } else {
+                throw err;
+              }
+            }
+          }),
+        );
+      }),
+    );
   }
 }

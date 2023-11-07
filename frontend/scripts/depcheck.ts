@@ -16,6 +16,7 @@ const options = {
     'postcss',
     'tailwindcss',
     'autoprefixer',
+    'rollup',
   ],
 };
 

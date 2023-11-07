@@ -1,6 +1,12 @@
 import { IUser } from 'src/types/user';
 import { Timestamp } from '../../generic/timestamp.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ItemBought } from '../../../modules/items/entities/item.entity';
 import { PrestigeBought } from '../../prestiges/entities/prestige.entity';
 
@@ -45,4 +51,27 @@ export class User extends Timestamp implements IUser {
     default: '0',
   })
   emeralds: string;
+
+  @OneToMany(() => Subscription, (subscription) => subscription.user)
+  subscriptions: Subscription[];
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  passiveNotificationSent: boolean;
+}
+
+@Entity('subscription')
+export class Subscription extends Timestamp {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @ManyToOne(() => User, (user) => user.subscriptions)
+  user: User;
+
+  @Column({
+    type: 'jsonb',
+  })
+  subscription: unknown;
 }
