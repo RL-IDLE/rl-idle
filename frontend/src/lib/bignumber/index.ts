@@ -14,7 +14,11 @@ const tabsDecimal = [
   { value: 18, label: 'S' },
 ];
 
-function intToBase26String(_num: Decimal) {
+function intToBase26String(
+  _num: Decimal,
+  round?: boolean,
+  roundKind: 'round' | 'ceil' | 'floor' = 'round',
+) {
   // Vérifie si le nombre est valide
   const num = Decimal.fromDecimal(_num);
   num.exponent -= 20;
@@ -31,10 +35,36 @@ function intToBase26String(_num: Decimal) {
     exponent = Math.floor(Math.floor(exponent) / 26);
   }
 
-  return (num.mantissa * mult).toString().replace(floatRegex, '$1') + ' ' + str;
+  const value = (num.mantissa * mult).toString().replace(floatRegex, '$1');
+  const stringToAppend = ' ' + str;
+  if (!round) {
+    return value + stringToAppend;
+  }
+  if (roundKind === 'round') {
+    return (
+      Decimal.fromString(value).mul(100).round().div(100).toString() +
+      stringToAppend
+    );
+  } else if (roundKind === 'ceil') {
+    const floating = value.split('.')[1];
+    const floatingCeil = '.' + (parseInt(floating) + 1);
+    return (
+      Decimal.fromString(value).floor().toString() +
+      floatingCeil +
+      stringToAppend
+    );
+  }
+  return (
+    Decimal.fromString(value).mul(100).floor().div(100).toString() +
+    stringToAppend
+  );
 }
 
-function _decimalToHumanReadable(decimal: Decimal, round?: boolean): string {
+function _decimalToHumanReadable(
+  decimal: Decimal,
+  round?: boolean,
+  roundKind: 'round' | 'ceil' | 'floor' = 'round',
+): string {
   if (decimal.exponent < 3) {
     const mantissa = decimal.mantissa * 10 ** decimal.exponent;
     return (round ? Math.round(mantissa) : mantissa)
@@ -48,7 +78,7 @@ function _decimalToHumanReadable(decimal: Decimal, round?: boolean): string {
   if (index.eq(0)) {
     return decimal.mantissa.toString();
   } else if (index.gt(tabsDecimal.length)) {
-    return intToBase26String(decimal);
+    return intToBase26String(decimal, round, roundKind);
   }
 
   const decimalTab = tabsDecimal[parseInt(index.minus(1).toString())];
@@ -62,18 +92,39 @@ function _decimalToHumanReadable(decimal: Decimal, round?: boolean): string {
     decimalFromRegex = '';
   }
   const value = mantissa.replace(floatRegex, decimalFromRegex ?? '');
-  const decimalReadable =
-    (round
-      ? Decimal.fromString(mantissa.replace(floatRegex, decimalFromRegex ?? ''))
-          .mul(100)
-          .round()
-          .div(100)
-          .toString()
-      : value) +
+  if (!round) {
+    return value + ' ' + decimalTab.label;
+  }
+  if (roundKind === 'round') {
+    return (
+      Decimal.fromString(mantissa.replace(floatRegex, decimalFromRegex ?? ''))
+        .mul(100)
+        .round()
+        .div(100)
+        .toString() +
+      ' ' +
+      decimalTab.label
+    );
+  } else if (roundKind === 'ceil') {
+    return (
+      Decimal.fromString(mantissa.replace(floatRegex, decimalFromRegex ?? ''))
+        .mul(100)
+        .ceil()
+        .div(100)
+        .toString() +
+      ' ' +
+      decimalTab.label
+    );
+  }
+  return (
+    Decimal.fromString(mantissa.replace(floatRegex, decimalFromRegex ?? ''))
+      .mul(100)
+      .floor()
+      .div(100)
+      .toString() +
     ' ' +
-    decimalTab.label;
-
-  return decimalReadable;
+    decimalTab.label
+  );
 }
 const decimalToHumanReadable = memoizee(_decimalToHumanReadable, { max: 1000 });
 

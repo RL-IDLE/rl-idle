@@ -17,3 +17,4 @@ export const priceToEmerald = (price: number) => {
   }
 };
 export const fullBoostMultiplier = 10;
+export const passiveIncomeMultiplier = 0.1;

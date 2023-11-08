@@ -4,7 +4,11 @@ import { Subscription, User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { api } from 'src/types/api';
 import { getOneData, redisNamespace, saveOneData } from 'src/lib/storage';
-import { maxPassiveIncomeInterval, priceToEmerald } from 'src/lib/constant';
+import {
+  maxPassiveIncomeInterval,
+  passiveIncomeMultiplier,
+  priceToEmerald,
+} from 'src/lib/constant';
 import { getUserBalance } from 'src/lib/game';
 import Decimal from 'break_infinity.js';
 import { logger } from 'src/lib/logger';
@@ -75,12 +79,13 @@ export class UsersService {
     //? Get the time difference between the last time the user was seen and now
     const lastSeen = new Date(user.lastSeen as unknown as string);
     const timeDiff = Math.abs(curDate.getTime() - lastSeen.getTime());
+    const endOfInterval = new Date(
+      lastSeen.getTime() + maxPassiveIncomeInterval,
+    );
+    const userBalanceLastSeen = getUserBalance(user, lastSeen);
+    const userBalance = getUserBalance(user);
     let overflow: null | Decimal = null;
     if (timeDiff > maxPassiveIncomeInterval) {
-      const endOfInterval = new Date(
-        lastSeen.getTime() + maxPassiveIncomeInterval,
-      );
-      const userBalance = getUserBalance(user);
       const userBalanceWithMaxPassiveIncome = getUserBalance(
         user,
         endOfInterval,
@@ -90,6 +95,16 @@ export class UsersService {
         .plus(overflow)
         .toString();
     }
+    const passiveIncomeGains = userBalance
+      .minus(overflow || Decimal.fromString('0'))
+      .minus(userBalanceLastSeen);
+    //? Multiply the passive income gains by the multiplier
+    const lostPassiveIncome = passiveIncomeGains.times(
+      Decimal.fromString('1').minus(passiveIncomeMultiplier),
+    );
+    user.moneyUsed = Decimal.fromString(user.moneyUsed)
+      .plus(lostPassiveIncome)
+      .toString();
     if (timeDiff > 1000 * 60) {
       logger.debug(
         `User ${user.id} was inactive for ${getTimeBetween(
