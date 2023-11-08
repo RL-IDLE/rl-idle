@@ -22,7 +22,6 @@ import { env } from '@/env';
 import cursorSvg from '@/assets/Cursor.svg';
 import boostImage from '@/assets/Standard_rocket_boost_icon.png';
 import gradient from '@/assets/gradient.png';
-import { logger } from '@/lib/logger';
 import { useLongPress } from '@uidotdev/usehooks';
 
 const memoizedPresitgesSorted = memoizeOne((prestiges: IPrestigeBought[]) => {
@@ -303,10 +302,10 @@ function ShopItem({
     <li
       key={item.id}
       className={cn(
-        'flex flex-row gap-2 border p-2 cursor-pointer relative transition-all active:scale-[0.98] w-full items-center rounded-lg',
+        'flex flex-row gap-2 border p-2 cursor-pointer relative transition-all w-full items-center rounded-lg',
         {
           'opacity-[.65]': item.price.gt(balance),
-          'pointer-events-none': item.price.gt(balance),
+          'active:scale-[0.98]': item.price.lte(balance),
           'border-[#C6F0FF] border-2':
             (item.kind === 'boost' && currentBoost?.id === item.id) ||
             (item.kind === 'car' && currentCar?.id === item.id),
@@ -314,7 +313,7 @@ function ShopItem({
       )}
       onClick={() => {
         if (item.price.gt(balance)) {
-          logger.debug('Not enough money to buy item');
+          // logger.debug('Not enough money to buy item');
           return;
         }
         handleBuy(item.id);
