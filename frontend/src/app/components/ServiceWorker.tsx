@@ -41,7 +41,9 @@ export default function ServiceWorker() {
   }, [register]);
 
   useEffect(() => {
-    Notification.requestPermission();
+    if (Notification as unknown | undefined) {
+      Notification.requestPermission();
+    }
   }, []);
 
   return <></>;
