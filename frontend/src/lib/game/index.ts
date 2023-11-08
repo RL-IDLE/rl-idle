@@ -11,13 +11,14 @@ const memoizedHighestPrestige = memoizeOne(
   },
 );
 
-export const getUserBalance = (user: IUser | null) => {
+export const getUserBalance = (user: IUser | null, date?: Date) => {
   if (!user) return Decimal.fromString('0');
+  const baseDate = date?.getTime() || Date.now();
   const moneyFromClick = user.moneyFromClick;
   const highestPrestige = memoizedHighestPrestige(user.prestigesBought);
   const moneyFromInvestments = user.itemsBought
     .reduce<Decimal>((acc, item) => {
-      const timeDiff = Date.now() - new Date(item.createdAt).getTime();
+      const timeDiff = baseDate - new Date(item.createdAt).getTime();
       return acc.plus(item.item.moneyPerSecond.times(timeDiff / 1000));
     }, Decimal.fromString('0'))
     .times(highestPrestige);
