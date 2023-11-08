@@ -1,4 +1,4 @@
-export const maxPassiveIncomeInterval = 1000 * 60 * 60 * 8; //? 8 hours
+export const maxPassiveIncomeInterval = 1000 * 60 * 60 * 4; //? 4 hours
 export const maxDiffTimeUserSpec = 1000 * 5; //? 5 seconds
 export const priceToEmerald = (price: number) => {
   const priceToEmeraldMap = new Map<number, number>([
@@ -16,3 +16,4 @@ export const priceToEmerald = (price: number) => {
     throw `Price not found (${price})`;
   }
 };
+export const fullBoostMultiplier = 10;

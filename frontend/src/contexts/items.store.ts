@@ -10,6 +10,10 @@ interface ItemsState {
   items: IItem[];
   setItems: (items: IItem[]) => void;
   loadItems: () => Promise<void>;
+  currentCar: IItem | null;
+  currentBoost: IItem | null;
+  setCurrentCar: (item: IItem | null) => void;
+  setCurrentBoost: (item: IItem | null) => void;
 }
 
 export const useItemsStore = create<ItemsState>()(
@@ -28,14 +32,35 @@ export const useItemsStore = create<ItemsState>()(
             price: Decimal.fromString(item.price),
             moneyPerSecond: Decimal.fromString(item.moneyPerSecond),
             moneyPerClickMult: Decimal.fromString(item.moneyPerClickMult),
-            image: item.image,
+            url: item.url,
+            kind: item.kind,
           }));
-          set({ items: itemsMapped });
+          const currentCar = localStorage.getItem('currentCar');
+          const currentBoost = localStorage.getItem('currentBoost');
+          set({
+            items: itemsMapped,
+            currentCar: currentCar
+              ? itemsMapped.find((item) => item.id === currentCar)
+              : null,
+            currentBoost: currentBoost
+              ? itemsMapped.find((item) => item.id === currentBoost)
+              : null,
+          });
+        },
+        currentCar: null,
+        currentBoost: null,
+        setCurrentCar: (item) => {
+          set({ currentCar: item });
+          localStorage.setItem('currentCar', item ? item.id : '');
+        },
+        setCurrentBoost: (item) => {
+          set({ currentBoost: item });
+          localStorage.setItem('currentBoost', item ? item.id : '');
         },
       })),
       {
         name: 'items',
-        version: 1.1,
+        version: 3,
         merge: (_, persisted) => {
           return {
             ...persisted,

@@ -26,7 +26,7 @@ import {
 } from '../prestiges/entities/prestige.entity';
 import { logger } from 'src/lib/logger';
 import { objectDepth } from 'src/lib/utils';
-import { maxDiffTimeUserSpec } from 'src/lib/constant';
+import { fullBoostMultiplier, maxDiffTimeUserSpec } from 'src/lib/constant';
 
 @Injectable()
 export class EventsService {
@@ -49,7 +49,7 @@ export class EventsService {
       server.emit(`error:${data.userId}`, err.message);
       return;
     });
-    if (!parsedData) return;
+    if (!parsedData) return { success: false };
     const user = await getOneData({
       databaseRepository: this.usersRepository,
       key: 'users',
@@ -58,24 +58,31 @@ export class EventsService {
     if (!user) throw new HttpException('User not found', 400);
     const clicks = await redis.get(`clicks:${user.id}`);
     const maxPerSecond = 20;
+    const maxMultiplier = fullBoostMultiplier; //? x5 per click, max front-end mult
+    const timeBuffer = 30;
     if (
       clicks &&
-      parseInt(clicks) + parseInt(parsedData.times) >= maxPerSecond * 30
+      parseInt(clicks) + parseInt(parsedData.times) >=
+        maxPerSecond * maxMultiplier * timeBuffer
     ) {
       //? Emit the exception for the correspondig user
       server.emit(`error:${user.id}`, 'You have reached the limit of clicks');
-      return;
+      return { success: false };
     }
     const moneyFromClick = Decimal.fromString(user.moneyFromClick);
     const moneyPerClick = getUserMoneyPerClick(user);
     const newMoneyFromClick = moneyFromClick.add(
-      moneyPerClick.times(Decimal.fromString(parsedData.times)),
+      moneyPerClick.times(parsedData.times),
     );
     user.moneyFromClick = newMoneyFromClick.toString();
     await saveOneData({ key: 'users', id: parsedData.userId, data: user });
     //? Add a click to the redis click counter
-    await redis.increx(`clicks:${user.id}`, 30, 1);
-    return user;
+    await redis.increx(
+      `clicks:${user.id}`,
+      timeBuffer,
+      parseInt(parsedData.times),
+    );
+    return { success: true };
   }
 
   async buyItem(data: IWsEvent['buyItem']['body'], server: Server) {
@@ -83,7 +90,7 @@ export class EventsService {
       server.emit(`error:${data.userId}`, err.message);
       return;
     });
-    if (!parsedData) return;
+    if (!parsedData) return { success: false };
     const user = await getOneData({
       databaseRepository: this.usersRepository,
       key: 'users',
@@ -125,7 +132,7 @@ export class EventsService {
           item.name
         } but didn't have enough money (${userBalance.toString()} < ${itemPrice.toString()})`,
       );
-      return;
+      return { success: false };
     }
 
     //* Mutate
@@ -160,11 +167,11 @@ export class EventsService {
       updatedAt: createdAt,
       deletedAt: null as unknown as Date,
     };
-    await saveOneData({
-      key: 'itemsBought',
-      data: itemBought,
-      id: itemBought.id,
-    });
+    // await saveOneData({
+    //   key: 'itemsBought',
+    //   data: itemBought,
+    //   id: itemBought.id,
+    // });
     user.itemsBought.push({
       ...itemBought,
       user: { id: user.id } as unknown as User,
@@ -174,7 +181,7 @@ export class EventsService {
       id: parsedData.userId,
       data: user,
     });
-    return user;
+    return { success: true };
   }
 
   async buyPrestige(data: IWsEvent['buyPrestige']['body'], server: Server) {
@@ -182,7 +189,7 @@ export class EventsService {
       server.emit(`error:${data.userId}`, err.message);
       return;
     });
-    if (!parsedData) return;
+    if (!parsedData) return { success: false };
     const user = await getOneData({
       databaseRepository: this.usersRepository,
       key: 'users',
@@ -201,7 +208,7 @@ export class EventsService {
     if (userBalance.lt(prestige.price)) {
       //? Emit the exception for the correspondig user
       server.emit(`error:${user.id}`, 'Not enough money to prestige');
-      return;
+      return { success: false };
     }
 
     //? Check if user has already bought this prestige
@@ -211,7 +218,7 @@ export class EventsService {
     if (alreadyBought > 0) {
       //? Emit the exception for the correspondig user
       server.emit(`error:${user.id}`, 'You have already bought this prestige');
-      return;
+      return { success: false };
     }
 
     //? Check that this prestige is the next one
@@ -240,7 +247,7 @@ export class EventsService {
         `error:${user.id}`,
         'You have to buy the previous prestige first',
       );
-      return;
+      return { success: false };
     }
 
     //* Mutate
@@ -253,11 +260,11 @@ export class EventsService {
       updatedAt: new Date(),
       deletedAt: null as unknown as Date,
     };
-    await saveOneData({
-      key: 'prestigesBought',
-      data: prestigeBought,
-      id: prestige.id,
-    });
+    // await saveOneData({
+    //   key: 'prestigesBought',
+    //   data: prestigeBought,
+    //   id: prestige.id,
+    // });
     user.prestigesBought.push({
       ...prestigeBought,
       user: undefined as unknown as User,
@@ -267,7 +274,7 @@ export class EventsService {
     user.moneyPerClick = '1';
     user.itemsBought = [];
     await saveOneData({ key: 'users', id: parsedData.userId, data: user });
-    return user;
+    return { success: true };
   }
 
   async livelinessProbe(data: IWsEvent['livelinessProbe']['body']) {
@@ -279,6 +286,7 @@ export class EventsService {
     if (!user) throw new HttpException('User not found', 400);
     //? Update user lastSeen
     user.lastSeen = new Date();
+    user.passiveNotificationSent = false;
     await saveOneData({ key: 'users', id: data.userId, data: user });
 
     return data;
