@@ -366,7 +366,7 @@ function ShopItem({
             alt="credit"
             className="object-contain"
           />
-          {decimalToHumanReadable(item.price, true)}
+          {decimalToHumanReadable(item.price, true, 'ceil')}
         </p>
       </div>
       <div className="gap-1 flex flex-col justify-between h-full">
