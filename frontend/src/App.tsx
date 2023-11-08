@@ -17,6 +17,8 @@ import { env } from './env';
 import { router } from './lib/api';
 import { useUserStore } from './contexts/user.store';
 import Version from './app/components/Version';
+import PaymentValidation from './app/components/PaymentValidation';
+import ServiceWorker from './app/components/ServiceWorker';
 
 const stripePromise = loadStripe(env.VITE_STRIPE_PUBLIC_KEY);
 
@@ -26,6 +28,9 @@ function App() {
   const loadShop = useGameStore((state) => state.actions.loadShop);
   const loadPrestige = useGameStore((state) => state.actions.loadPrestige);
   const userId = useUserStore((state) => state.user?.id);
+  const [paymentValidationReceived, setPaymentValidationReceived] = useState<
+    false | number
+  >(false);
 
   const handlePayment = useCallback(async () => {
     if (!userId) return;
@@ -34,14 +39,20 @@ function App() {
     const params = new URLSearchParams(query);
     const checkoutSessionId = params.get('checkout_session_id');
     if (!checkoutSessionId) return;
-    await router.user.confirmPayment({
+    const res = await router.user.confirmPayment({
       id: userId,
       checkoutSessionId,
     });
+    loadUser();
+    setPaymentValidationReceived(res.emeralds);
     //? Remove the searchparams
     params.delete('checkout_session_id');
-    window.location.search = params.toString();
-  }, [userId]);
+    window.history.replaceState({}, '', `${window.location.pathname}`);
+  }, [userId, loadUser]);
+
+  const closePaymentValidation = useCallback(() => {
+    setPaymentValidationReceived(false);
+  }, []);
 
   useEffect(() => {
     //? Handle payment callback
@@ -93,6 +104,14 @@ function App() {
           {!isConnected && <Loading />}
         </BalanceProvider>
       </Elements>
+      {paymentValidationReceived && (
+        <PaymentValidation close={closePaymentValidation}>
+          <p className="text-center text-xl self-center relative text-white flex flex-col">
+            + {paymentValidationReceived} Emeralds !
+          </p>
+        </PaymentValidation>
+      )}
+      <ServiceWorker />
     </div>
   );
 }

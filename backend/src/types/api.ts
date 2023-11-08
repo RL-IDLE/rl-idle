@@ -102,7 +102,19 @@ export const api = IApiType({
       method: 'POST',
       url: '/users/confirm-payment',
       body: unknown as IConfirmPayment,
-      response: unknown,
+      response: unknown as { emeralds: number },
+    },
+    getVapidPublicKey: {
+      method: 'GET',
+      url: '/users/get-vapid-public-key',
+      body: undefined,
+      response: unknown as { vapidPublicKey: string },
+    },
+    subscribe: {
+      method: 'POST',
+      url: '/users/subscribe',
+      body: unknown as { subscription: PushSubscription; userId: string },
+      response: unknown as IUser,
     },
   },
   items: {

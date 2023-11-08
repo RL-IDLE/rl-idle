@@ -2,9 +2,16 @@ import { defineConfig } from 'vite';
 import { VitePWA, VitePWAOptions } from 'vite-plugin-pwa';
 import react from '@vitejs/plugin-react-swc';
 import * as path from 'path';
+import { rollup, InputOptions, OutputOptions } from 'rollup';
+import rollupPluginTypescript from 'rollup-plugin-typescript';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 
 const pwaConfig: Partial<VitePWAOptions> = {
   registerType: 'autoUpdate',
+  workbox: {
+    importScripts: ['./sw-custom.js'],
+    globIgnores: ['**/node_modules/**/*', '**/sw-custom.js'],
+  },
   includeAssets: [
     'favicon.svg',
     'favicon.ico',
@@ -22,12 +29,12 @@ const pwaConfig: Partial<VitePWAOptions> = {
         type: 'image/png',
       },
       {
-        src: '/apple-icon-192.maskable.png',
+        src: '/manifest-icon-192.maskable.png',
         sizes: '192x192',
         type: 'image/png',
       },
       {
-        src: '/apple-icon-512.maskable.png',
+        src: '/manifest-icon-512.maskable.png',
         sizes: '512x512',
         type: 'image/png',
       },
@@ -38,12 +45,36 @@ const pwaConfig: Partial<VitePWAOptions> = {
     scope: '/',
     start_url: '/',
     orientation: 'portrait',
+    screenshots: [
+      {
+        src: '/screenshot.png',
+        sizes: '360x741',
+        type: 'image/png',
+      },
+    ],
   },
 };
 
+const CompileTsServiceWorker = () => ({
+  name: 'compile-typescript-service-worker',
+  async writeBundle(_options, _outputBundle) {
+    const inputOptions: InputOptions = {
+      input: 'src/app/sw-custom.ts',
+      plugins: [rollupPluginTypescript(), nodeResolve()],
+    };
+    const outputOptions: OutputOptions = {
+      file: 'dist/sw-custom.js',
+      format: 'es',
+    };
+    const bundle = await rollup(inputOptions);
+    await bundle.write(outputOptions);
+    await bundle.close();
+  },
+});
+
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), VitePWA(pwaConfig)],
+  plugins: [react(), VitePWA(pwaConfig), CompileTsServiceWorker()],
   // Port
   server: {
     host: '0.0.0.0',

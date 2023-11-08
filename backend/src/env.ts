@@ -21,6 +21,8 @@ export const env = createEnv({
     BASE_URL: z.string(),
     PASSWORD_HASHER_SECRET: z.string(),
     STRIPE_SECRET_KEY: z.string(),
+    VAPID_PUBLIC_KEY: z.string(),
+    VAPID_PRIVATE_KEY: z.string(),
   },
   clientPrefix: 'PUBLIC_',
   client: {},

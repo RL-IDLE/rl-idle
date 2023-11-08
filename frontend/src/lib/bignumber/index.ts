@@ -1,4 +1,5 @@
 import Decimal from 'break_infinity.js';
+import memoizee from 'memoizee';
 
 const floatRegex = /(\.\d{3})\d+/;
 const floatRegex1 = /(\.\d{1})\d+/;
@@ -21,17 +22,19 @@ function intToBase26String(_num: Decimal) {
 
   let str = '';
 
-  while (num.exponent > 0) {
-    num.exponent--;
-    const charCode = num.exponent % 26;
+  const baseExponent = num.exponent === 1 ? 1 : num.exponent - 1;
+  let exponent = baseExponent / 3;
+  const mult = 10 ** ((num.exponent - 1) % 3);
+  while (exponent > 0) {
+    const charCode = Math.floor(exponent) % 26;
     str = String.fromCharCode(97 + charCode) + str;
-    num.exponent = Math.floor(num.exponent / 26);
+    exponent = Math.floor(Math.floor(exponent) / 26);
   }
 
-  return num.mantissa.toString().replace(floatRegex, '$1') + ' ' + str;
+  return (num.mantissa * mult).toString().replace(floatRegex, '$1') + ' ' + str;
 }
 
-function decimalToHumanReadable(decimal: Decimal, round?: boolean): string {
+function _decimalToHumanReadable(decimal: Decimal, round?: boolean): string {
   if (decimal.exponent < 3) {
     const mantissa = decimal.mantissa * 10 ** decimal.exponent;
     return (round ? Math.round(mantissa) : mantissa)
@@ -39,24 +42,39 @@ function decimalToHumanReadable(decimal: Decimal, round?: boolean): string {
       .replace(floatRegex1, '$1');
   }
 
-  const entier = Math.floor(decimal.exponent / 3);
-  const index = entier + 1;
+  const entier = Decimal.fromNumber(decimal.exponent).div(3).floor();
+  const index = entier.add(1);
 
-  if (index === 0) {
+  if (index.eq(0)) {
     return decimal.mantissa.toString();
-  } else if (index > tabsDecimal.length) {
+  } else if (index.gt(tabsDecimal.length)) {
     return intToBase26String(decimal);
   }
 
-  const decimalTab = tabsDecimal[index - 1];
+  const decimalTab = tabsDecimal[parseInt(index.minus(1).toString())];
 
-  const mantissa =
-    decimal.mantissa * 10 ** (decimal.exponent - decimalTab.value);
+  const mantissa = Decimal.fromNumber(decimal.mantissa)
+    .mul(Decimal.fromString('10').pow(decimal.exponent - decimalTab.value))
+    .toString();
 
+  let decimalFromRegex = floatRegex.exec(mantissa.toString())?.[1];
+  if (decimalFromRegex === '.000') {
+    decimalFromRegex = '';
+  }
+  const value = mantissa.replace(floatRegex, decimalFromRegex ?? '');
   const decimalReadable =
-    mantissa.toString().replace(floatRegex, '$1') + ' ' + decimalTab.label;
+    (round
+      ? Decimal.fromString(mantissa.replace(floatRegex, decimalFromRegex ?? ''))
+          .mul(100)
+          .round()
+          .div(100)
+          .toString()
+      : value) +
+    ' ' +
+    decimalTab.label;
 
   return decimalReadable;
 }
+const decimalToHumanReadable = memoizee(_decimalToHumanReadable, { max: 1000 });
 
 export { decimalToHumanReadable };

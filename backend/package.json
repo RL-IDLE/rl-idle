@@ -63,6 +63,7 @@
     "socket.io": "^4.7.2",
     "stripe": "^14.3.0",
     "typeorm": "^0.3.17",
+    "web-push": "^3.6.6",
     "zod": "^3.22.4"
   },
   "devDependencies": {

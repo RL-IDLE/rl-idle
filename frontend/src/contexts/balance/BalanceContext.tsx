@@ -4,6 +4,8 @@ import { createContext } from 'react';
 export type IBalanceContext =
   | {
       balance: Decimal;
+      difference: Decimal | null;
+      setDifference: (difference: Decimal | null) => void;
     }
   | undefined;
 

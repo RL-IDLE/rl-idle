@@ -4,7 +4,8 @@ export const ItemSchema = z.object({
   id: z.string(),
   moneyPerSecond: z.string(),
   moneyPerClickMult: z.string(),
-  image: z.string(),
+  url: z.string(),
+  kind: z.string().optional(),
   name: z.string(),
   price: z.string(),
 });
