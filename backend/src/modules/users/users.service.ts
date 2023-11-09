@@ -513,9 +513,9 @@ export class UsersService {
       .limit(20)
       .leftJoin('user.prestigesBought', 'prestigesBought')
       //? Order by the numner of prestiges bought first, then by the latestBalance
-      .addSelect('COUNT("prestigesBought".id) AS prestige_count')
+      .addSelect('COUNT("prestigesBought"."userId") AS prestige_count')
       .groupBy(
-        '"user".id, "user"."createdAt", "user"."updatedAt", "user"."deletedAt", "prestigesBought".*',
+        '"user".id, "user"."createdAt", "user"."updatedAt", "user"."deletedAt"',
       )
       .orderBy('"prestige_count"', 'DESC')
       .addOrderBy('user.latestBalance', 'DESC');
