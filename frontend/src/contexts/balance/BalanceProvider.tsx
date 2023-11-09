@@ -4,11 +4,15 @@ import { useUserStore } from '../user.store';
 import { getUserBalance } from '@/lib/game';
 import { refreshInterval } from '@/lib/constant';
 import { BalanceContext } from './BalanceContext';
+import { maxPassiveIncomeInterval } from '../../../../backend/src/lib/constant';
 
 export function BalanceProvider({ children }: { children: React.ReactNode }) {
   const user = useUserStore((state) => state.user);
 
   const [balance, setBalance] = useState<Decimal>(new Decimal(0));
+  const [difference, setDifference] = useState<Decimal | null>(
+    Decimal.fromString('0'),
+  );
 
   useEffect(() => {
     let lastTimeSaved = Date.now();
@@ -19,6 +23,21 @@ export function BalanceProvider({ children }: { children: React.ReactNode }) {
       if (Date.now() - lastTimeSaved > 5000) {
         localStorage.setItem('lastBalance', newBalance.toString());
         localStorage.setItem('lastBalanceTime', Date.now().toString());
+        localStorage.setItem(
+          'maxPassiveIncomeInterval',
+          maxPassiveIncomeInterval.toString(),
+        );
+        if (
+          'serviceWorker' in navigator &&
+          navigator.serviceWorker.controller
+        ) {
+          navigator.serviceWorker.controller.postMessage({
+            kind: 'save',
+            lastBalance: newBalance.toString(),
+            lastBalanceTime: Date.now().toString(),
+            maxPassiveIncomeInterval: maxPassiveIncomeInterval.toString(),
+          });
+        }
         lastTimeSaved = Date.now();
       }
     };
@@ -28,7 +47,13 @@ export function BalanceProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   return (
-    <BalanceContext.Provider value={{ balance }}>
+    <BalanceContext.Provider
+      value={{
+        balance,
+        difference,
+        setDifference,
+      }}
+    >
       {children}
     </BalanceContext.Provider>
   );

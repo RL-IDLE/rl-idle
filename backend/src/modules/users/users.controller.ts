@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
   IConfirmPayment,
@@ -79,5 +79,31 @@ export class UsersController {
   @Post('confirm-payment')
   confirmPayment(@Body() payment: IConfirmPayment) {
     return this.usersService.confirmPayment(payment);
+  }
+
+  /**
+   * NOTIFICATIONS
+   */
+  @Get('get-vapid-public-key')
+  getVapidPublicKey() {
+    return this.usersService.getVapidPublicKey();
+  }
+
+  @Post('subscribe')
+  subscribe(
+    @Body() subscription: { subscription: PushSubscription; userId: string },
+  ) {
+    return this.usersService.registerSubscription(
+      subscription.subscription,
+      subscription.userId,
+    );
+  }
+
+  /**
+   * RANKING
+   */
+  @Get('get-top-20-users')
+  getTop20Users() {
+    return this.usersService.getTop20Users();
   }
 }

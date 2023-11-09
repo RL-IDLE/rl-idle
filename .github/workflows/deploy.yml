@@ -72,6 +72,8 @@ jobs:
           echo BASE_URL=${{ vars.BASE_URL }} >> .env
           echo PASSWORD_HASHER_SECRET=${{ secrets.PASSWORD_HASHER_SECRET }} >> .env
           echo STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }} >> .env
+          echo VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }} >> .env
+          echo VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }} >> .env
 
       - name: Create frontend env
         working-directory: frontend

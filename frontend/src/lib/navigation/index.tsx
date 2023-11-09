@@ -22,12 +22,12 @@ export const pages = [
   },
   {
     name: 'boost',
-    disabled: true,
+    disabled: false,
     label: <Boost />,
   },
   {
     name: 'ranking',
-    disabled: true,
+    disabled: false,
     label: <Ranking />,
   },
 ] as const;

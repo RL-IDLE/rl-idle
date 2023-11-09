@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --background: #264783;
+  --background-hsl: 219 55% 33%;
+  --gradient-dark: #111429;
+  --gradient-light: #1f3358;
+}
+
 html,
 body {
   min-height: 100vh;
@@ -11,6 +18,8 @@ body {
   -moz-user-select: none; /* Old versions of Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+
+  -webkit-tap-highlight-color: transparent;
 }
 
 #root {
@@ -20,4 +29,26 @@ body {
 
 .no-highlight {
   -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes slideBottom {
+  0% {
+    transform: translateY(0vh);
+  }
+
+  100% {
+    transform: translateY(calc(100vh + 100%));
+  }
+}
+
+@keyframes popOff {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }

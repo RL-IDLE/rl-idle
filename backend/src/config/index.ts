@@ -30,8 +30,3 @@ export default [
     serveRoot: '/public',
   }),
 ];
-
-const configService = new ConfigService();
-export const BACKHEALTH_API_KEY =
-  configService.get<string>('BACKHEALTH_API_KEY');
-export const ENVIRONMENT = configService.getOrThrow<string>('ENV');

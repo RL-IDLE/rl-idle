@@ -1,5 +1,6 @@
 import { io } from 'socket.io-client';
 import { env } from '../../env';
+import { logger } from '../logger';
 
 const URL = env.VITE_API_URL;
 
@@ -40,7 +41,16 @@ export const socket = {
       }
       socket._isEmitting = true;
       const { args } = socket._emitQueue.shift()!;
-      await new Promise((resolve) => initialSocket.emit(...args, resolve));
+      await new Promise<void>((resolve) => {
+        const tId = setTimeout(() => {
+          logger.error('Socket emit timeout');
+          resolve();
+        }, 2000);
+        initialSocket.emit(...args, () => {
+          clearTimeout(tId);
+          resolve();
+        });
+      });
       socket._isEmitting = false;
       await socket._executeEmitInQueue();
     }

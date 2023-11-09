@@ -15,17 +15,30 @@ import {
   getPriceOfItem,
   getUserMoneyPerClick,
 } from '@/lib/game';
+import {
+  clickRefreshInterval,
+  clickWsRefreshInterval,
+  fullBoostMultiplier,
+  fullBoostNumberOfClicks,
+} from '@/lib/constant';
+import { useClickStore } from './click.store';
 
+let lastClick: Date | null = null;
 let clickBuffer: Decimal = Decimal.fromString('0');
+let clickBufferTimeout: NodeJS.Timeout | null = null;
+let lastWs: Date | null = null;
+let wsBuffer: Decimal = Decimal.fromString('0');
+let wsBufferTimeout: NodeJS.Timeout | null = null;
 
 interface UserState {
   user: IUser | null;
-  lastClick: Date | null;
 
   click: () => void;
   buyItem: (id: string) => void;
   buyPrestige: (id: string) => void;
   loadUser: () => Promise<string | undefined>;
+  addTokenBonus: (id: string, amount: Decimal) => Promise<void>;
+  addEmeraldBonus: (id: string, amount: Decimal) => Promise<void>;
 
   /** TEST COMMANDS */
   reset: () => Promise<void>;
@@ -42,32 +55,63 @@ export const useUserStore = create<UserState>()(
     persist(
       immer((set, get) => ({
         user: null,
-        lastClick: null,
         click() {
-          //? If lastClick is too recent (less than 0.1s), return
-          const lastClick = get().lastClick;
-          const timeDiff = lastClick ? Date.now() - lastClick.getTime() : null;
-          if (timeDiff !== null && timeDiff < 100) {
-            clickBuffer = clickBuffer.add(Decimal.fromString('1'));
-            return;
+          useClickStore.getState().addClick({ date: new Date() });
+          const getLast5SecondsClicks =
+            useClickStore.getState().getLast5SecondsClicks;
+          const isFullBoost = useClickStore.getState().isFullBoost;
+          if (clickBufferTimeout) {
+            clearTimeout(clickBufferTimeout);
           }
-          //? Update lastClick
-          set((state) => {
-            state.lastClick = new Date();
-            const user = state.user;
-            if (!user) return;
-            logger.debug('click');
-            user.moneyFromClick = user.moneyFromClick.add(
-              getUserMoneyPerClick(user).times(clickBuffer.add('1')),
-            );
-            const eventBody: IWsEvent['click']['body'] = {
-              type: 'click',
-              userId: user.id,
-              times: clickBuffer.add('1').toString(),
-            };
-            clickBuffer = Decimal.fromString('0');
-            socket.emit('events', eventBody);
-          });
+          //? If lastClick is too recent (less than 0.1s), return
+          const timeDiff = lastClick ? Date.now() - lastClick.getTime() : null;
+          const perSecond = getLast5SecondsClicks() / 5;
+          let realPercentage = perSecond / fullBoostNumberOfClicks;
+          if (realPercentage > 1) realPercentage = 1;
+          const multiplicator = isFullBoost
+            ? fullBoostMultiplier
+            : Math.floor(1 + realPercentage * 4);
+          clickBuffer = clickBuffer.add(
+            Decimal.fromString('1').times(multiplicator),
+          );
+          clickBufferTimeout = setTimeout(
+            () => {
+              //? Update lastClick
+              set((state) => {
+                lastClick = new Date();
+                const user = state.user;
+                if (!user) return;
+                logger.debug('click');
+                user.moneyFromClick = user.moneyFromClick.add(
+                  getUserMoneyPerClick(user, false).times(clickBuffer),
+                );
+                if (wsBufferTimeout) {
+                  clearTimeout(wsBufferTimeout);
+                }
+                const wsTimeDiff = lastWs
+                  ? Date.now() - lastWs.getTime()
+                  : null;
+                const userId = user.id;
+                wsBuffer = wsBuffer.add(clickBuffer);
+                wsBufferTimeout = setTimeout(
+                  () => {
+                    lastWs = new Date();
+                    //? Send event to server
+                    const eventBody: IWsEvent['click']['body'] = {
+                      type: 'click',
+                      userId: userId,
+                      times: wsBuffer.toString(),
+                    };
+                    wsBuffer = Decimal.fromString('0');
+                    socket.emit('events', eventBody);
+                  },
+                  wsTimeDiff ? clickWsRefreshInterval - wsTimeDiff : 0,
+                );
+                clickBuffer = Decimal.fromString('0');
+              });
+            },
+            timeDiff ? clickRefreshInterval - timeDiff : 0,
+          );
         },
         buyItem(id) {
           set((state) => {
@@ -131,7 +175,8 @@ export const useUserStore = create<UserState>()(
                 price: item.price,
                 moneyPerSecond: item.moneyPerSecond,
                 moneyPerClickMult: item.moneyPerClickMult,
-                image: item.image,
+                url: item.url,
+                kind: item.kind,
               },
               createdAt: now,
             });
@@ -216,6 +261,7 @@ export const useUserStore = create<UserState>()(
               moneyFromClick: Decimal.fromString(user.moneyFromClick),
               moneyPerClick: Decimal.fromString(user.moneyPerClick),
               moneyUsed: Decimal.fromString(user.moneyUsed),
+              emeralds: Decimal.fromString(user.emeralds),
               itemsBought: user.itemsBought.map((itemBought) => ({
                 id: itemBought.id,
                 item: {
@@ -228,7 +274,8 @@ export const useUserStore = create<UserState>()(
                   moneyPerClickMult: Decimal.fromString(
                     itemBought.item.moneyPerClickMult,
                   ),
-                  image: itemBought.item.image,
+                  url: itemBought.item.url,
+                  kind: itemBought.item.kind,
                 },
                 createdAt: new Date(itemBought.createdAt),
               })),
@@ -245,9 +292,44 @@ export const useUserStore = create<UserState>()(
                 },
                 createdAt: new Date(prestigeBought.createdAt),
               })),
+              latestBalance: Decimal.fromString(user.latestBalance),
             },
           });
           return user.id;
+        },
+        async addTokenBonus(id: string, amount: Decimal) {
+          set((state) => {
+            const user = state.user;
+            if (!user) {
+              logger.error('User not found');
+              return;
+            }
+            user.moneyFromClick = user.moneyFromClick.add(amount);
+
+            const eventBody: IWsEvent['addTokenBonus']['body'] = {
+              userId: user.id,
+              id,
+              type: 'addTokenBonus',
+            };
+            socket.emit('events', eventBody);
+          });
+        },
+        async addEmeraldBonus(id: string, amount: Decimal) {
+          set((state) => {
+            const user = state.user;
+            if (!user) {
+              logger.error('User not found');
+              return;
+            }
+            user.emeralds = user.emeralds.add(amount);
+
+            const eventBody: IWsEvent['addEmeraldBonus']['body'] = {
+              userId: user.id,
+              id,
+              type: 'addEmeraldBonus',
+            };
+            socket.emit('events', eventBody);
+          });
         },
         async reset() {
           const oldUser = get().user;
@@ -265,6 +347,7 @@ export const useUserStore = create<UserState>()(
               moneyFromClick: Decimal.fromString(user.moneyFromClick),
               moneyPerClick: Decimal.fromString(user.moneyPerClick),
               moneyUsed: Decimal.fromString(user.moneyUsed),
+              emeralds: Decimal.fromString(user.emeralds),
               itemsBought: user.itemsBought.map((itemBought) => ({
                 id: itemBought.id,
                 item: {
@@ -277,7 +360,8 @@ export const useUserStore = create<UserState>()(
                   moneyPerClickMult: Decimal.fromString(
                     itemBought.item.moneyPerClickMult,
                   ),
-                  image: itemBought.item.image,
+                  url: itemBought.item.url,
+                  kind: itemBought.item.kind,
                 },
                 createdAt: new Date(itemBought.createdAt),
               })),
@@ -294,6 +378,7 @@ export const useUserStore = create<UserState>()(
                 },
                 createdAt: new Date(prestigeBought.createdAt),
               })),
+              latestBalance: Decimal.fromString(user.latestBalance),
             },
           });
           return;
@@ -338,10 +423,17 @@ export const useUserStore = create<UserState>()(
             return;
           }
           const user = await router.user.givePrestige({ id });
+          user.moneyFromClick = '0';
+          user.moneyPerClick = '1';
+          user.moneyUsed = '0';
           //? Set the user
           set({
             user: {
               ...oldUser,
+              moneyFromClick: Decimal.fromString(user.moneyFromClick),
+              moneyPerClick: Decimal.fromString(user.moneyPerClick),
+              moneyUsed: Decimal.fromString(user.moneyUsed),
+              itemsBought: [],
               prestigesBought: user.prestigesBought.map((prestigeBought) => ({
                 id: prestigeBought.id,
                 prestige: {
@@ -411,7 +503,8 @@ export const useUserStore = create<UserState>()(
                   moneyPerClickMult: Decimal.fromString(
                     itemBought.item.moneyPerClickMult,
                   ),
-                  image: itemBought.item.image,
+                  url: itemBought.item.url,
+                  kind: itemBought.item.kind,
                 },
                 createdAt: new Date(itemBought.createdAt),
               })),
@@ -442,7 +535,8 @@ export const useUserStore = create<UserState>()(
                   moneyPerClickMult: Decimal.fromString(
                     itemBought.item.moneyPerClickMult,
                   ),
-                  image: itemBought.item.image,
+                  url: itemBought.item.url,
+                  kind: itemBought.item.kind,
                 },
                 createdAt: new Date(itemBought.createdAt),
               })),
@@ -466,7 +560,7 @@ export const useUserStore = create<UserState>()(
       })),
       {
         name: 'user',
-        version: 6,
+        version: 8,
         merge: (_, persisted) => {
           return {
             ...persisted,
@@ -496,7 +590,8 @@ export const useUserStore = create<UserState>()(
                       moneyPerClickMult: Decimal.fromString(
                         itemBought.item.moneyPerClickMult as unknown as string,
                       ),
-                      image: itemBought.item.image,
+                      url: itemBought.item.url,
+                      kind: itemBought.item.kind,
                     },
                     createdAt: new Date(itemBought.createdAt),
                   })),
