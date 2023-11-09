@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import styles from './parameters.module.scss';
 import { useUserStore } from '@/contexts/user.store';
 import { IUser } from '@/types/user';
+// import { useUserStore } from '@/contexts/user.store';
+import setting from '@/assets/setting_normal.png';
+import Button from '../ui/Button';
 
 export default function Parameters() {
   const [popUp, setPopUp] = useState(false);
@@ -32,8 +35,10 @@ export default function Parameters() {
 
   return (
     <div className={styles.params}>
-      <div className="absolute top-0 right-0">
-        <button onClick={handleClick}>Params</button>
+      <div className="absolute top-[95px] right-0">
+        <Button noStyle onClick={handleClick}>
+          <img src={setting} alt="setting" className="w-14 h-14" />
+        </Button>
       </div>
       {popUp && (
         <div className={styles.popup + ' p-3'}>
@@ -68,6 +73,7 @@ export default function Parameters() {
                 Submit
               </button>
             </form>
+            <p>pseudo</p>
             {/* {user?.username ? (
               <p>
                 Username: <span>{user.username}</span>

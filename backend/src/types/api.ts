@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { unknown } from '.';
 import { IHttpMethod } from './http';
 import {
+  IConfirmPayment,
   IGive,
   IGiveItem,
   IGivePrestige,
@@ -95,6 +96,24 @@ export const api = IApiType({
       method: 'POST',
       url: '/users/sign-in',
       body: unknown as Pick<IUser, 'username' | 'password' | 'id'>,
+      response: unknown as IUser,
+    },
+    confirmPayment: {
+      method: 'POST',
+      url: '/users/confirm-payment',
+      body: unknown as IConfirmPayment,
+      response: unknown as { emeralds: number },
+    },
+    getVapidPublicKey: {
+      method: 'GET',
+      url: '/users/get-vapid-public-key',
+      body: undefined,
+      response: unknown as { vapidPublicKey: string },
+    },
+    subscribe: {
+      method: 'POST',
+      url: '/users/subscribe',
+      body: unknown as { subscription: PushSubscription; userId: string },
       response: unknown as IUser,
     },
   },

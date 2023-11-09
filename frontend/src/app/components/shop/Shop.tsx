@@ -8,23 +8,30 @@ import {
 } from '@/lib/game';
 import { cn } from '@/lib/utils';
 import Decimal from 'break_infinity.js';
-import { logger } from '@/lib/logger';
 import { decimalToHumanReadable } from '@/lib/bignumber';
 import styles from './shop.module.scss';
-import clickSound from '@/assets/audio/buy-item.wav';
 import { useBalance } from '@/contexts/balance/BalanceUtils';
 import { useEffect, useState } from 'react';
 import CreditLogo from '@/assets/credits_icon.webp';
-import GemmesShop from './GemmesShop';
+import EmeraldsShop from './EmeraldsShop';
 import memoizeOne from 'memoize-one';
 import { IPrestigeBought } from '@/types/prestige';
-import ClickImage from '@/assets/Cursor.svg';
 import { getHighestPrestigeMult } from '../../../lib/game';
+import { IItemBought } from '@/types/item';
+import { env } from '@/env';
+import cursorSvg from '@/assets/Cursor.svg';
+import boostImage from '@/assets/Standard_rocket_boost_icon.png';
+import gradient from '@/assets/gradient.png';
+import { useLongPress } from '@uidotdev/usehooks';
 
 const memoizedPresitgesSorted = memoizeOne((prestiges: IPrestigeBought[]) => {
   return prestiges.sort((a, b) =>
     b.prestige.moneyMult.cmp(a.prestige.moneyMult),
   );
+});
+
+const memoizedItemsBoughtSorted = memoizeOne((items: IItemBought[]) => {
+  return items.sort((a, b) => b.item.moneyPerSecond.cmp(a.item.moneyPerSecond));
 });
 
 export default function Shop() {
@@ -34,11 +41,12 @@ export default function Shop() {
   const { balance } = useBalance();
   const [isCredit, setIsCredit] = useState(true);
   const items = useItemsStore((state) => state.items);
-  const [audio, setAudio] = useState<HTMLAudioElement>();
+  const [audios, setAudios] = useState<HTMLAudioElement[]>([]);
   const moneyPerSecond = getMoneyFromInvestmentsPerSeconds({
     itemsBought: itemsBought ?? [],
     prestigesBought: prestigesBought ?? [],
   });
+  const [navAudio, setNavAudio] = useState<HTMLAudioElement>();
 
   const itemsLevels: {
     [id: string]: Decimal | undefined;
@@ -104,6 +112,23 @@ export default function Shop() {
       : Decimal.fromString('0'),
   }));
 
+  const itemsBoughtSorted = memoizedItemsBoughtSorted(
+    itemsBought ? [...itemsBought] : [],
+  );
+  const latestItemBought =
+    itemsBoughtSorted.length > 0 ? itemsBoughtSorted[0] : null;
+  const latestItemBoughtIndex = itemsWithPrice.findIndex(
+    (item) => item.id === latestItemBought?.item.id,
+  );
+
+  //? All items + 3 items that are not bought
+  const itemsDisplayList = itemsWithPrice.filter((_, index) => {
+    //? Item index <= latestItemBoughtIndex + 3
+    if (index < 3 || index <= latestItemBoughtIndex + 2) {
+      return true;
+    }
+  });
+
   const prestigesSorted = memoizedPresitgesSorted(
     prestigesBought ? [...prestigesBought] : [],
   );
@@ -113,109 +138,259 @@ export default function Shop() {
       : Decimal.fromString('1');
 
   useEffect(() => {
-    const newAudio = new Audio(clickSound);
-    setAudio(newAudio);
+    const audio1 = new Audio(
+      env.VITE_API_URL + '/public/items/buy/SFX_UI_MainMenu_0025.ogg',
+    );
+    audio1.volume = 0.5;
+    const audio2 = new Audio(
+      env.VITE_API_URL + '/public/items/buy/SFX_UI_MainMenu_0026.ogg',
+    );
+    audio2.volume = 0.5;
+    const audio3 = new Audio(
+      env.VITE_API_URL + '/public/items/buy/SFX_UI_MainMenu_0027.ogg',
+    );
+    audio3.volume = 0.5;
+    const audio4 = new Audio(
+      env.VITE_API_URL + '/public/items/buy/SFX_UI_MainMenu_0030.ogg',
+    );
+    audio4.volume = 0.5;
+    const audio5 = new Audio(
+      env.VITE_API_URL + '/public/items/buy/SFX_UI_MainMenu_0031.ogg',
+    );
+    audio5.volume = 0.5;
+    setAudios([audio1, audio2, audio3, audio4, audio5]);
+    const navAudio = new Audio(
+      env.VITE_API_URL + '/public/ui/SFX_UI_MainMenu_0002.ogg',
+    );
+    navAudio.volume = 0.5;
+    setNavAudio(navAudio);
     return () => {
-      newAudio.remove();
+      audio1.remove();
+      audio2.remove();
+      audio3.remove();
+      audio4.remove();
+      audio5.remove();
+      navAudio.remove();
     };
   }, []);
 
   const handleBuy = (id: string) => {
     buyItem(id);
-    if (audio) {
+    if (audios.length > 0) {
+      const audio = audios[Math.floor(Math.random() * audios.length)];
       audio.currentTime = 0;
       audio.play();
     }
   };
 
   return (
-    <section
-      className={cn(styles.shop + ' flex flex-col mt-32 rounded-xl pt-5', {
-        'after:!hidden': !isCredit,
-      })}
-    >
-      <div className="flex justify-center">
-        <button className="text-white p-5" onClick={() => setIsCredit(true)}>
+    <div className="flex flex-col mt-32 pb-6 h-full">
+      <div
+        className={cn(
+          'bg-gradient-to-t relative from-gradient-dark from-0% to-gradient-light to-100% justify-evenly flex touch-pan-y w-[calc(100%-40px)] self-center mb-2 rounded-xl p-1',
+        )}
+      >
+        <button
+          className={cn('text-white p-3 py-1 w-full rounded-[8px] z-10')}
+          onClick={() => {
+            if (navAudio) {
+              navAudio.currentTime = 0;
+              navAudio.play();
+            }
+            setIsCredit(true);
+          }}
+        >
           Credits
         </button>
-        <button className="text-white p-5" onClick={() => setIsCredit(false)}>
+        <button
+          className={cn('text-white p-3 py-1 w-full rounded-[8px] z-10')}
+          onClick={() => {
+            if (navAudio) {
+              navAudio.currentTime = 0;
+              navAudio.play();
+            }
+            setIsCredit(false);
+          }}
+        >
           Emeralds
         </button>
+        <div
+          className="bg-gradient-light border border-background absolute top-0 h-[calc(100%-8px)] w-[calc(50%-4px)] left-0 m-1 rounded-[8px] transition-all duration-200 ease-in"
+          style={{
+            transform: isCredit ? 'translateX(0%)' : 'translateX(100%)',
+          }}
+        ></div>
       </div>
-      {isCredit ? (
-        <>
-          <ul className="flex flex-col gap-2 overflow-auto touch-pan-y items-center rounded-xl pt-3 pb-3 px-4">
-            {itemsWithPrice.map((item) => (
-              <li
-                key={item.id}
-                className={cn(
-                  'flex flex-row gap-2 border p-2 cursor-pointer relative transition-all active:scale-[0.98] w-full',
-                  {
-                    'opacity-[.65]': item.price.gt(balance),
-                    'pointer-events-none': item.price.gt(balance),
-                  },
-                )}
-                onClick={() => {
-                  if (item.price.gt(balance)) {
-                    logger.debug('Not enough money to buy item');
-                    return;
-                  }
-                  handleBuy(item.id);
-                }}
-              >
-                <img
-                  src={item.name !== 'Click' ? item.image : ClickImage}
-                  alt={item.name}
-                  className={`max-w-[6rem] h-full object-contain ${
-                    item.name === 'Click' ? styles.clickImg : ''
-                  }`}
+      <section
+        className={cn(styles.shop + ' flex flex-col rounded-xl', {
+          'after:!hidden': !isCredit,
+        })}
+        style={{
+          backgroundImage: `url(${gradient})`,
+          backgroundSize: 'cover',
+        }}
+      >
+        {isCredit ? (
+          <>
+            <ul
+              className={cn(
+                'flex flex-col gap-1.5 overflow-auto touch-pan-y relative items-center rounded-xl pt-3 px-3 pb-10',
+              )}
+            >
+              {itemsDisplayList.map((item) => (
+                <ShopItem
+                  key={item.id}
+                  item={item}
+                  handleBuy={handleBuy}
+                  balance={balance}
+                  latestPrestigeMult={latestPrestigeMult}
                 />
-                <div className="flex flex-col gap-2">
-                  {/* NAME */}
-                  <p className="text-white">{item.name}</p>
+              ))}
+            </ul>
+            <p className="text-white text-end text-sm absolute bottom-1 rounded-xl px-2 overflow-hidden right-2 backdrop-blur-sm bg-background/40 p-1">
+              % =&gt; gains impact
+            </p>
+          </>
+        ) : (
+          <EmeraldsShop />
+        )}
+      </section>
+    </div>
+  );
+}
 
-                  {/* PRICE */}
-                  <p className="price text-white flex flex-row gap-1 text-lg">
-                    <img
-                      width="20"
-                      height="20"
-                      src={CreditLogo}
-                      alt="credit"
-                      className="object-contain"
-                    />
-                    {decimalToHumanReadable(item.price)}
-                  </p>
-                  {/* Money per Click */}
-                  <p className="text-white text-xs">
-                    {item.moneyPerSecond.eq(0)
-                      ? `x${item.moneyPerClickMult.toString()} per click`
-                      : `+${decimalToHumanReadable(
-                          item.moneyPerSecond.mul(latestPrestigeMult),
-                        )} per second`}
-                  </p>
+function ShopItem({
+  item,
+  balance,
+  handleBuy,
+  latestPrestigeMult,
+}: {
+  item: {
+    price: Decimal;
+    level: Decimal;
+    ernPerSecond: Decimal;
+    percentageInBalance: Decimal;
+    id: string;
+    moneyPerSecond: Decimal;
+    moneyPerClickMult: Decimal;
+    url: string;
+    kind: string | undefined;
+    name: string;
+  };
+  balance: Decimal;
+  handleBuy: (id: string) => void;
+  latestPrestigeMult: Decimal;
+}) {
+  const setCurrentCar = useItemsStore((state) => state.setCurrentCar);
+  const setCurrentBoost = useItemsStore((state) => state.setCurrentBoost);
+  const currentCar = useItemsStore((state) => state.currentCar);
+  const currentBoost = useItemsStore((state) => state.currentBoost);
+  const bind = useLongPress(
+    () => {
+      if (item.kind === 'car') {
+        setCurrentCar(item);
+      } else if (item.kind === 'boost') {
+        setCurrentBoost(item);
+      }
+    },
+    {
+      threshold: 800,
+    },
+  );
 
-                  {/* LEVEL */}
-                  <p className="level text-white absolute top-1 right-1">
-                    lvl {decimalToHumanReadable(item.level)}
-                  </p>
-
-                  {/* PERCENTAGE IN BALANCE */}
-                  {item.percentageInBalance.gt(0) && (
-                    <p className="text-white percentage absolute bottom-1 right-1">
-                      {item.percentageInBalance.toFixed(1).toString()} %
-                    </p>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-          <p className="text-white text-end opacity-70 mr-4 text-sm">
-            % of total clicks per second
-          </p>
-        </>
-      ) : (
-        <GemmesShop />
+  return (
+    <li
+      key={item.id}
+      className={cn(
+        'flex flex-row gap-2 border p-2 cursor-pointer relative transition-all w-full items-center rounded-lg',
+        {
+          'opacity-[.65]': item.price.gt(balance),
+          'active:scale-[0.98]': item.price.lte(balance),
+          'border-[#C6F0FF] border-2':
+            (item.kind === 'boost' && currentBoost?.id === item.id) ||
+            (item.kind === 'car' && currentCar?.id === item.id),
+        },
       )}
-    </section>
+      onClick={() => {
+        if (item.price.gt(balance)) {
+          // logger.debug('Not enough money to buy item');
+          return;
+        }
+        handleBuy(item.id);
+      }}
+      {...bind}
+    >
+      {item.kind === 'car' ? (
+        <img
+          src={item.url}
+          alt={item.name}
+          className="max-w-[4rem] h-full object-contain"
+        />
+      ) : item.kind === 'click' ? (
+        <img
+          src={cursorSvg}
+          alt={item.name}
+          className="w-[4rem] h-[2.5rem] object-contain"
+        />
+      ) : item.kind === 'boost' ? (
+        <img
+          src={boostImage}
+          alt={item.name}
+          className="w-[4rem] h-[2.5rem] object-contain"
+        />
+      ) : (
+        <img
+          src={item.url}
+          alt={item.name}
+          className="max-w-[4rem] h-full object-contain"
+        />
+      )}
+      <div className="flex flex-col gap-1 flex-1 justify-between h-full">
+        <div className="flex flex-row space-x-1 items-center">
+          {/* NAME */}
+          <p className="text-white text-sm">{item.name}</p>
+          {item.percentageInBalance.gt(0) && (
+            <p className="text-white/80 whitespace-nowrap percentage text-xs">
+              ({item.percentageInBalance.toFixed(1).toString()}%)
+            </p>
+          )}
+        </div>
+
+        {/* PRICE */}
+        <p className="price text-white flex flex-row gap-1 text-lg">
+          <img
+            width="20"
+            height="20"
+            src={CreditLogo}
+            alt="credit"
+            className="object-contain"
+          />
+          {decimalToHumanReadable(item.price, true, 'ceil')}
+        </p>
+      </div>
+      <div className="gap-1 flex flex-col justify-between h-full">
+        {/* Money per Click */}
+        <p className="text-white text-xs text-end">
+          {item.moneyPerSecond.eq(0)
+            ? `x${item.moneyPerClickMult.toString()}/click`
+            : `+${decimalToHumanReadable(
+                item.moneyPerSecond.mul(latestPrestigeMult),
+              )}/s`}
+        </p>
+        {/* LEVEL */}
+        <p className="level text-white text-end">
+          lvl {decimalToHumanReadable(item.level, true)}
+        </p>
+      </div>
+
+      <div className="absolute left-1 top-1">
+        {item.kind === 'car' && currentCar?.id === item.id && (
+          <div className="bg-[#C6F0FF] w-2.5 h-2.5 rounded-full"></div>
+        )}
+        {item.kind === 'boost' && currentBoost?.id === item.id && (
+          <div className="bg-[#C6F0FF] w-2.5 h-2.5 rounded-full"></div>
+        )}
+      </div>
+    </li>
   );
 }

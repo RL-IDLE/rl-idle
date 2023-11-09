@@ -1,0 +1,17 @@
+import { MigrationInterface, QueryRunner } from 'typeorm';
+
+export class PassiveNotification1699363937537 implements MigrationInterface {
+  name = 'PassiveNotification1699363937537';
+
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "user" ADD "passiveNotificationSent" boolean NOT NULL DEFAULT false`,
+    );
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "user" DROP COLUMN "passiveNotificationSent"`,
+    );
+  }
+}

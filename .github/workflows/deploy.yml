@@ -56,7 +56,7 @@ jobs:
         working-directory: ./backend
         run: |
           touch .env
-          echo ENV=production >> .env
+          echo ENV=${{ steps.extract-env.outputs.env }} >> .env
           echo DATABASE_URL="postgresql://${{ vars.DATABASE_USER }}:${{ secrets.DATABASE_PASS }}@db:5432/${{ vars.DATABASE_NAME }}?schema=public" >> .env
           echo DATABASE_KIND=postgres >> .env
           echo DATABASE_HOST=db >> .env
@@ -70,13 +70,18 @@ jobs:
           echo REDIS_PORT=6379 >> .env
           echo REDIS_USE_TLS=false >> .env
           echo BASE_URL=${{ vars.BASE_URL }} >> .env
+          echo PASSWORD_HASHER_SECRET=${{ secrets.PASSWORD_HASHER_SECRET }} >> .env
+          echo STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }} >> .env
+          echo VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }} >> .env
+          echo VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }} >> .env
 
       - name: Create frontend env
         working-directory: frontend
         run: |
           touch .env
-          echo VITE_ENV=production >> .env
+          echo VITE_ENV=${{ steps.extract-env.outputs.env }} >> .env
           echo VITE_API_URL=${{ vars.BASE_URL }} >> .env
+          echo VITE_STRIPE_PUBLIC_KEY=${{ secrets.STRIPE_PUBLIC_KEY }} >> .env
       - name: Login to docker
         uses: docker/login-action@v3
         with:
