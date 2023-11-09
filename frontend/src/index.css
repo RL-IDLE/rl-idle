@@ -30,3 +30,25 @@ body {
 .no-highlight {
   -webkit-tap-highlight-color: transparent;
 }
+
+@keyframes slideBottom {
+  0% {
+    transform: translateY(0vh);
+  }
+
+  100% {
+    transform: translateY(calc(100vh + 100%));
+  }
+}
+
+@keyframes popOff {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
