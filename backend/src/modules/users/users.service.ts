@@ -1,10 +1,14 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { Subscription, User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { api } from 'src/types/api';
-import { getOneData, saveOneData } from 'src/lib/storage';
-import { maxPassiveIncomeInterval } from 'src/lib/constant';
+import { getOneData, redisNamespace, saveOneData } from 'src/lib/storage';
+import {
+  maxPassiveIncomeInterval,
+  passiveIncomeMultiplier,
+  priceToEmerald,
+} from 'src/lib/constant';
 import { getUserBalance } from 'src/lib/game';
 import Decimal from 'break_infinity.js';
 import { logger } from 'src/lib/logger';
@@ -16,6 +20,12 @@ import {
 import { Item, ItemBought } from '../items/entities/item.entity';
 import { randomUUID } from 'crypto';
 import { bcryptCompare, hash } from 'src/lib/bcrypt';
+import { redis } from 'src/lib/redis';
+import { IConfirmPayment } from 'src/types/user';
+import { Payment } from '../payments/entities/payment.entity';
+import { stripe } from 'src/lib/stripe';
+import { env } from 'src/env';
+import webPush from 'web-push';
 
 @Injectable()
 export class UsersService {
@@ -23,6 +33,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @InjectRepository(Subscription)
+    private readonly subscriptionRepository: Repository<Subscription>,
     @InjectRepository(Prestige)
     private readonly prestigeRepository: Repository<Prestige>,
     @InjectRepository(PrestigeBought)
@@ -31,7 +43,15 @@ export class UsersService {
     private readonly itemRepository: Repository<Item>,
     @InjectRepository(ItemBought)
     private readonly itemBoughtRepository: Repository<ItemBought>,
-  ) {}
+    @InjectRepository(Payment)
+    private readonly paymentRepository: Repository<Payment>,
+  ) {
+    webPush.setVapidDetails(
+      'mailto:louis@huort.com',
+      env.VAPID_PUBLIC_KEY,
+      env.VAPID_PRIVATE_KEY,
+    );
+  }
 
   async load(
     loadUser: typeof api.user.load.body,
@@ -59,12 +79,13 @@ export class UsersService {
     //? Get the time difference between the last time the user was seen and now
     const lastSeen = new Date(user.lastSeen as unknown as string);
     const timeDiff = Math.abs(curDate.getTime() - lastSeen.getTime());
+    const endOfInterval = new Date(
+      lastSeen.getTime() + maxPassiveIncomeInterval,
+    );
+    const userBalanceLastSeen = getUserBalance(user, lastSeen);
+    const userBalance = getUserBalance(user);
     let overflow: null | Decimal = null;
     if (timeDiff > maxPassiveIncomeInterval) {
-      const endOfInterval = new Date(
-        lastSeen.getTime() + maxPassiveIncomeInterval,
-      );
-      const userBalance = getUserBalance(user);
       const userBalanceWithMaxPassiveIncome = getUserBalance(
         user,
         endOfInterval,
@@ -74,6 +95,16 @@ export class UsersService {
         .plus(overflow)
         .toString();
     }
+    const passiveIncomeGains = userBalance
+      .minus(overflow || Decimal.fromString('0'))
+      .minus(userBalanceLastSeen);
+    //? Multiply the passive income gains by the multiplier
+    const lostPassiveIncome = passiveIncomeGains.times(
+      Decimal.fromString('1').minus(passiveIncomeMultiplier),
+    );
+    user.moneyUsed = Decimal.fromString(user.moneyUsed)
+      .plus(lostPassiveIncome)
+      .toString();
     if (timeDiff > 1000 * 60) {
       logger.debug(
         `User ${user.id} was inactive for ${getTimeBetween(
@@ -109,6 +140,11 @@ export class UsersService {
     });
     if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
+    //? Delete all redis keys
+    const keys = await redis.keys(`${redisNamespace}:*`);
+    if (keys.length) {
+      await redis.del(keys);
+    }
     user.moneyFromClick = '0';
     user.moneyPerClick = '1';
     user.moneyUsed = '0';
@@ -154,7 +190,7 @@ export class UsersService {
     if (!dbUser) throw new HttpException('User not found', 400);
     const user = dbUser;
     user.moneyUsed = Decimal.fromString(user.moneyUsed)
-      .sub(remove.amount)
+      .add(remove.amount)
       .toString();
     await saveOneData({
       key: 'users',
@@ -204,23 +240,32 @@ export class UsersService {
       );
     if (!nextPrestige) throw new HttpException('No next prestige found', 400);
     //* Give prestige
-    const prestigeBought: PrestigeBought = {
+    user.moneyUsed = '0';
+    const prestigeBought: Omit<PrestigeBought, 'user'> & {
+      user: { id: string };
+    } = {
       id: randomUUID(),
       prestige: nextPrestige,
-      user: user,
+      user: {
+        id: user.id,
+      },
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null as unknown as Date,
     };
-    await saveOneData({
-      key: 'prestigesBought',
-      data: prestigeBought,
-      id: nextPrestige.id,
-    });
+    // await saveOneData({
+    //   key: 'prestigesBought',
+    //   data: prestigeBought,
+    //   id: nextPrestige.id,
+    // });
     user.prestigesBought.push({
       ...prestigeBought,
       user: objectDepth(user),
     });
+    //? Reset user money/items
+    user.moneyFromClick = '0';
+    user.moneyPerClick = '1';
+    user.itemsBought = [];
 
     await saveOneData({
       key: 'users',
@@ -284,6 +329,15 @@ export class UsersService {
       options: { noSync: true },
     });
     if (!item) throw new HttpException('Item not found', 400);
+    //? Is click boost
+    if (item.name === 'Click') {
+      //? Update user moneyPerClick
+      const userMoneyPerClick = Decimal.fromString(user.moneyPerClick);
+      const newUserMoneyPerClick = userMoneyPerClick.times(
+        Decimal.fromString(item.moneyPerClickMult),
+      );
+      user.moneyPerClick = newUserMoneyPerClick.toString();
+    }
     const itemBought: ItemBought = {
       id: randomUUID(),
       item: item,
@@ -292,11 +346,11 @@ export class UsersService {
       updatedAt: new Date(),
       deletedAt: null as unknown as Date,
     };
-    await saveOneData({
-      key: 'itemsBought',
-      data: itemBought,
-      id: itemBought.id,
-    });
+    // await saveOneData({
+    //   key: 'itemsBought',
+    //   data: itemBought,
+    //   id: itemBought.id,
+    // });
     user.itemsBought.push({
       ...itemBought,
       user: objectDepth(user),
@@ -367,5 +421,82 @@ export class UsersService {
     if (!(await bcryptCompare(user.password, dbUser.password)))
       throw new HttpException('Wrong password', 400);
     return user;
+  }
+
+  async confirmPayment(payment: IConfirmPayment) {
+    const dbUser = await getOneData({
+      databaseRepository: this.usersRepository,
+      key: 'users',
+      id: payment.id,
+    });
+    if (!dbUser) throw new HttpException('User not found', 400);
+    const user = dbUser;
+
+    //* Get the payment checkout
+    const checkoutId = payment.checkoutSessionId;
+    const exists = await this.paymentRepository.findOne({
+      where: {
+        id: checkoutId,
+      },
+    });
+    if (exists) {
+      throw new HttpException('Payment already registered', 400);
+    }
+    const checkout = await stripe.checkout.sessions.retrieve(checkoutId);
+    if (!checkout.amount_total) {
+      throw 'Amount not found on checkout';
+    }
+    const emeralds = priceToEmerald(checkout.amount_total);
+
+    //* Save the payment checkout
+    await this.paymentRepository.save({
+      id: checkout.id,
+      user: {
+        id: user.id,
+      },
+    });
+
+    //* Save the emeralds
+    user.emeralds = Decimal.fromString(user.emeralds).add(emeralds).toString();
+    await saveOneData({
+      key: 'users',
+      id: user.id,
+      data: user,
+    });
+
+    logger.info(
+      `User ${user.id} bought ${emeralds} emeralds for ${checkout.amount_total} cents`,
+    );
+
+    return { emeralds };
+  }
+
+  /**
+   * Notifications
+   */
+  getVapidPublicKey() {
+    return { vapidPublicKey: env.VAPID_PUBLIC_KEY };
+  }
+
+  async registerSubscription(subscription: PushSubscription, userId: string) {
+    //? Before saving check if the subscription already exists
+    const exists = await this.subscriptionRepository.findOne({
+      where: {
+        subscription: subscription,
+      },
+    });
+    if (exists) {
+      return { success: true };
+    }
+    //? Save the subscription
+    await this.subscriptionRepository.save({
+      id: randomUUID(),
+      user: {
+        id: userId,
+      },
+      subscription: subscription,
+    });
+
+    return { success: true };
   }
 }

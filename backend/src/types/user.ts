@@ -11,6 +11,7 @@ export const UserSchema = z.object({
   itemsBought: z.array(ItemBoughtSchema),
   prestigesBought: z.array(PrestigeBoughtSchema),
   lastSeen: z.date(),
+  emeralds: z.string(),
 });
 
 export type IUser = z.infer<typeof UserSchema>;
@@ -70,3 +71,10 @@ export const RemoveItemSchema = z.object({
 });
 
 export type IRemoveItem = z.infer<typeof RemoveItemSchema>;
+
+export const ConfirmPaymentSchema = z.object({
+  id: z.string(),
+  checkoutSessionId: z.string(),
+});
+
+export type IConfirmPayment = z.infer<typeof ConfirmPaymentSchema>;

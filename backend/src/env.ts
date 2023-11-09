@@ -6,7 +6,7 @@ config();
 
 export const env = createEnv({
   server: {
-    ENV: z.enum(['development', 'production']),
+    ENV: z.enum(['development', 'production', 'stagging']),
     DATABASE_HOST: z.string(),
     DATABASE_PORT: z.string(),
     DATABASE_USER: z.string(),
@@ -20,6 +20,9 @@ export const env = createEnv({
     REDIS_USE_TLS: z.coerce.boolean(),
     BASE_URL: z.string(),
     PASSWORD_HASHER_SECRET: z.string(),
+    STRIPE_SECRET_KEY: z.string(),
+    VAPID_PUBLIC_KEY: z.string(),
+    VAPID_PRIVATE_KEY: z.string(),
   },
   clientPrefix: 'PUBLIC_',
   client: {},

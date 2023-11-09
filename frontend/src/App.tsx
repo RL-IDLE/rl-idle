@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { socket } from './lib/socket';
 import Game from './app/components/Game';
@@ -11,12 +11,53 @@ import Balance from './app/components/Balance';
 import './app.scss';
 import PassivePopup from './app/components/PassivePopup';
 import { BalanceProvider } from './contexts/balance/BalanceProvider';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+import { env } from './env';
+import { router } from './lib/api';
+import { useUserStore } from './contexts/user.store';
+import Version from './app/components/Version';
+import PaymentValidation from './app/components/PaymentValidation';
+import ServiceWorker from './app/components/ServiceWorker';
+
+const stripePromise = loadStripe(env.VITE_STRIPE_PUBLIC_KEY);
 
 function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const loadUser = useGameStore((state) => state.actions.loadUser);
   const loadShop = useGameStore((state) => state.actions.loadShop);
   const loadPrestige = useGameStore((state) => state.actions.loadPrestige);
+  const userId = useUserStore((state) => state.user?.id);
+  const [paymentValidationReceived, setPaymentValidationReceived] = useState<
+    false | number
+  >(false);
+
+  const handlePayment = useCallback(async () => {
+    if (!userId) return;
+    //? Get search params
+    const query = window.location.search;
+    const params = new URLSearchParams(query);
+    const checkoutSessionId = params.get('checkout_session_id');
+    if (!checkoutSessionId) return;
+    const res = await router.user.confirmPayment({
+      id: userId,
+      checkoutSessionId,
+    });
+    loadUser();
+    setPaymentValidationReceived(res.emeralds);
+    //? Remove the searchparams
+    params.delete('checkout_session_id');
+    window.history.replaceState({}, '', `${window.location.pathname}`);
+  }, [userId, loadUser]);
+
+  const closePaymentValidation = useCallback(() => {
+    setPaymentValidationReceived(false);
+  }, []);
+
+  useEffect(() => {
+    //? Handle payment callback
+    handlePayment();
+  }, [handlePayment]);
 
   useEffect(() => {
     function onConnect() {
@@ -53,13 +94,24 @@ function App() {
 
   return (
     <div className="flex flex-col flex-1 w-full h-screen overflow-hidden">
-      <BalanceProvider>
-        <Balance />
-        <Game />
-        <Navbar />
-        <PassivePopup />
-        {!isConnected && <Loading />}
-      </BalanceProvider>
+      <Version />
+      <Elements stripe={stripePromise}>
+        <BalanceProvider>
+          <Balance />
+          <Game />
+          <Navbar />
+          <PassivePopup />
+          {!isConnected && <Loading />}
+        </BalanceProvider>
+      </Elements>
+      {paymentValidationReceived && (
+        <PaymentValidation close={closePaymentValidation}>
+          <p className="text-center text-xl self-center relative text-white flex flex-col">
+            + {paymentValidationReceived} Emeralds !
+          </p>
+        </PaymentValidation>
+      )}
+      <ServiceWorker />
     </div>
   );
 }

@@ -10,6 +10,7 @@ export const buyItemSchema = z.object({
   type: z.literal('buyItem'),
   userId: z.string(),
   itemId: z.string(),
+  createdAt: z.string(),
 });
 
 export const buyPrestigeSchema = z.object({
