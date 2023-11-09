@@ -70,7 +70,7 @@ export default function Boost() {
         <div className="flex flex-col overflow-y-scroll">
           <div
             className={cn(
-              'bg-gradient-to-t border-2 border-white from-[#111429] from-0% to-[#1f3358] to-100% self-center flex flex-col touch-pan-y w-10/12 mb-1 rounded-xl',
+              'bg-gradient-to-t border-2 border-white from-[#111429] from-0% to-[#1f3358] to-100% self-center flex flex-col mx-2 w-[calc(100%-20px)] touch-pan-y mb-1 rounded-xl',
             )}
           >
             <p className="text-white p-1 rounded-l text-center self-center">
@@ -115,7 +115,7 @@ export default function Boost() {
           </ul>
           <div
             className={cn(
-              'bg-gradient-to-t border-2 m-2 border-white from-[#111429] from-0% to-[#1f3358] to-100% self-center flex flex-col touch-pan-y w-10/12 mb-1 rounded-xl',
+              'bg-gradient-to-t border-2 m-2 border-white from-[#111429] from-0% to-[#1f3358] to-100% self-center flex flex-col touch-pan-y w-[calc(100%-20px)] mb-1 mt-5 rounded-xl',
             )}
           >
             <p className="text-white p-1 rounded-xl text-center self-center">
