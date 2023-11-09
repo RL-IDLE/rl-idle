@@ -6,6 +6,7 @@ import { router } from '@/lib/api';
 import { IUser } from '@/types/user';
 import unrankedIcon from '@/assets/Unranked_icon.webp';
 import Decimal from 'break_infinity.js';
+import { decimalToHumanReadable } from '@/lib/bignumber';
 
 export default function Ranking() {
   // const user = useUserStore((state) => state.user);
@@ -97,11 +98,15 @@ export default function Ranking() {
                       className="text-white ml-2"
                     />
                   )}
-                  <span>{user.username ? user.username : 'Anonymous'}</span>
+                  <span className="max-w-[140px] truncate">
+                    {user.username ? user.username : 'Anonymous'}
+                  </span>
                 </p>
 
                 <p className="flex text-white ml-auto text-1xl gap-2 align-center h-fit">
-                  <span className="h-fit">{user.latestBalance.toString()}</span>{' '}
+                  <span className="h-fit">
+                    {decimalToHumanReadable(user.latestBalance)}
+                  </span>{' '}
                   <img width="25" src={CreditLogo} alt="credit" />
                 </p>
               </li>
