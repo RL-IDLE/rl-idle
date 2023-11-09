@@ -12,8 +12,6 @@ export default function Balance() {
 
   const moneyPerSecond = getMoneyFromInvestmentsPerSeconds(user);
 
-  console.log(balance.toString());
-
   return (
     <div
       className={
