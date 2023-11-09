@@ -27,7 +27,11 @@ import {
 } from '../prestiges/entities/prestige.entity';
 import { logger } from 'src/lib/logger';
 import { objectDepth } from 'src/lib/utils';
-import { fullBoostMultiplier, maxDiffTimeUserSpec } from 'src/lib/constant';
+import {
+  fullBoostMultiplier,
+  maxClickPerSecond,
+  maxDiffTimeUserSpec,
+} from 'src/lib/constant';
 
 @Injectable()
 export class EventsService {
@@ -58,7 +62,7 @@ export class EventsService {
     });
     if (!user) throw new HttpException('User not found', 400);
     const clicks = await redis.get(`clicks:${user.id}`);
-    const maxPerSecond = 20;
+    const maxPerSecond = maxClickPerSecond;
     const maxMultiplier = fullBoostMultiplier; //? x5 per click, max front-end mult
     const timeBuffer = 30;
     if (

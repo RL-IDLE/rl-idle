@@ -55,7 +55,7 @@ export class EventsGateway implements OnModuleInit {
       //? Between 0.2 and 0.8
       const xPos = Math.random() * (0.8 - 0.2) + 0.2;
       if (kind === 'money') {
-        logger.debug('New money bonus');
+        // logger.debug('New money bonus');
         //? Save in redis
         await redis.setex(`bonus:money:${bonusId}`, 140, 'true');
         //? Send the ws
@@ -67,7 +67,7 @@ export class EventsGateway implements OnModuleInit {
           }),
         );
       } else {
-        logger.debug('New emerald bonus');
+        // logger.debug('New emerald bonus');
         const amount = Math.ceil(Math.random() * (4 - 2) + 2);
         //? Save in redis
         await redis.setex(`bonus:emerald:${bonusId}`, 40, amount);
