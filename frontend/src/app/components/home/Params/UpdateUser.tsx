@@ -1,6 +1,7 @@
 import { useUserStore } from '@/contexts/user.store';
 import { useState } from 'react';
 import Button from '../../ui/Button';
+import { IUser } from '@/types/user';
 
 export default function UpdateUser({
   user,
@@ -8,15 +9,25 @@ export default function UpdateUser({
   userToUpdate,
   setUserToUpdate,
   signup = false,
+}: {
+  user: IUser;
+  loadUser: () => Promise<void>;
+  userToUpdate: IUser;
+  setUserToUpdate: (user: IUser) => Promise<unknown>;
+  signup: boolean;
 }) {
-  const [err, setErr] = useState('' as any);
+  const [err, setErr] = useState('' as string);
   const updateUser = useUserStore((state) => state.updateUser);
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLInputElement>) => {
     e.preventDefault();
     try {
       await updateUser(userToUpdate);
       await loadUser();
+      setUserToUpdate({
+        username: '',
+        password: '',
+      });
       setErr('');
     } catch (err) {
       setErr(err?.json?.message);

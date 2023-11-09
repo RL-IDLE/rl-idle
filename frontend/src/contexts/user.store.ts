@@ -38,7 +38,7 @@ interface UserState {
   buyPrestige: (id: string) => void;
   loadUser: () => Promise<string | undefined>;
   updateUser: (user: IUser) => Promise<unknown>;
-  signIn: (user: IUser) => void;
+  signIn: (user: IUser) => Promise<unknown>;
 
   /** TEST COMMANDS */
   reset: () => Promise<void>;
@@ -523,13 +523,17 @@ export const useUserStore = create<UserState>()(
           return res;
         },
         async signIn(user: IUser) {
-          //? Set the user
-          const userFromDb = await router.user.signIn(user).catch(() => null);
-          if (!userFromDb) return;
+          try {
+            //? Set the user
+            const userFromDb = await router.user.signIn(user).catch(() => null);
+            if (!userFromDb) return;
 
-          localStorage.setItem('userId', userFromDb.id);
+            localStorage.setItem('userId', userFromDb.id);
 
-          return this.loadUser();
+            return userFromDb;
+          } catch (err) {
+            logger.error(err);
+          }
         },
       })),
       {

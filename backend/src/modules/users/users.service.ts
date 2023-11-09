@@ -428,7 +428,7 @@ export class UsersService {
       throw new HttpException('Wrong username', 400);
     if (!(await bcryptCompare(user.password, dbUser.password)))
       throw new HttpException('Wrong password', 400);
-    return user;
+    return dbUser;
   }
 
   async confirmPayment(payment: IConfirmPayment) {
