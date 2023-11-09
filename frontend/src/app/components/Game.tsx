@@ -166,7 +166,7 @@ export default function Game() {
         )}
         {/*eslint-disable-next-line @typescript-eslint/no-unnecessary-condition*/}
         {!pages[4].disabled && (
-          <SwiperSlide>
+          <SwiperSlide className="flex w-full">
             <Ranking />
           </SwiperSlide>
         )}
