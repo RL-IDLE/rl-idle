@@ -152,4 +152,22 @@ export class CronsService implements OnModuleInit {
       }),
     );
   }
+
+  // @Cron('*/1 * * * * *')
+  // async test() {
+  //   this.logger.debug('test');
+  //   const userId = 'c0f567a5-3e99-420a-9727-50387c413dbc';
+  //   const user = await getOneData({
+  //     databaseRepository: this.usersRepository,
+  //     id: userId,
+  //     key: 'users',
+  //   });
+  //   if (!user) {
+  //     this.logger.error('User not found');
+  //     return;
+  //   }
+
+  //   const balance = getUserBalance(user);
+  //   this.logger.debug('balance: ' + balance);
+  // }
 }

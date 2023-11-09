@@ -18,3 +18,4 @@ export const priceToEmerald = (price: number) => {
 };
 export const fullBoostMultiplier = 10;
 export const passiveIncomeMultiplier = 0.1;
+export const maxClickPerSecond = 30;

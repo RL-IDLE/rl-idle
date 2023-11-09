@@ -14,6 +14,8 @@ import {
   IUser,
 } from './user';
 import {
+  addEmeraldBonusSchema,
+  addTokenBonusSchema,
   buyItemSchema,
   buyPrestigeSchema,
   clickSchema,
@@ -116,6 +118,12 @@ export const api = IApiType({
       body: unknown as { subscription: PushSubscription; userId: string },
       response: unknown as IUser,
     },
+    getTop20Users: {
+      method: 'GET',
+      url: '/users/get-top-20-users',
+      body: undefined,
+      response: unknown as IUser[],
+    },
   },
   items: {
     findAll: {
@@ -148,5 +156,11 @@ export type IWsEvent = {
   };
   livelinessProbe: {
     body: z.infer<typeof livelinessProbeSchema>;
+  };
+  addTokenBonus: {
+    body: z.infer<typeof addTokenBonusSchema>;
+  };
+  addEmeraldBonus: {
+    body: z.infer<typeof addEmeraldBonusSchema>;
   };
 };
