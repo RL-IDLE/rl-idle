@@ -23,3 +23,9 @@ export const livelinessProbeSchema = z.object({
   userId: z.string(),
   type: z.literal('livelinessProbe'),
 });
+
+export const addTokenBonusSchema = z.object({
+  userId: z.string(),
+  id: z.string(),
+  type: z.literal('addTokenBonusSchema'),
+});

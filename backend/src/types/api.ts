@@ -14,6 +14,7 @@ import {
   IUser,
 } from './user';
 import {
+  addTokenBonusSchema,
   buyItemSchema,
   buyPrestigeSchema,
   clickSchema,
@@ -148,5 +149,8 @@ export type IWsEvent = {
   };
   livelinessProbe: {
     body: z.infer<typeof livelinessProbeSchema>;
+  };
+  addTokenBonus: {
+    body: z.infer<typeof addTokenBonusSchema>;
   };
 };

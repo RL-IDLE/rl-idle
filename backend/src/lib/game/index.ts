@@ -94,3 +94,14 @@ export const beautify = (num: Decimal, debug?: boolean) => {
     `${roundedFirstsDigitsNumber}e${exponent - 2}`,
   ).round();
 };
+
+export const getMoneyFromInvestmentsPerSeconds = (
+  user: Pick<IUser, 'itemsBought' | 'prestigesBought'> | null,
+) => {
+  if (!user) return Decimal.fromString('0');
+  const moneyFromInvestments = user.itemsBought.reduce<Decimal>((acc, item) => {
+    return acc.plus(item.item.moneyPerSecond);
+  }, Decimal.fromString('0'));
+  const highestPrestige = memoizedHighestPrestige(user.prestigesBought);
+  return moneyFromInvestments.times(highestPrestige);
+};

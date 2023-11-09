@@ -10,6 +10,7 @@ import BoostMeter from '../BoostMeter';
 import { useClickStore } from '@/contexts/click.store';
 import { fullBoostMultiplier, fullBoostNumberOfClicks } from '@/lib/constant';
 import { useItemsStore } from '@/contexts/items.store';
+import RandomBoost from '../RandomBoost';
 
 export default function Home() {
   const click = useGameStore((state) => state.actions.click);
@@ -124,6 +125,7 @@ export default function Home() {
       </button>
       <Parameters />
       <BoostMeter />
+      <RandomBoost />
     </section>
   );
 }
