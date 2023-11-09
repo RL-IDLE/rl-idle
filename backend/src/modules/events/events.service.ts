@@ -281,9 +281,9 @@ export class EventsService {
   async addTokenBonus(data: IWsEvent['addTokenBonus']['body'], server: Server) {
     const exist = await redis.get(`bonus:money:${data.id}`);
     if (!exist) {
-      server.emit(`error:${data.userId}`, "This bonus does'nt exists");
+      server.emit(`error:${data.id}`, "This bonus does'nt exists");
       logger.warn(
-        `User ${data.userId} tried to buy item retrieve a non existing bonus`,
+        `User ${data.userId} tried to buy item retrieve a non existing bonus (id: ${data.id})`,
       );
       return { success: false };
     }
@@ -304,6 +304,32 @@ export class EventsService {
     user.moneyFromClick = Decimal.fromString(user.moneyFromClick)
       .add(value)
       .toString();
+
+    await saveOneData({ key: 'users', id: data.userId, data: user });
+    return { success: true };
+  }
+
+  async addEmeraldBonus(
+    data: IWsEvent['addEmeraldBonus']['body'],
+    server: Server,
+  ) {
+    const bonus = await redis.get(`bonus:emerald:${data.id}`);
+    if (!bonus) {
+      server.emit(`error:${data.userId}`, "This bonus does'nt exists");
+      logger.warn(
+        `User ${data.userId} tried to buy item retrieve a non existing bonus (id: ${data.id})`,
+      );
+      return { success: false };
+    }
+
+    const user = await getOneData({
+      databaseRepository: this.usersRepository,
+      key: 'users',
+      id: data.userId,
+    });
+    if (!user) throw new HttpException('User not found', 400);
+
+    user.emeralds = Decimal.fromString(user.emeralds).add(bonus).toString();
 
     await saveOneData({ key: 'users', id: data.userId, data: user });
     return { success: true };

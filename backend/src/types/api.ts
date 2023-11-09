@@ -14,6 +14,7 @@ import {
   IUser,
 } from './user';
 import {
+  addEmeraldBonusSchema,
   addTokenBonusSchema,
   buyItemSchema,
   buyPrestigeSchema,
@@ -152,5 +153,8 @@ export type IWsEvent = {
   };
   addTokenBonus: {
     body: z.infer<typeof addTokenBonusSchema>;
+  };
+  addEmeraldBonus: {
+    body: z.infer<typeof addEmeraldBonusSchema>;
   };
 };

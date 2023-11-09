@@ -38,6 +38,7 @@ interface UserState {
   buyPrestige: (id: string) => void;
   loadUser: () => Promise<string | undefined>;
   addTokenBonus: (id: string, amount: Decimal) => Promise<void>;
+  addEmeraldBonus: (id: string, amount: Decimal) => Promise<void>;
 
   /** TEST COMMANDS */
   reset: () => Promise<void>;
@@ -307,7 +308,24 @@ export const useUserStore = create<UserState>()(
             const eventBody: IWsEvent['addTokenBonus']['body'] = {
               userId: user.id,
               id,
-              type: 'addTokenBonusSchema',
+              type: 'addTokenBonus',
+            };
+            socket.emit('events', eventBody);
+          });
+        },
+        async addEmeraldBonus(id: string, amount: Decimal) {
+          set((state) => {
+            const user = state.user;
+            if (!user) {
+              logger.error('User not found');
+              return;
+            }
+            user.emeralds = user.emeralds.add(amount);
+
+            const eventBody: IWsEvent['addEmeraldBonus']['body'] = {
+              userId: user.id,
+              id,
+              type: 'addEmeraldBonus',
             };
             socket.emit('events', eventBody);
           });

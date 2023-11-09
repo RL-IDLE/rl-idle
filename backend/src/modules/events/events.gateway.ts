@@ -36,8 +36,10 @@ export class EventsGateway implements OnModuleInit {
       return this.eventsService.buyItem(data, this.server);
     if (data.type === 'buyPrestige')
       return this.eventsService.buyPrestige(data, this.server);
-    if (data.type === 'addTokenBonusSchema')
+    if (data.type === 'addTokenBonus')
       return this.eventsService.addTokenBonus(data, this.server);
+    if (data.type === 'addEmeraldBonus')
+      return this.eventsService.addEmeraldBonus(data, this.server);
 
     return this.eventsService.livelinessProbe(data);
   }
@@ -48,14 +50,14 @@ export class EventsGateway implements OnModuleInit {
   handleBonusPopup() {
     const bonusPopup = async () => {
       const kindNumber = Math.floor(Math.random() * 4); // 0~3
-      const kind = kindNumber < 1 ? 'emeralds' : 'money';
+      const kind = kindNumber < 1 ? 'emerald' : 'money';
       const bonusId = randomUUID();
       //? Between 0.2 and 0.8
       const xPos = Math.random() * (0.8 - 0.2) + 0.2;
       if (kind === 'money') {
         logger.debug('New money bonus');
         //? Save in redis
-        await redis.setex(`bonus:money:${bonusId}`, 40, bonusId);
+        await redis.setex(`bonus:money:${bonusId}`, 140, 'true');
         //? Send the ws
         this.server.emit(
           `bonus:money`,
@@ -65,7 +67,19 @@ export class EventsGateway implements OnModuleInit {
           }),
         );
       } else {
-        logger.debug('New emeralds bonus');
+        logger.debug('New emerald bonus');
+        const amount = Math.ceil(Math.random() * (4 - 2) + 2);
+        //? Save in redis
+        await redis.setex(`bonus:emerald:${bonusId}`, 40, amount);
+        //? Send the ws
+        this.server.emit(
+          `bonus:emerald`,
+          JSON.stringify({
+            id: bonusId,
+            xPos,
+            amount,
+          }),
+        );
       }
     };
 

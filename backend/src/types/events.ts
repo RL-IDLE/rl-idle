@@ -27,5 +27,11 @@ export const livelinessProbeSchema = z.object({
 export const addTokenBonusSchema = z.object({
   userId: z.string(),
   id: z.string(),
-  type: z.literal('addTokenBonusSchema'),
+  type: z.literal('addTokenBonus'),
+});
+
+export const addEmeraldBonusSchema = z.object({
+  userId: z.string(),
+  id: z.string(),
+  type: z.literal('addEmeraldBonus'),
 });
