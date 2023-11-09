@@ -118,6 +118,12 @@ export const api = IApiType({
       body: unknown as { subscription: PushSubscription; userId: string },
       response: unknown as IUser,
     },
+    getTop20Users: {
+      method: 'GET',
+      url: '/users/get-top-20-users',
+      body: undefined,
+      response: unknown as IUser[],
+    },
   },
   items: {
     findAll: {

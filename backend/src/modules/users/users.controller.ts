@@ -98,4 +98,12 @@ export class UsersController {
       subscription.userId,
     );
   }
+
+  /**
+   * RANKING
+   */
+  @Get('get-top-20-users')
+  getTop20Users() {
+    return this.usersService.getTop20Users();
+  }
 }
