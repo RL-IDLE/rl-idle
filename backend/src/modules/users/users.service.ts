@@ -78,12 +78,15 @@ export class UsersService {
     //* Max passive income
     //? Get the time difference between the last time the user was seen and now
     const lastSeen = new Date(user.lastSeen as unknown as string);
+    //? add livelinessProbeInterval to the last seen date
     const timeDiff = Math.abs(curDate.getTime() - lastSeen.getTime());
+    if (timeDiff < 1000 * 60) return user;
     const endOfInterval = new Date(
       lastSeen.getTime() + maxPassiveIncomeInterval,
     );
     const userBalanceLastSeen = getUserBalance(user, lastSeen);
     const userBalance = getUserBalance(user);
+    if (userBalanceLastSeen.gte(userBalance)) return user;
     let overflow: null | Decimal = null;
     if (timeDiff > maxPassiveIncomeInterval) {
       const userBalanceWithMaxPassiveIncome = getUserBalance(
