@@ -79,7 +79,9 @@ export default function Ranking() {
         >
           {top20Users.map((user, index) => {
             const lastPrestigeImg =
-              user.prestigesBought.at(-1)?.prestige.image ?? unrankedIcon;
+              user.prestigesBought
+                .sort((a, b) => b.prestige.moneyMult.cmp(a.prestige.moneyMult))
+                .at(0)?.prestige.image ?? unrankedIcon;
             // const balance = getUserBalance(user);
             return (
               <li
