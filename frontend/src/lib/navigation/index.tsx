@@ -27,7 +27,7 @@ export const pages = [
   },
   {
     name: 'ranking',
-    disabled: true,
+    disabled: false,
     label: <Ranking />,
   },
 ] as const;
