@@ -292,6 +292,7 @@ export const useUserStore = create<UserState>()(
                 },
                 createdAt: new Date(prestigeBought.createdAt),
               })),
+              latestBalance: Decimal.fromString(user.latestBalance),
             },
           });
           return user.id;
@@ -377,6 +378,7 @@ export const useUserStore = create<UserState>()(
                 },
                 createdAt: new Date(prestigeBought.createdAt),
               })),
+              latestBalance: Decimal.fromString(user.latestBalance),
             },
           });
           return;

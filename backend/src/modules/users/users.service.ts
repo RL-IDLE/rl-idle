@@ -268,6 +268,7 @@ export class UsersService {
     //? Reset user money/items
     user.moneyFromClick = '0';
     user.moneyPerClick = '1';
+    user.latestBalance = '0';
     user.itemsBought = [];
 
     await saveOneData({
@@ -501,5 +502,33 @@ export class UsersService {
     });
 
     return { success: true };
+  }
+
+  /**
+   * RANKING
+   */
+  async getTop20Users() {
+    const top20UsersRequest = this.usersRepository
+      .createQueryBuilder('user')
+      .limit(20)
+      .leftJoin('user.prestigesBought', 'prestigesBought')
+      //? Order by the numner of prestiges bought first, then by the latestBalance
+      .addSelect('COUNT("prestigesBought".id) AS prestige_count')
+      .groupBy(
+        '"user".id, "user"."createdAt", "user"."updatedAt", "user"."deletedAt", "prestigesBought".*',
+      )
+      .orderBy('"prestige_count"', 'DESC')
+      .addOrderBy('user.latestBalance', 'DESC');
+    const top20Users = await top20UsersRequest.getMany();
+    const top20UsersFilled = await Promise.all(
+      top20Users.map(async (user) => {
+        return getOneData({
+          databaseRepository: this.usersRepository,
+          id: user.id,
+          key: 'users',
+        });
+      }),
+    );
+    return top20UsersFilled;
   }
 }

@@ -277,6 +277,7 @@ export class EventsService {
     //? Reset user money/items
     user.moneyFromClick = '0';
     user.moneyPerClick = '1';
+    user.latestBalance = '0';
     user.itemsBought = [];
     await saveOneData({ key: 'users', id: parsedData.userId, data: user });
     return { success: true };
@@ -349,6 +350,7 @@ export class EventsService {
     //? Update user lastSeen
     user.lastSeen = new Date();
     user.passiveNotificationSent = false;
+    user.latestBalance = getUserBalance(user).toString();
     await saveOneData({ key: 'users', id: data.userId, data: user });
 
     return data;
