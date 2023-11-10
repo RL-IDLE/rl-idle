@@ -80,15 +80,17 @@ export class UsersService {
     const lastSeen = new Date(user.lastSeen as unknown as string);
     //? add livelinessProbeInterval to the last seen date
     const timeDiff = Math.abs(curDate.getTime() - lastSeen.getTime());
+    const realMaxPassiveIncomeInterval =
+      user.maxPassiveIncomeInterval || maxPassiveIncomeInterval;
     if (timeDiff < 1000 * 60) return user;
     const endOfInterval = new Date(
-      lastSeen.getTime() + maxPassiveIncomeInterval,
+      lastSeen.getTime() + realMaxPassiveIncomeInterval,
     );
     const userBalanceLastSeen = getUserBalance(user, lastSeen);
     const userBalance = getUserBalance(user);
     if (userBalanceLastSeen.gte(userBalance)) return user;
     let overflow: null | Decimal = null;
-    if (timeDiff > maxPassiveIncomeInterval) {
+    if (timeDiff > realMaxPassiveIncomeInterval) {
       const userBalanceWithMaxPassiveIncome = getUserBalance(
         user,
         endOfInterval,
@@ -118,7 +120,7 @@ export class UsersService {
             ? overflow.toString() +
               ` overflowed (${getTimeBetween(
                 new Date(timeDiff),
-                new Date(maxPassiveIncomeInterval),
+                new Date(realMaxPassiveIncomeInterval),
               )})`
             : ''
         }`,
@@ -542,11 +544,13 @@ export class UsersService {
     const top20Users = await top20UsersRequest.getMany();
     const top20UsersFilled = await Promise.all(
       top20Users.map(async (user) => {
-        return getOneData({
+        const userWithoutID = await getOneData({
           databaseRepository: this.usersRepository,
           id: user.id,
           key: 'users',
         });
+        if (userWithoutID) userWithoutID.id = '';
+        return userWithoutID;
       }),
     );
     return top20UsersFilled;

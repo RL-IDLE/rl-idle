@@ -16,6 +16,7 @@ import {
 import {
   addEmeraldBonusSchema,
   addTokenBonusSchema,
+  buyBonusSchema,
   buyItemSchema,
   buyPrestigeSchema,
   clickSchema,
@@ -162,5 +163,8 @@ export type IWsEvent = {
   };
   addEmeraldBonus: {
     body: z.infer<typeof addEmeraldBonusSchema>;
+  };
+  buyBonus: {
+    body: z.infer<typeof buyBonusSchema>;
   };
 };
