@@ -35,3 +35,9 @@ export const addEmeraldBonusSchema = z.object({
   id: z.string(),
   type: z.literal('addEmeraldBonus'),
 });
+
+export const buyBonusSchema = z.object({
+  userId: z.string(),
+  id: z.string(),
+  type: z.literal('buyBonus'),
+});

@@ -16,6 +16,7 @@ import {
 import {
   addEmeraldBonusSchema,
   addTokenBonusSchema,
+  buyBonusSchema,
   buyItemSchema,
   buyPrestigeSchema,
   clickSchema,
@@ -91,13 +92,13 @@ export const api = IApiType({
     updateUser: {
       method: 'PUT',
       url: '/users/update-user',
-      body: unknown as IUser,
+      body: unknown as Pick<IUser, 'username' | 'password' | 'id'>,
       response: unknown as IUser,
     },
     signIn: {
       method: 'POST',
       url: '/users/sign-in',
-      body: unknown as IUser,
+      body: unknown as Pick<IUser, 'username' | 'password' | 'id'>,
       response: unknown as IUser,
     },
     confirmPayment: {
@@ -162,5 +163,8 @@ export type IWsEvent = {
   };
   addEmeraldBonus: {
     body: z.infer<typeof addEmeraldBonusSchema>;
+  };
+  buyBonus: {
+    body: z.infer<typeof buyBonusSchema>;
   };
 };
