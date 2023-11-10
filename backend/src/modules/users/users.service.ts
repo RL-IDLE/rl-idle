@@ -522,11 +522,13 @@ export class UsersService {
     const top20Users = await top20UsersRequest.getMany();
     const top20UsersFilled = await Promise.all(
       top20Users.map(async (user) => {
-        return getOneData({
+        const userWithoutID = await getOneData({
           databaseRepository: this.usersRepository,
           id: user.id,
           key: 'users',
         });
+        if (userWithoutID) userWithoutID.id = '';
+        return userWithoutID;
       }),
     );
     return top20UsersFilled;
