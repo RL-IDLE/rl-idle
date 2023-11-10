@@ -438,7 +438,7 @@ export class UsersService {
       where: { username: user.username },
     });
 
-    if (!dbUser || dbUser === null) {
+    if (!dbUser) {
       throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
     }
 

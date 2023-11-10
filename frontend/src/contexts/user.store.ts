@@ -601,7 +601,7 @@ export const useUserStore = create<UserState>()(
             //? Set the user
             const userFromDb = await router.user.signIn(user);
 
-            localStorage.setItem('userId', userFromDb?.id as string);
+            if (userFromDb.id) localStorage.setItem('userId', userFromDb.id);
 
             return userFromDb;
           } catch (err) {
