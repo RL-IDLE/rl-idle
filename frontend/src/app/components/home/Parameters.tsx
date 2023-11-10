@@ -7,7 +7,7 @@ import Button from '../ui/Button';
 import UpdateUser from './Params/UpdateUser';
 import SignIn from './Params/SignIn';
 import { cn } from '@/lib/utils';
-import loading from '@/assets/loading.gif';
+// import loading from '@/assets/loading.gif';
 import gradient from '@/assets/gradient.png';
 
 export default function Parameters() {
@@ -16,7 +16,7 @@ export default function Parameters() {
   const loadUser = useUserStore((state) => state.loadUser);
   const [userToUpdate, setUserToUpdate] = useState({ ...user });
   const [isAccount, setIsAccount] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = () => {
     setPopUp(!popUp);
@@ -87,79 +87,79 @@ export default function Parameters() {
                 backgroundSize: 'cover',
               }}
             >
-              {!isLoading ? (
+              {/* {!isLoading ? (
+                <> */}
+              {!isAccount ? (
                 <>
-                  {!isAccount ? (
+                  <SignIn
+                    loadUser={loadUser}
+                    user={user}
+                    userToSignIn={userToUpdate}
+                    setUserToSignIn={setUserToUpdate}
+                    setIsAccount={setIsAccount}
+                    // setIsLoading={setIsLoading}
+                  />
+                </>
+              ) : (
+                <>
+                  {!user?.username ? (
                     <>
-                      <SignIn
+                      <UpdateUser
                         loadUser={loadUser}
                         user={user}
-                        userToSignIn={userToUpdate}
-                        setUserToSignIn={setUserToUpdate}
-                        setIsAccount={setIsAccount}
-                        setIsLoading={setIsLoading}
+                        signup={true}
+                        userToUpdate={userToUpdate}
+                        setUserToUpdate={setUserToUpdate}
+                        // setIsLoading={setIsLoading}
                       />
+                      <Button
+                        className="w-full bg-red-800"
+                        style={{
+                          marginBottom: '1rem',
+                          marginTop: 'auto',
+                        }}
+                        onClick={() => {
+                          localStorage.removeItem('userId');
+                          loadUser();
+                          handleClick();
+                        }}
+                      >
+                        Reset
+                      </Button>
                     </>
                   ) : (
                     <>
-                      {!user?.username ? (
-                        <>
-                          <UpdateUser
-                            loadUser={loadUser}
-                            user={user}
-                            signup={true}
-                            userToUpdate={userToUpdate}
-                            setUserToUpdate={setUserToUpdate}
-                            setIsLoading={setIsLoading}
-                          />
-                          <Button
-                            className="w-full bg-red-800"
-                            style={{
-                              marginBottom: '1rem',
-                              marginTop: 'auto',
-                            }}
-                            onClick={() => {
-                              localStorage.removeItem('userId');
-                              loadUser();
-                              handleClick();
-                            }}
-                          >
-                            Reset
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <UpdateUser
-                            loadUser={loadUser}
-                            user={user}
-                            signup={false}
-                            userToUpdate={userToUpdate}
-                            setUserToUpdate={setUserToUpdate}
-                            setIsLoading={setIsLoading}
-                          />
-                          <Button
-                            className="mb-4"
-                            onClick={() => {
-                              localStorage.removeItem('userId');
-                              loadUser();
-                              handleClick();
-                            }}
-                          >
-                            Disconnect
-                          </Button>
-                        </>
-                      )}
+                      <UpdateUser
+                        loadUser={loadUser}
+                        user={user}
+                        signup={false}
+                        userToUpdate={userToUpdate}
+                        setUserToUpdate={setUserToUpdate}
+                        // setIsLoading={setIsLoading}
+                      />
+                      <Button
+                        className="mb-4"
+                        onClick={() => {
+                          localStorage.removeItem('userId');
+                          loadUser();
+                          handleClick();
+                        }}
+                      >
+                        Disconnect
+                      </Button>
                     </>
                   )}
-                  <p className="user-id text-white absolute bottom-1 right-3 text-[.60rem] opacity-60">
-                    {user?.id && `User ID: ${user?.id}`}
-                  </p>
                 </>
+              )}
+              <p className="user-id text-white absolute bottom-1 right-3 text-[.60rem] opacity-60">
+                {user?.id && `User ID: ${user?.id}`}
+              </p>
+              {/* </>
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <img width="40" src={loading} alt="" />
                 </div>
-              )}
+              )} */}
             </section>
             {/* <Button onClick={loadUserFunc()}>update</Button> */}
             <Button

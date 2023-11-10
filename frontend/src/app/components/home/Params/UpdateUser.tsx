@@ -8,14 +8,14 @@ export default function UpdateUser({
   loadUser,
   userToUpdate,
   setUserToUpdate,
-  setIsLoading,
+  // setIsLoading,
   signup = false,
 }: {
   user: IUser;
   loadUser: () => Promise<unknown>;
   userToUpdate: IUser;
   setUserToUpdate: (user: IUser) => unknown;
-  setIsLoading: (isLoading: boolean) => void;
+  // setIsLoading: (isLoading: boolean) => void;
   signup?: boolean;
 }) {
   const [err, setErr] = useState('' as string);
