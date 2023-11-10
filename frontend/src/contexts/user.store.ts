@@ -11,6 +11,11 @@ import { IWsEvent } from '../../../backend/src/types/api';
 import { useItemsStore } from './items.store';
 import { usePrestigeStore } from './prestiges.store';
 import {
+  maxPassiveIncomeInterval,
+  timewarpBoost,
+  upgradeBoost,
+} from '../../../backend/src/lib/constant';
+import {
   getPriceForClickItem,
   getPriceOfItem,
   getUserMoneyPerClick,
@@ -39,6 +44,9 @@ interface UserState {
   loadUser: () => Promise<string | undefined>;
   addTokenBonus: (id: string, amount: Decimal) => Promise<void>;
   addEmeraldBonus: (id: string, amount: Decimal) => Promise<void>;
+  buyBoost: (
+    item: (typeof timewarpBoost | typeof upgradeBoost)[number],
+  ) => Promise<void>;
 
   /** TEST COMMANDS */
   reset: () => Promise<void>;
@@ -293,6 +301,7 @@ export const useUserStore = create<UserState>()(
                 createdAt: new Date(prestigeBought.createdAt),
               })),
               latestBalance: Decimal.fromString(user.latestBalance),
+              maxPassiveIncomeInterval: user.maxPassiveIncomeInterval,
             },
           });
           return user.id;
@@ -328,6 +337,27 @@ export const useUserStore = create<UserState>()(
               id,
               type: 'addEmeraldBonus',
             };
+            socket.emit('events', eventBody);
+          });
+        },
+        async buyBoost(item) {
+          set((state) => {
+            const user = state.user;
+            if (!user) {
+              logger.error('User not found');
+              return;
+            }
+            const eventBody: IWsEvent['buyBonus']['body'] = {
+              userId: user.id,
+              id: item.id,
+              type: 'buyBonus',
+            };
+            user.emeralds = user.emeralds.minus(item.price);
+            if (item.id === '3' && 'afkTime' in item) {
+              user.maxPassiveIncomeInterval =
+                (user.maxPassiveIncomeInterval || maxPassiveIncomeInterval) +
+                (item.afkTime ?? 0) * 1000 * 60 * 60;
+            }
             socket.emit('events', eventBody);
           });
         },
@@ -379,6 +409,7 @@ export const useUserStore = create<UserState>()(
                 createdAt: new Date(prestigeBought.createdAt),
               })),
               latestBalance: Decimal.fromString(user.latestBalance),
+              maxPassiveIncomeInterval: user.maxPassiveIncomeInterval,
             },
           });
           return;

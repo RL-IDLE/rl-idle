@@ -12,4 +12,5 @@ export type IUser = {
   prestigesBought: IPrestigeBought[];
   emeralds: Decimal;
   latestBalance: Decimal;
+  maxPassiveIncomeInterval: number;
 };

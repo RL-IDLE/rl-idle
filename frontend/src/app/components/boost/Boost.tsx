@@ -3,55 +3,27 @@ import EmeraldsLogo from '@/assets/Esports_Tokens_icon.webp';
 import TimeWarpIcon from '@/assets/Icon_ScoreTime.png';
 import UpgradeIcon from '@/assets/Icon_ScoreSpeed.png';
 import gradient from '@/assets/gradient.png';
+import {
+  timewarpBoost,
+  upgradeBoost,
+} from '../../../../../backend/src/lib/constant';
+import { useUserStore } from '@/contexts/user.store';
+import { useState } from 'react';
+import BoostAnimation from './BoostAnimation';
+import Decimal from 'break_infinity.js';
 
 export default function Boost() {
-  const timewrapBoost = [
-    {
-      id: 1,
-      name: '12h',
-      timeAcceleration: 43200,
-      price: 75,
-    },
-    {
-      id: 2,
-      name: '24h',
-      timeAcceleration: 86400,
-      price: 145,
-    },
-    {
-      id: 3,
-      name: '3d',
-      timeAcceleration: 259200,
-      price: 475,
-    },
-  ];
+  const maxPassiveIncomeInterval =
+    useUserStore((state) => state.user?.maxPassiveIncomeInterval) ?? 0;
+  const buyBoost = useUserStore((state) => state.buyBoost);
+  const emeralds =
+    useUserStore((state) => state.user?.emeralds) ?? Decimal.fromString('0');
 
-  const upgradeBoost = [
-    {
-      id: 1,
-      name: 'AFK Time',
-      afkTime: 1,
-      price: 75,
-    },
-    {
-      id: 2,
-      name: 'Click x2',
-      durationTime: 3600,
-      price: 145,
-    },
-    {
-      id: 3,
-      name: 'Click x3',
-      durationTime: 900,
-      price: 475,
-    },
-    {
-      id: 4,
-      name: 'Click x3',
-      durationTime: 2700,
-      price: 1350,
-    },
-  ];
+  const [showAnimation, setShowAnimation] = useState<boolean>(false);
+  const [boughtItem, setBoughItem] = useState<null | {
+    name: string;
+    image: string;
+  }>(null);
 
   return (
     <section className="flex flex-col h-full pt-32 pb-28">
@@ -78,14 +50,23 @@ export default function Boost() {
             </p>
           </div>
           <ul className="grid grid-cols-3 gap-3 max-h-full max-w-full h-fit w-full touch-pan-y rounded-xl p-3 ">
-            {timewrapBoost.map((item) => (
+            {timewarpBoost.map((item) => (
               <li
                 key={item.id}
                 className={cn(
                   'gap-3 border p-2 rounded-xl cursor-pointer relative transition-all active:scale-[0.98] w-full h-full flex flex-col items-center',
+                  {
+                    // 'opacity-50 pointer-events-none': emeralds.lt(item.price),
+                    'opacity-50 pointer-events-none': true, //? Disable
+                  },
                 )}
                 onClick={() => {
-                  console.log('click');
+                  buyBoost(item);
+                  setShowAnimation(true);
+                  setBoughItem({
+                    name: 'Warped ' + item.name,
+                    image: TimeWarpIcon,
+                  });
                 }}
               >
                 <div className="flex items-center justify-center">
@@ -128,9 +109,26 @@ export default function Boost() {
                 key={item.id}
                 className={cn(
                   'gap-3 border p-2 rounded-xl cursor-pointer relative transition-all active:scale-[0.98] w-full h-full flex flex-col justify-between items-center',
+                  {
+                    // 'opacity-50 pointer-events-none': emeralds.lt(item.price),
+                    'opacity-50 pointer-events-none':
+                      item.id !== '3' || emeralds.lt(item.price), //? Disable
+                  },
                 )}
                 onClick={() => {
-                  console.log('click');
+                  buyBoost(item);
+                  setShowAnimation(true);
+                  if (item.id === '3') {
+                    setBoughItem({
+                      name: 'Increase passive income',
+                      image: UpgradeIcon,
+                    });
+                  } else {
+                    setBoughItem({
+                      name: 'Increase click power',
+                      image: UpgradeIcon,
+                    });
+                  }
                 }}
               >
                 <div className="flex flex-col justify-center items-center">
@@ -147,7 +145,13 @@ export default function Boost() {
                   <p className="text-white self-center text-l text-center">
                     {item.durationTime
                       ? item.durationTime / 60 + 'min'
-                      : '+' + item.afkTime?.toString() + 'h'}
+                      : '+' + item.afkTime?.toString() + 'h' + ' '}
+                    {item.id === '3' && (
+                      <span className="text-white/70 ml-2">
+                        (cur {maxPassiveIncomeInterval / (60 * 60 * 1000) + 'h'}
+                        )
+                      </span>
+                    )}
                   </p>
                 </div>
 
@@ -166,6 +170,22 @@ export default function Boost() {
           </ul>
         </div>
       </div>
+      {showAnimation && (
+        <BoostAnimation close={() => setShowAnimation(false)}>
+          {boughtItem && (
+            <>
+              <img
+                src={boughtItem.image}
+                alt="prize"
+                className="w-10/12 max-w-[400px] object-contain"
+              />
+              <div className="flex flex-col gap-3 font-bold">
+                {boughtItem.name}
+              </div>
+            </>
+          )}
+        </BoostAnimation>
+      )}
     </section>
   );
 }
