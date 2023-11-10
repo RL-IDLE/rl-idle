@@ -612,7 +612,7 @@ export const useUserStore = create<UserState>()(
       })),
       {
         name: 'user',
-        version: 8,
+        version: 9,
         merge: (_, persisted) => {
           return {
             ...persisted,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './parameters.module.scss';
 import { useUserStore } from '@/contexts/user.store';
 import { IUser } from '@/types/user';
@@ -50,7 +50,8 @@ export default function Parameters() {
             >
               My Account
             </button>
-            {user?.username === null && (
+            {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition */}
+            {user.username === null && (
               <>
                 <button
                   className={cn(
@@ -102,7 +103,7 @@ export default function Parameters() {
                 </>
               ) : (
                 <>
-                  {!user?.username ? (
+                  {!user.username ? (
                     <>
                       <UpdateUser
                         loadUser={loadUser}
@@ -152,7 +153,7 @@ export default function Parameters() {
                 </>
               )}
               <p className="user-id text-white absolute bottom-1 right-3 text-[.60rem] opacity-60">
-                {user?.id && `User ID: ${user?.id}`}
+                {user.id && `User ID: ${user.id}`}
               </p>
               {/* </>
               ) : (
