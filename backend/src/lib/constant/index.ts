@@ -19,3 +19,49 @@ export const priceToEmerald = (price: number) => {
 export const fullBoostMultiplier = 10;
 export const passiveIncomeMultiplier = 0.1;
 export const maxClickPerSecond = 30;
+export const timewarpBoost = [
+  {
+    id: '0',
+    name: '12h',
+    timeAcceleration: 43200,
+    price: 250,
+  },
+  {
+    id: '1',
+    name: '24h',
+    timeAcceleration: 86400,
+    price: 450,
+  },
+  {
+    id: '2',
+    name: '3d',
+    timeAcceleration: 259200,
+    price: 860,
+  },
+];
+export const upgradeBoost = [
+  {
+    id: '3',
+    name: 'AFK Time',
+    afkTime: 2,
+    price: 2500,
+  },
+  {
+    id: '4',
+    name: 'Click x2',
+    durationTime: 3600,
+    price: 75,
+  },
+  {
+    id: '5',
+    name: 'Click x3',
+    durationTime: 900,
+    price: 150,
+  },
+  {
+    id: '6',
+    name: 'Click x3',
+    durationTime: 2700,
+    price: 400,
+  },
+];

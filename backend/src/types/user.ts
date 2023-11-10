@@ -13,6 +13,7 @@ export const UserSchema = z.object({
   lastSeen: z.date(),
   emeralds: z.string(),
   latestBalance: z.string(),
+  maxPassiveIncomeInterval: z.number(),
 });
 
 export type IUser = z.infer<typeof UserSchema>;

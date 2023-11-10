@@ -65,6 +65,11 @@ export class User extends Timestamp implements IUser {
     default: '0',
   })
   latestBalance: string; //? Used for ranking
+
+  @Column({
+    nullable: true,
+  })
+  maxPassiveIncomeInterval: number;
 }
 
 @Entity('subscription')
