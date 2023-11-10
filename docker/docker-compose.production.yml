@@ -43,8 +43,8 @@ services:
       driver: "json-file"
       options:
         max-size: "50m"
-    # ports:
-    #   - '10063:5432'
+    ports:
+      - "10063:5432"
     networks:
       - backend
 
@@ -59,8 +59,8 @@ services:
         max-size: "50m"
     volumes:
       - rl-idle-redis-data:/data
-    # ports:
-    #   - '10064:6379'
+    ports:
+      - "10064:6379"
     networks:
       - backend
 
