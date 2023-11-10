@@ -23,6 +23,11 @@
             filter: blur(100px);
 
         }
+
+        &.params:before {
+            background-color: rgba(0, 0, 0, 0.2);
+            filter: blur(16px);
+        }
     }
 }
 

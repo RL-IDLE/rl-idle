@@ -40,6 +40,8 @@ export class EventsGateway implements OnModuleInit {
       return this.eventsService.addTokenBonus(data, this.server);
     if (data.type === 'addEmeraldBonus')
       return this.eventsService.addEmeraldBonus(data, this.server);
+    if (data.type === 'buyBonus')
+      return this.eventsService.buyBonus(data, this.server);
 
     return this.eventsService.livelinessProbe(data);
   }

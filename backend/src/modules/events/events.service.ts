@@ -31,6 +31,9 @@ import {
   fullBoostMultiplier,
   maxClickPerSecond,
   maxDiffTimeUserSpec,
+  maxPassiveIncomeInterval,
+  timewarpBoost,
+  upgradeBoost,
 } from 'src/lib/constant';
 
 @Injectable()
@@ -340,6 +343,50 @@ export class EventsService {
     return { success: true };
   }
 
+  async buyBonus(data: IWsEvent['buyBonus']['body'], server: Server) {
+    const user = await getOneData({
+      databaseRepository: this.usersRepository,
+      key: 'users',
+      id: data.userId,
+    });
+    if (!user) throw new HttpException('User not found', 400);
+
+    const item = timewarpBoost.find((item) => item.id === data.id);
+    if (!item) {
+      const boostItem = upgradeBoost.find((item) => item.id === data.id);
+      if (!boostItem) {
+        server.emit(`error:${data.userId}`, "This bonus does'nt exists");
+        logger.warn(
+          `User ${data.userId} tried to buy item retrieve a non existing bonus (id: ${data.id})`,
+        );
+        return { success: false };
+      }
+      if (Decimal.fromString(user.emeralds).lt(boostItem.price)) {
+        server.emit(`error:${data.userId}`, "You don't have enought money");
+        return { success: false };
+      }
+      if (boostItem.id === '3') {
+        //? Afk time permanent boost
+        user.maxPassiveIncomeInterval =
+          (user.maxPassiveIncomeInterval || maxPassiveIncomeInterval) +
+          (boostItem.afkTime ?? 0) * 1000 * 60 * 60;
+        user.emeralds = Decimal.fromString(user.emeralds)
+          .minus(boostItem.price)
+          .toString();
+      } else {
+      }
+    } else {
+      const timewarpItem = item;
+      if (Decimal.fromString(user.emeralds).lt(timewarpItem.price)) {
+        server.emit(`error:${data.userId}`, "You don't have enought money");
+        return { success: false };
+      }
+    }
+
+    await saveOneData({ key: 'users', id: data.userId, data: user });
+    return { success: true };
+  }
+
   async livelinessProbe(data: IWsEvent['livelinessProbe']['body']) {
     const user = await getOneData({
       databaseRepository: this.usersRepository,
@@ -350,7 +397,10 @@ export class EventsService {
     //? Update user lastSeen
     user.lastSeen = new Date();
     user.passiveNotificationSent = false;
-    user.latestBalance = getUserBalance(user).toString();
+    const uBalance = getUserBalance(user);
+    user.latestBalance = uBalance.toString();
+    user.latestBalanceExponent = uBalance.exponent.toString();
+    user.latestBalanceMantissa = uBalance.mantissa.toString();
     await saveOneData({ key: 'users', id: data.userId, data: user });
 
     return data;

@@ -66,7 +66,6 @@ export class UsersController {
   }
 
   @Put('update-user')
-  @UseOnlyDev()
   updateUser(@Body() updateUser: User) {
     return this.usersService.updateUser(updateUser);
   }

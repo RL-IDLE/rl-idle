@@ -2,6 +2,7 @@ import { useGameStore } from '@/contexts/game.store';
 import { usePrestigeStore } from '@/contexts/prestiges.store';
 import { useUserStore } from '@/contexts/user.store';
 import { decimalToHumanReadable } from '@/lib/bignumber';
+// import homeBgLarge from '../../../assets/home-bg-large.webp';
 import homeBgLarge from '../../../assets/home-bg-large.webp';
 import unrankedIcon from '../../../assets/Unranked_icon.webp';
 import { cn } from '@/lib/utils';
