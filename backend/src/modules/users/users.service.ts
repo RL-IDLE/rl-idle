@@ -404,8 +404,13 @@ export class UsersService {
       throw new HttpException('Missing password or username', 400);
 
     try {
-      const userInDb = await this.usersRepository.findOne({
-        where: { id: user.id },
+      // const userInDb = await this.usersRepository.findOne({
+      //   where: { id: user.id },
+      // });
+      const userInDb = await getOneData({
+        databaseRepository: this.usersRepository,
+        key: 'users',
+        id: user.id,
       });
 
       if (!userInDb) throw new HttpException('User not found', 400);
@@ -420,10 +425,7 @@ export class UsersService {
       saveOneData({
         key: 'users',
         id: user.id,
-        data: {
-          ...user,
-          password: password,
-        },
+        data: updatedUser,
       });
 
       return { message: 'Informations updated' };
