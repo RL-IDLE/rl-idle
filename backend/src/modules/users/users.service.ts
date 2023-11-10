@@ -1,10 +1,14 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Subscription, User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { api } from 'src/types/api';
 import { getOneData, redisNamespace, saveOneData } from 'src/lib/storage';
-import { maxPassiveIncomeInterval, priceToEmerald } from 'src/lib/constant';
+import {
+  maxPassiveIncomeInterval,
+  passiveIncomeMultiplier,
+  priceToEmerald,
+} from 'src/lib/constant';
 import { getUserBalance } from 'src/lib/game';
 import Decimal from 'break_infinity.js';
 import { logger } from 'src/lib/logger';
@@ -74,13 +78,19 @@ export class UsersService {
     //* Max passive income
     //? Get the time difference between the last time the user was seen and now
     const lastSeen = new Date(user.lastSeen as unknown as string);
+    //? add livelinessProbeInterval to the last seen date
     const timeDiff = Math.abs(curDate.getTime() - lastSeen.getTime());
+    const realMaxPassiveIncomeInterval =
+      user.maxPassiveIncomeInterval || maxPassiveIncomeInterval;
+    if (timeDiff < 1000 * 60) return user;
+    const endOfInterval = new Date(
+      lastSeen.getTime() + realMaxPassiveIncomeInterval,
+    );
+    const userBalanceLastSeen = getUserBalance(user, lastSeen);
+    const userBalance = getUserBalance(user);
+    if (userBalanceLastSeen.gte(userBalance)) return user;
     let overflow: null | Decimal = null;
-    if (timeDiff > maxPassiveIncomeInterval) {
-      const endOfInterval = new Date(
-        lastSeen.getTime() + maxPassiveIncomeInterval,
-      );
-      const userBalance = getUserBalance(user);
+    if (timeDiff > realMaxPassiveIncomeInterval) {
       const userBalanceWithMaxPassiveIncome = getUserBalance(
         user,
         endOfInterval,
@@ -90,6 +100,16 @@ export class UsersService {
         .plus(overflow)
         .toString();
     }
+    const passiveIncomeGains = userBalance
+      .minus(overflow || Decimal.fromString('0'))
+      .minus(userBalanceLastSeen);
+    //? Multiply the passive income gains by the multiplier
+    const lostPassiveIncome = passiveIncomeGains.times(
+      Decimal.fromString('1').minus(passiveIncomeMultiplier),
+    );
+    user.moneyUsed = Decimal.fromString(user.moneyUsed)
+      .plus(lostPassiveIncome)
+      .toString();
     if (timeDiff > 1000 * 60) {
       logger.debug(
         `User ${user.id} was inactive for ${getTimeBetween(
@@ -100,7 +120,7 @@ export class UsersService {
             ? overflow.toString() +
               ` overflowed (${getTimeBetween(
                 new Date(timeDiff),
-                new Date(maxPassiveIncomeInterval),
+                new Date(realMaxPassiveIncomeInterval),
               )})`
             : ''
         }`,
@@ -250,6 +270,7 @@ export class UsersService {
     //? Reset user money/items
     user.moneyFromClick = '0';
     user.moneyPerClick = '1';
+    user.latestBalance = '0';
     user.itemsBought = [];
 
     await saveOneData({
@@ -377,35 +398,55 @@ export class UsersService {
   }
 
   async updateUser(user: User) {
-    const password = hash(user.password, 10);
+    const password = await hash(user.password, 10);
 
     if (!user.password || !user.username)
       throw new HttpException('Missing password or username', 400);
 
-    await saveOneData({
-      key: 'users',
-      id: user.id,
-      data: {
+    try {
+      const userInDb = await this.usersRepository.findOne({
+        where: { id: user.id },
+      });
+
+      if (!userInDb) throw new HttpException('User not found', 400);
+
+      const updatedUser = {
+        ...userInDb,
         password: password,
         username: user.username,
-      },
-    });
-    return user;
+      };
+      await this.usersRepository.save(updatedUser);
+      // same with redis
+      saveOneData({
+        key: 'users',
+        id: user.id,
+        data: {
+          ...user,
+          password: password,
+        },
+      });
+
+      return { message: 'Informations updated' };
+    } catch (err) {
+      logger.error(err);
+      throw new HttpException('Username already exist', HttpStatus.BAD_REQUEST);
+    }
   }
 
   async signIn(user: User) {
-    const dbUser = await getOneData({
-      databaseRepository: this.usersRepository,
-      key: 'users',
-      id: user.id,
+    const dbUser = await this.usersRepository.findOne({
+      where: { username: user.username },
     });
-    if (!dbUser) throw new HttpException('User not found', 400);
+
+    if (!dbUser) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
 
     if (user.username !== dbUser.username)
-      throw new HttpException('Wrong username', 400);
+      throw new HttpException('Wrong username', HttpStatus.BAD_REQUEST);
     if (!(await bcryptCompare(user.password, dbUser.password)))
-      throw new HttpException('Wrong password', 400);
-    return user;
+      throw new HttpException('Wrong password', HttpStatus.BAD_REQUEST);
+    return dbUser;
   }
 
   async confirmPayment(payment: IConfirmPayment) {
@@ -483,5 +524,35 @@ export class UsersService {
     });
 
     return { success: true };
+  }
+
+  /**
+   * RANKING
+   */
+  async getTop20Users() {
+    const top20UsersRequest = this.usersRepository
+      .createQueryBuilder('user')
+      .limit(20)
+      .leftJoin('user.prestigesBought', 'prestigesBought')
+      //? Order by the numner of prestiges bought first, then by the latestBalance
+      .addSelect('COUNT("prestigesBought"."userId") AS prestige_count')
+      .groupBy(
+        '"user".id, "user"."createdAt", "user"."updatedAt", "user"."deletedAt"',
+      )
+      .orderBy('"prestige_count"', 'DESC')
+      .addOrderBy('user.latestBalance', 'DESC');
+    const top20Users = await top20UsersRequest.getMany();
+    const top20UsersFilled = await Promise.all(
+      top20Users.map(async (user) => {
+        const userWithoutID = await getOneData({
+          databaseRepository: this.usersRepository,
+          id: user.id,
+          key: 'users',
+        });
+        if (userWithoutID) userWithoutID.id = '';
+        return userWithoutID;
+      }),
+    );
+    return top20UsersFilled;
   }
 }

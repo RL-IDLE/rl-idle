@@ -5,6 +5,7 @@ import { PrestigeBoughtSchema } from './prestige';
 export const UserSchema = z.object({
   id: z.string(),
   username: z.string(),
+  password: z.string(),
   moneyFromClick: z.string(),
   moneyPerClick: z.string(),
   moneyUsed: z.string(),
@@ -12,6 +13,8 @@ export const UserSchema = z.object({
   prestigesBought: z.array(PrestigeBoughtSchema),
   lastSeen: z.date(),
   emeralds: z.string(),
+  latestBalance: z.string(),
+  maxPassiveIncomeInterval: z.number(),
 });
 
 export type IUser = z.infer<typeof UserSchema>;

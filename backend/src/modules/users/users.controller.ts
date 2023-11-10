@@ -66,7 +66,6 @@ export class UsersController {
   }
 
   @Put('update-user')
-  @UseOnlyDev()
   updateUser(@Body() updateUser: User) {
     return this.usersService.updateUser(updateUser);
   }
@@ -97,5 +96,13 @@ export class UsersController {
       subscription.subscription,
       subscription.userId,
     );
+  }
+
+  /**
+   * RANKING
+   */
+  @Get('get-top-20-users')
+  getTop20Users() {
+    return this.usersService.getTop20Users();
   }
 }

@@ -5,40 +5,53 @@ import { cn, getTimeBetween } from '@/lib/utils';
 import Decimal from 'break_infinity.js';
 import { useEffect, useState } from 'react';
 import CreditLogo from '@/assets/credits_icon.webp';
-import { maxPassiveIncomeInterval } from '../../../../backend/src/lib/constant';
+import {
+  maxPassiveIncomeInterval,
+  passiveIncomeMultiplier,
+} from '../../../../backend/src/lib/constant';
 import Button from './ui/Button';
-import { popupMinOfflineTime } from '@/lib/constant';
 import { useBalance } from '@/contexts/balance/BalanceUtils';
+import { popupMinOfflineTime } from '@/lib/constant';
 
 export default function PassivePopup() {
   const user = useUserStore((state) => state.user);
+  const [inactiveTimeNow, setInactiveTimeNow] = useState<Date | null>(null);
   const [inactiveTime, setInactiveTime] = useState<Date | null>(null);
   const [showPopup, setShowPopup] = useState<false | Decimal>(false);
   const [alreadyShown, setAlreadyShown] = useState(false);
   const { setDifference } = useBalance();
 
   useEffect(() => {
-    if (!user || alreadyShown) return;
-
-    const lastBalance = localStorage.getItem('lastBalance');
     const lastBalanceTime = localStorage.getItem('lastBalanceTime');
     const now = Date.now();
 
+    const realInactiveTime = new Date(parseInt(lastBalanceTime || '0'));
+    if (realInactiveTime.getTime() + maxPassiveIncomeInterval < now) {
+      setInactiveTime(new Date(now - maxPassiveIncomeInterval));
+      setInactiveTimeNow(new Date());
+    } else {
+      setInactiveTime(realInactiveTime);
+      setInactiveTimeNow(new Date());
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!user || alreadyShown || !inactiveTime || !inactiveTimeNow) return;
+
+    const lastBalance = localStorage.getItem('lastBalance');
+
     //? If the user has been offline for more than 1 minute, show a popup
     if (
-      now - parseInt(lastBalanceTime || '0') > popupMinOfflineTime &&
-      // now - parseInt(lastBalanceTime || '0') > 0 &&
+      inactiveTimeNow.getTime() - inactiveTime.getTime() >
+        popupMinOfflineTime &&
+      // inactiveTimeNow.getTime() - inactiveTime.getTime() > 0 &&
       lastBalance
     ) {
-      const realInactiveTime = new Date(parseInt(lastBalanceTime || '0'));
-      if (realInactiveTime.getTime() + maxPassiveIncomeInterval < now) {
-        setInactiveTime(new Date(now - maxPassiveIncomeInterval));
-      } else {
-        setInactiveTime(realInactiveTime);
-      }
-      const lastBalanceDecimal = new Decimal(lastBalance);
+      const oldBalance = getUserBalance(user, inactiveTime);
       const newBalance = getUserBalance(user);
-      const difference = newBalance.minus(lastBalanceDecimal);
+      const difference = newBalance
+        .minus(oldBalance)
+        .mul(passiveIncomeMultiplier);
       if (difference.greaterThan(0)) {
         setDifference(difference);
         setShowPopup(difference);
@@ -46,7 +59,7 @@ export default function PassivePopup() {
       setAlreadyShown(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, alreadyShown]);
+  }, [user, alreadyShown, inactiveTimeNow, inactiveTime]);
 
   return (
     <div
@@ -67,7 +80,8 @@ export default function PassivePopup() {
               <p className="text-sm text-white/75">
                 inactive for{' '}
                 {inactiveTime &&
-                  getTimeBetween(new Date(), inactiveTime, {
+                  inactiveTimeNow &&
+                  getTimeBetween(inactiveTimeNow, inactiveTime, {
                     markAsNowSince: 0,
                   })}
               </p>

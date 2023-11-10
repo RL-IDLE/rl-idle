@@ -27,6 +27,7 @@ export const useClickStore = create<ClickState>()(
         const clicksFiltered = clicks.filter(
           (click) => click.date >= oneMinuteAgo,
         );
+
         set({ clicks: [...clicksFiltered, click] });
         timeout = setTimeout(() => {
           const clicks = get().clicks;

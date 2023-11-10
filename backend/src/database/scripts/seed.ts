@@ -8,8 +8,7 @@ import { IPrestige } from 'src/types/prestige';
 import { beautify } from '../../lib/game';
 dotenv.config();
 
-//? old formula: basePres (8+8*0.1 x)^(x)
-//? new: basePrice * 8^x
+//? new: basePrice * 16^x
 const basePrice = Decimal.fromString('1000000');
 const _prestiges: Omit<IPrestige, 'id' | 'price'>[] = [
   // {
@@ -130,7 +129,7 @@ const _prestiges: Omit<IPrestige, 'id' | 'price'>[] = [
   },
 ];
 const prestiges: Omit<IPrestige, 'id'>[] = _prestiges.map((prestige, i) => {
-  const price = basePrice.times(Decimal.fromString('8').pow(i));
+  const price = basePrice.times(Decimal.fromString('16').pow(i));
   return {
     ...prestige,
     price: beautify(price).toString(),

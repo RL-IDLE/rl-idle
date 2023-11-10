@@ -57,7 +57,7 @@ export const getPriceOfItem = (basePrice: Decimal, step: Decimal) =>
 //? Test: 20 (8+8*0.1 x)^(x)
 export const getPriceForClickItem = (basePrice: Decimal, step: Decimal) => {
   return beautify(
-    basePrice.times(Decimal.fromString('6').pow(step.times('0.6'))).round(),
+    basePrice.times(Decimal.fromString('7').pow(step.times('0.6'))).round(),
   );
 };
 
@@ -93,4 +93,15 @@ export const beautify = (num: Decimal, debug?: boolean) => {
   return Decimal.fromString(
     `${roundedFirstsDigitsNumber}e${exponent - 2}`,
   ).round();
+};
+
+export const getMoneyFromInvestmentsPerSeconds = (
+  user: Pick<IUser, 'itemsBought' | 'prestigesBought'> | null,
+) => {
+  if (!user) return Decimal.fromString('0');
+  const moneyFromInvestments = user.itemsBought.reduce<Decimal>((acc, item) => {
+    return acc.plus(item.item.moneyPerSecond);
+  }, Decimal.fromString('0'));
+  const highestPrestige = memoizedHighestPrestige(user.prestigesBought);
+  return moneyFromInvestments.times(highestPrestige);
 };

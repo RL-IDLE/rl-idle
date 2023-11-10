@@ -14,6 +14,9 @@ import {
   IUser,
 } from './user';
 import {
+  addEmeraldBonusSchema,
+  addTokenBonusSchema,
+  buyBonusSchema,
   buyItemSchema,
   buyPrestigeSchema,
   clickSchema,
@@ -89,13 +92,13 @@ export const api = IApiType({
     updateUser: {
       method: 'PUT',
       url: '/users/update-user',
-      body: unknown as IUser,
+      body: unknown as Pick<IUser, 'username' | 'password' | 'id'>,
       response: unknown as IUser,
     },
     signIn: {
       method: 'POST',
       url: '/users/sign-in',
-      body: unknown as IUser,
+      body: unknown as Pick<IUser, 'username' | 'password' | 'id'>,
       response: unknown as IUser,
     },
     confirmPayment: {
@@ -115,6 +118,12 @@ export const api = IApiType({
       url: '/users/subscribe',
       body: unknown as { subscription: PushSubscription; userId: string },
       response: unknown as IUser,
+    },
+    getTop20Users: {
+      method: 'GET',
+      url: '/users/get-top-20-users',
+      body: undefined,
+      response: unknown as IUser[],
     },
   },
   items: {
@@ -148,5 +157,14 @@ export type IWsEvent = {
   };
   livelinessProbe: {
     body: z.infer<typeof livelinessProbeSchema>;
+  };
+  addTokenBonus: {
+    body: z.infer<typeof addTokenBonusSchema>;
+  };
+  addEmeraldBonus: {
+    body: z.infer<typeof addEmeraldBonusSchema>;
+  };
+  buyBonus: {
+    body: z.infer<typeof buyBonusSchema>;
   };
 };

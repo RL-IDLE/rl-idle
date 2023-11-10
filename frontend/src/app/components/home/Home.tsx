@@ -10,6 +10,7 @@ import BoostMeter from '../BoostMeter';
 import { useClickStore } from '@/contexts/click.store';
 import { fullBoostMultiplier, fullBoostNumberOfClicks } from '@/lib/constant';
 import { useItemsStore } from '@/contexts/items.store';
+import RandomBoost from '../RandomBoost';
 
 export default function Home() {
   const click = useGameStore((state) => state.actions.click);
@@ -38,8 +39,10 @@ export default function Home() {
   const firstCar = itemsTab.find((item) => item.kind === 'car');
   const firstBoost = itemsTab.find((item) => item.kind === 'boost');
 
-  const currentCar = selectedCar ?? firstCar;
-  const currentBoost = selectedBoost ?? firstBoost;
+  const currentCar =
+    itemsTab.find((item) => selectedCar?.id === item.id) ?? firstCar;
+  const currentBoost =
+    itemsTab.find((item) => selectedBoost?.id === item.id) ?? firstBoost;
 
   const [audio, setAudio] = useState<{
     audio: HTMLAudioElement;
@@ -122,6 +125,7 @@ export default function Home() {
       </button>
       <Parameters />
       <BoostMeter />
+      <RandomBoost />
     </section>
   );
 }
