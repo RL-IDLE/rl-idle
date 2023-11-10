@@ -68,25 +68,8 @@ html {
 }
 
 @supports (padding-top: constant(safe-area-inset-top)) {
-  body {
+  .balance-container {
     padding: env(safe-area-inset-top) env(safe-area-inset-right)
       env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
-}
-
-@media (display-mode: fullscreen) {
-  body {
-    padding: 0;
-  }
-}
-
-@media (display-mode: standalone) {
-  body {
-    padding: 0;
-  }
-}
-
-/* Older browsers (which don't support CSS variables) */
-body {
-  height: 100%;
 }

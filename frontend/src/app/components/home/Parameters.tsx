@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import styles from './parameters.module.scss';
 import { useUserStore } from '@/contexts/user.store';
 import { IUser } from '@/types/user';
@@ -14,19 +14,12 @@ export default function Parameters() {
   const [popUp, setPopUp] = useState(false);
   const user = useUserStore((state) => state.user) as IUser;
   const loadUser = useUserStore((state) => state.loadUser);
-  const [userToUpdate, setUserToUpdate] = useState({ ...user });
   const [isAccount, setIsAccount] = useState(true);
   // const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = () => {
     setPopUp(!popUp);
   };
-
-  useEffect(() => {
-    console.log(user);
-
-    setUserToUpdate({ ...user });
-  }, [user]);
 
   return (
     <div className={styles.params}>
@@ -95,8 +88,6 @@ export default function Parameters() {
                   <SignIn
                     loadUser={loadUser}
                     user={user}
-                    userToSignIn={userToUpdate}
-                    setUserToSignIn={setUserToUpdate}
                     setIsAccount={setIsAccount}
                     // setIsLoading={setIsLoading}
                   />
@@ -109,8 +100,6 @@ export default function Parameters() {
                         loadUser={loadUser}
                         user={user}
                         signup={true}
-                        userToUpdate={userToUpdate}
-                        setUserToUpdate={setUserToUpdate}
                         // setIsLoading={setIsLoading}
                       />
                       <Button
@@ -134,12 +123,10 @@ export default function Parameters() {
                         loadUser={loadUser}
                         user={user}
                         signup={false}
-                        userToUpdate={userToUpdate}
-                        setUserToUpdate={setUserToUpdate}
                         // setIsLoading={setIsLoading}
                       />
                       <Button
-                        className="mb-4"
+                        className="mb-4 w-full"
                         onClick={() => {
                           localStorage.removeItem('userId');
                           loadUser();

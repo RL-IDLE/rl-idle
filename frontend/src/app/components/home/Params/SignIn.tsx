@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from '../../ui/Button';
 import { useUserStore } from '@/contexts/user.store';
 import { IUser } from '@/types/user';
@@ -6,19 +6,16 @@ import { IUser } from '@/types/user';
 export default function SignIn({
   user,
   loadUser,
-  userToSignIn,
-  setUserToSignIn,
   setIsAccount, // setIsLoading,
 }: {
   user: IUser;
   loadUser: () => Promise<unknown>;
-  userToSignIn: IUser;
-  setUserToSignIn: (user: IUser) => void;
   setIsAccount: (isAccount: boolean) => void;
   // setIsLoading: (isLoading: boolean) => void;
 }) {
   const [err, setErr] = useState('' as any);
   const signInUser = useUserStore((state) => state.signIn);
+  const [userToSignIn, setUserToSignIn] = useState({ ...user });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     // setIsLoading(true);
@@ -34,7 +31,9 @@ export default function SignIn({
       // setIsLoading(false);
     }
   };
-
+  useEffect(() => {
+    setUserToSignIn({ ...user });
+  }, [user]);
   return (
     <div className="update-user">
       <h2 className="text-white">Sign-in</h2>

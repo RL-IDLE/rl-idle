@@ -1,25 +1,22 @@
 import { useUserStore } from '@/contexts/user.store';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from '../../ui/Button';
 import { IUser } from '@/types/user';
 
 export default function UpdateUser({
   user,
   loadUser,
-  userToUpdate,
-  setUserToUpdate,
   // setIsLoading,
   signup = false,
 }: {
   user: IUser;
   loadUser: () => Promise<unknown>;
-  userToUpdate: IUser;
-  setUserToUpdate: (user: IUser) => unknown;
   // setIsLoading: (isLoading: boolean) => void;
   signup?: boolean;
 }) {
   const [err, setErr] = useState('' as string);
   const updateUser = useUserStore((state) => state.updateUser);
+  const [userToUpdate, setUserToUpdate] = useState({ ...user });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     // setIsLoading(true);
@@ -35,7 +32,9 @@ export default function UpdateUser({
       // setIsLoading(false);
     }
   };
-
+  useEffect(() => {
+    setUserToUpdate({ ...user });
+  }, [user]);
   return (
     <>
       <div className="update-user">
