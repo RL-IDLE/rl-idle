@@ -8,9 +8,8 @@ export default function SignIn({
   loadUser,
   userToSignIn,
   setUserToSignIn,
-  setIsAccount,
-} // setIsLoading,
-: {
+  setIsAccount, // setIsLoading,
+}: {
   user: IUser;
   loadUser: () => Promise<unknown>;
   userToSignIn: IUser;
