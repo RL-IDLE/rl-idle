@@ -540,7 +540,9 @@ export class UsersService {
         '"user".id, "user"."createdAt", "user"."updatedAt", "user"."deletedAt"',
       )
       .orderBy('"prestige_count"', 'DESC')
-      .addOrderBy('user.latestBalance', 'DESC');
+      .addOrderBy('user.latestBalanceExponent', 'DESC')
+      .addOrderBy('user.latestBalanceMantissa', 'DESC');
+
     const top20Users = await top20UsersRequest.getMany();
     const top20UsersFilled = await Promise.all(
       top20Users.map(async (user) => {

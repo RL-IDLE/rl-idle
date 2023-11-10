@@ -67,6 +67,16 @@ export class User extends Timestamp implements IUser {
   latestBalance: string; //? Used for ranking
 
   @Column({
+    default: '0',
+  })
+  latestBalanceMantissa: string; //? Used for ranking
+
+  @Column({
+    default: '0',
+  })
+  latestBalanceExponent: string; //? Used for ranking
+
+  @Column({
     nullable: true,
   })
   maxPassiveIncomeInterval: number;
