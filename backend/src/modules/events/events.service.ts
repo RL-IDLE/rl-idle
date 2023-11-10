@@ -397,7 +397,10 @@ export class EventsService {
     //? Update user lastSeen
     user.lastSeen = new Date();
     user.passiveNotificationSent = false;
-    user.latestBalance = getUserBalance(user).toString();
+    const uBalance = getUserBalance(user);
+    user.latestBalance = uBalance.toString();
+    user.latestBalanceExponent = uBalance.exponent.toString();
+    user.latestBalanceMantissa = uBalance.mantissa.toString();
     await saveOneData({ key: 'users', id: data.userId, data: user });
 
     return data;
