@@ -41,7 +41,7 @@ const pwaConfig: Partial<VitePWAOptions> = {
     ],
     theme_color: '#3b82f6',
     background_color: '#ffffff',
-    display: 'standalone',
+    display: 'fullscreen',
     scope: '/',
     start_url: '/',
     orientation: 'portrait',
