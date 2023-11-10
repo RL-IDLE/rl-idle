@@ -9,14 +9,14 @@ export default function SignIn({
   userToSignIn,
   setUserToSignIn,
   setIsAccount,
-  setIsLoading,
-}: {
+} // setIsLoading,
+: {
   user: IUser;
   loadUser: () => Promise<unknown>;
   userToSignIn: IUser;
   setUserToSignIn: (user: IUser) => void;
   setIsAccount: (isAccount: boolean) => void;
-  setIsLoading: (isLoading: boolean) => void;
+  // setIsLoading: (isLoading: boolean) => void;
 }) {
   const [err, setErr] = useState('' as any);
   const signInUser = useUserStore((state) => state.signIn);
