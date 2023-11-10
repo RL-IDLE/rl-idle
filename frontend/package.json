@@ -1,7 +1,7 @@
 {
   "name": "@rl-idle/app",
   "private": true,
-  "version": "1.2.0-rec.10",
+  "version": "1.2.0-rec.11",
   "type": "module",
   "scripts": {
     "dev": "vite --port 3001",
