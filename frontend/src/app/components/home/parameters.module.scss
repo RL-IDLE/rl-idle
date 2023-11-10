@@ -2,17 +2,26 @@
   .header {
     color: #72a9c8;
   }
+
   .close {
     width: 100%;
     height: 2rem;
     cursor: pointer;
     transition: all 0.3s ease-in-out;
   }
+
   .content {
     height: 40vh;
     position: relative;
     width: calc(100% - 40px);
     margin-left: auto;
     margin-right: auto;
+  }
+
+  input {
+    &:focus-visible {
+      outline: none;
+      border-color: #6679d7;
+    }
   }
 }

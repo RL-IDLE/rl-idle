@@ -413,8 +413,18 @@ export class UsersService {
         password: password,
         username: user.username,
       };
-      const res = await this.usersRepository.save(updatedUser);
-      return res;
+      await this.usersRepository.save(updatedUser);
+      // same with redis
+      saveOneData({
+        key: 'users',
+        id: user.id,
+        data: {
+          ...user,
+          password: password,
+        },
+      });
+
+      return { message: 'Informations updated' };
     } catch (err) {
       logger.error(err);
       throw new HttpException('Username already exist', HttpStatus.BAD_REQUEST);
@@ -426,12 +436,14 @@ export class UsersService {
       where: { username: user.username },
     });
 
-    if (!dbUser) throw new HttpException('User not found', 400);
+    if (!dbUser || dbUser === null) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
 
     if (user.username !== dbUser.username)
-      throw new HttpException('Wrong username', 400);
+      throw new HttpException('Wrong username', HttpStatus.BAD_REQUEST);
     if (!(await bcryptCompare(user.password, dbUser.password)))
-      throw new HttpException('Wrong password', 400);
+      throw new HttpException('Wrong password', HttpStatus.BAD_REQUEST);
     return dbUser;
   }
 

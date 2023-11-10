@@ -39,6 +39,8 @@ interface UserState {
   loadUser: () => Promise<string | undefined>;
   addTokenBonus: (id: string, amount: Decimal) => Promise<void>;
   addEmeraldBonus: (id: string, amount: Decimal) => Promise<void>;
+  updateUser: (user: IUser) => Promise<unknown>;
+  signIn: (user: IUser) => Promise<unknown>;
 
   /** TEST COMMANDS */
   reset: () => Promise<void>;
@@ -560,19 +562,20 @@ export const useUserStore = create<UserState>()(
             return res;
           } catch (err) {
             logger.error(err);
+            throw err;
           }
         },
         async signIn(user: IUser) {
           try {
             //? Set the user
-            const userFromDb = await router.user.signIn(user).catch(() => null);
-            if (!userFromDb) return;
+            const userFromDb = await router.user.signIn(user);
 
-            localStorage.setItem('userId', userFromDb.id);
+            localStorage.setItem('userId', userFromDb?.id as string);
 
             return userFromDb;
           } catch (err) {
             logger.error(err);
+            throw err;
           }
         },
       })),

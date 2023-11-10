@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import styles from './parameters.module.scss';
 import { useUserStore } from '@/contexts/user.store';
 import { IUser } from '@/types/user';
-// import { useUserStore } from '@/contexts/user.store';
 import setting from '@/assets/setting_normal.png';
 import Button from '../ui/Button';
 import UpdateUser from './Params/UpdateUser';
 import SignIn from './Params/SignIn';
 import { cn } from '@/lib/utils';
+import loading from '@/assets/loading.gif';
+import gradient from '@/assets/gradient.png';
 
 export default function Parameters() {
   const [popUp, setPopUp] = useState(false);
@@ -15,6 +16,7 @@ export default function Parameters() {
   const loadUser = useUserStore((state) => state.loadUser);
   const [userToUpdate, setUserToUpdate] = useState({ ...user });
   const [isAccount, setIsAccount] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = () => {
     setPopUp(!popUp);
@@ -26,14 +28,10 @@ export default function Parameters() {
     setUserToUpdate({ ...user });
   }, [user]);
 
-  // const loadUserFunc = async () => {
-  //   await loadUser();
-  // };
-
   return (
     <div className={styles.params}>
-      <div className="absolute top-[95px] right-0">
-        <Button noStyle onClick={handleClick}>
+      <div className="absolute bottom-[85px] right-0">
+        <Button className="params" noStyle onClick={handleClick}>
           <img src={setting} alt="setting" className="w-14 h-14" />
         </Button>
       </div>
@@ -79,68 +77,88 @@ export default function Parameters() {
             <section
               className={cn(
                 styles.content +
-                  ' flex flex-col rounded-xl bg-gradient-to-t relative from-gradient-dark from-0% to-gradient-light to-100% mb-4',
+                  ' flex flex-col rounded-xl p-5 bg-gradient-to-t relative from-gradient-dark from-0% to-gradient-light to-100% mb-4',
                 {
                   'after:!hidden': !isAccount,
                 },
               )}
+              style={{
+                backgroundImage: `url(${gradient})`,
+                backgroundSize: 'cover',
+              }}
             >
-              <h2 className={styles.header}>Parameters</h2>
-              {!isAccount ? (
+              {!isLoading ? (
                 <>
-                  <p>pseudo</p>
-                  <SignIn
-                    loadUser={loadUser}
-                    user={user}
-                    userToSignIn={userToUpdate}
-                    setUserToSignIn={setUserToUpdate}
-                    setIsAccount={setIsAccount}
-                  />
-                </>
-              ) : (
-                <>
-                  {!user?.username ? (
+                  {!isAccount ? (
                     <>
-                      <UpdateUser
+                      <SignIn
                         loadUser={loadUser}
                         user={user}
-                        signup={true}
-                        userToUpdate={userToUpdate}
-                        setUserToUpdate={setUserToUpdate}
+                        userToSignIn={userToUpdate}
+                        setUserToSignIn={setUserToUpdate}
+                        setIsAccount={setIsAccount}
+                        setIsLoading={setIsLoading}
                       />
-                      <Button
-                        className="mb-4"
-                        onClick={() => {
-                          localStorage.removeItem('userId');
-                          loadUser();
-                          handleClick();
-                        }}
-                      >
-                        Reset
-                      </Button>
                     </>
                   ) : (
                     <>
-                      <UpdateUser
-                        loadUser={loadUser}
-                        user={user}
-                        signup={false}
-                        userToUpdate={userToUpdate}
-                        setUserToUpdate={setUserToUpdate}
-                      />
-                      <Button
-                        className="mb-4"
-                        onClick={() => {
-                          localStorage.removeItem('userId');
-                          loadUser();
-                          handleClick();
-                        }}
-                      >
-                        Disconnect
-                      </Button>
+                      {!user?.username ? (
+                        <>
+                          <UpdateUser
+                            loadUser={loadUser}
+                            user={user}
+                            signup={true}
+                            userToUpdate={userToUpdate}
+                            setUserToUpdate={setUserToUpdate}
+                            setIsLoading={setIsLoading}
+                          />
+                          <Button
+                            className="w-full bg-red-800"
+                            style={{
+                              marginBottom: '1rem',
+                              marginTop: 'auto',
+                            }}
+                            onClick={() => {
+                              localStorage.removeItem('userId');
+                              loadUser();
+                              handleClick();
+                            }}
+                          >
+                            Reset
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <UpdateUser
+                            loadUser={loadUser}
+                            user={user}
+                            signup={false}
+                            userToUpdate={userToUpdate}
+                            setUserToUpdate={setUserToUpdate}
+                            setIsLoading={setIsLoading}
+                          />
+                          <Button
+                            className="mb-4"
+                            onClick={() => {
+                              localStorage.removeItem('userId');
+                              loadUser();
+                              handleClick();
+                            }}
+                          >
+                            Disconnect
+                          </Button>
+                        </>
+                      )}
                     </>
                   )}
+                  <p className="user-id text-white absolute bottom-1 right-3 text-[.60rem] opacity-60">
+                    {user?.id && `User ID: ${user?.id}`}
+                  </p>
                 </>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <img width="40" src={loading} alt="" />
+                </div>
               )}
             </section>
             {/* <Button onClick={loadUserFunc()}>update</Button> */}

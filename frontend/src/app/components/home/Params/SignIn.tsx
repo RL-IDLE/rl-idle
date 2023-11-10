@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Button from '../../ui/Button';
 import { useUserStore } from '@/contexts/user.store';
+import { IUser } from '@/types/user';
 
 export default function SignIn({
   user,
@@ -8,31 +9,41 @@ export default function SignIn({
   userToSignIn,
   setUserToSignIn,
   setIsAccount,
+  setIsLoading,
+}: {
+  user: IUser;
+  loadUser: () => Promise<unknown>;
+  userToSignIn: IUser;
+  setUserToSignIn: (user: IUser) => void;
+  setIsAccount: (isAccount: boolean) => void;
+  setIsLoading: (isLoading: boolean) => void;
 }) {
   const [err, setErr] = useState('' as any);
   const signInUser = useUserStore((state) => state.signIn);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLInputElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    // setIsLoading(true);
     e.preventDefault();
     try {
       await signInUser(userToSignIn);
-      console.log('userToSignIn', userToSignIn);
       await loadUser();
-      setIsAccount(true);
       setErr('');
+      // setIsLoading(false);
+      setIsAccount(true);
     } catch (err) {
-      setErr(err?.json?.message);
+      setErr((err as { json: { message: string } })?.json?.message);
+      // setIsLoading(false);
     }
   };
 
   return (
     <div className="update-user">
-      <h2>SignIn</h2>
+      <h2 className="text-white">Sign-in</h2>
       <form onSubmit={(e) => handleSubmit(e)} className="flex flex-col gap-2">
         <input
           type="text"
           placeholder={user.username ? user.username : 'username'}
-          className="text-black"
+          className="text-white bg-transparent border-2 border-[#465498] rounded-lg p-2 mt-2 :focus:border-[#465498] :focus-visible:outline-none bg-gradient-to-t relative from-gradient-dark from-0% to-gradient-light to-100%"
           required
           onChange={(e) =>
             setUserToSignIn({
@@ -44,7 +55,7 @@ export default function SignIn({
         <input
           type="password"
           placeholder="password"
-          className="text-black"
+          className="text-white bg-transparent border-2 border-[#465498] rounded-lg p-2 mt-2 :focus:border-[#465498] :focus-visible:outline-none bg-gradient-to-t relative from-gradient-dark from-0% to-gradient-light to-100%"
           required
           onChange={(e) =>
             setUserToSignIn({
@@ -54,7 +65,9 @@ export default function SignIn({
           }
         />
         {err && err !== '' && <p className="text-red-500">{err}</p>}
-        <Button type="submit">Submit</Button>
+        <Button type="submit" className="w-full">
+          Submit
+        </Button>
       </form>
     </div>
   );
