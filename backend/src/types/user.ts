@@ -5,6 +5,7 @@ import { PrestigeBoughtSchema } from './prestige';
 export const UserSchema = z.object({
   id: z.string(),
   username: z.string(),
+  password: z.string(),
   moneyFromClick: z.string(),
   moneyPerClick: z.string(),
   moneyUsed: z.string(),

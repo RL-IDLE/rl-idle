@@ -44,6 +44,8 @@ interface UserState {
   loadUser: () => Promise<string | undefined>;
   addTokenBonus: (id: string, amount: Decimal) => Promise<void>;
   addEmeraldBonus: (id: string, amount: Decimal) => Promise<void>;
+  updateUser: (user: IUser) => Promise<unknown>;
+  signIn: (user: IUser) => Promise<unknown>;
   buyBoost: (
     item: (typeof timewarpBoost | typeof upgradeBoost)[number],
   ) => Promise<void>;
@@ -266,6 +268,8 @@ export const useUserStore = create<UserState>()(
             user: {
               id: user.id,
               username: user.username,
+              password: user.password,
+              lastSeen: new Date(user.lastSeen),
               moneyFromClick: Decimal.fromString(user.moneyFromClick),
               moneyPerClick: Decimal.fromString(user.moneyPerClick),
               moneyUsed: Decimal.fromString(user.moneyUsed),
@@ -374,6 +378,8 @@ export const useUserStore = create<UserState>()(
             user: {
               id: user.id,
               username: user.username,
+              password: user.password,
+              lastSeen: new Date(user.lastSeen),
               moneyFromClick: Decimal.fromString(user.moneyFromClick),
               moneyPerClick: Decimal.fromString(user.moneyPerClick),
               moneyUsed: Decimal.fromString(user.moneyUsed),
@@ -575,18 +581,33 @@ export const useUserStore = create<UserState>()(
           });
         },
         async updateUser(user: IUser) {
-          const oldUser = get().user;
-          const id = oldUser?.id;
-          if (!id) {
-            logger.error('User not found');
-            return;
+          try {
+            const oldUser = get().user;
+            const id = oldUser?.id;
+            if (!id) {
+              logger.error('User not found');
+              return;
+            }
+            //? Set the user
+            const res = await router.user.updateUser(user);
+            return res;
+          } catch (err) {
+            logger.error(err);
+            throw err;
           }
-          //? Set the user
-          set({ user });
         },
-        signIn(user: IUser) {
-          //? Set the user
-          set({ user });
+        async signIn(user: IUser) {
+          try {
+            //? Set the user
+            const userFromDb = await router.user.signIn(user);
+
+            if (userFromDb.id) localStorage.setItem('userId', userFromDb.id);
+
+            return userFromDb;
+          } catch (err) {
+            logger.error(err);
+            throw err;
+          }
         },
       })),
       {
