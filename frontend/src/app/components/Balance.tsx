@@ -16,7 +16,7 @@ export default function Balance() {
     <div
       className={
         styles.balance +
-        ' absolute top-0 left-0 z-50 mt-5 ml-5 p-3 flex items-center justify-center rounded-xl flex-wrap'
+        ' absolute top-0 left-0 z-50 mt-5 ml-5 p-3 flex items-center justify-center rounded-xl flex-wrap balance-container'
       }
     >
       <h2 className={cn('text-center relative w-fit text-white flex flex-col')}>
