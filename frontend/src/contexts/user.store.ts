@@ -512,15 +512,19 @@ export const useUserStore = create<UserState>()(
           });
         },
         async updateUser(user: IUser) {
-          const oldUser = get().user;
-          const id = oldUser?.id;
-          if (!id) {
-            logger.error('User not found');
-            return;
+          try {
+            const oldUser = get().user;
+            const id = oldUser?.id;
+            if (!id) {
+              logger.error('User not found');
+              return;
+            }
+            //? Set the user
+            const res = await router.user.updateUser(user);
+            return res;
+          } catch (err) {
+            logger.error(err);
           }
-          //? Set the user
-          const res = await router.user.updateUser(user);
-          return res;
         },
         async signIn(user: IUser) {
           try {

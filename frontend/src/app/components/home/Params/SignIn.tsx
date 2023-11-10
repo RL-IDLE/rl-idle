@@ -7,6 +7,7 @@ export default function SignIn({
   loadUser,
   userToSignIn,
   setUserToSignIn,
+  setIsAccount,
 }) {
   const [err, setErr] = useState('' as any);
   const signInUser = useUserStore((state) => state.signIn);
@@ -17,11 +18,8 @@ export default function SignIn({
       await signInUser(userToSignIn);
       console.log('userToSignIn', userToSignIn);
       await loadUser();
+      setIsAccount(true);
       setErr('');
-      setUserToSignIn({
-        username: '',
-        password: '',
-      });
     } catch (err) {
       setErr(err?.json?.message);
     }

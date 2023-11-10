@@ -47,33 +47,33 @@ export default function Parameters() {
             <button
               className={cn('text-white p-3 py-1 w-full rounded-[8px] z-10')}
               onClick={() => {
-                // if (navAudio) {
-                //   navAudio.currentTime = 0;
-                //   navAudio.play();
-                // }
                 setIsAccount(true);
               }}
             >
               My Account
             </button>
-            <button
-              className={cn('text-white p-3 py-1 w-full rounded-[8px] z-10')}
-              onClick={() => {
-                // if (navAudio) {
-                //   navAudio.currentTime = 0;
-                //   navAudio.play();
-                // }
-                setIsAccount(false);
-              }}
-            >
-              Sign In
-            </button>
-            <div
-              className="bg-gradient-light border border-background absolute top-0 h-[calc(100%-8px)] w-[calc(50%-4px)] left-0 m-1 rounded-[8px] transition-all duration-200 ease-in"
-              style={{
-                transform: isAccount ? 'translateX(0%)' : 'translateX(100%)',
-              }}
-            ></div>
+            {user?.username === null && (
+              <>
+                <button
+                  className={cn(
+                    'text-white p-3 py-1 w-full rounded-[8px] z-10',
+                  )}
+                  onClick={() => {
+                    setIsAccount(false);
+                  }}
+                >
+                  Sign In
+                </button>
+                <div
+                  className="bg-gradient-light border border-background absolute top-0 h-[calc(100%-8px)] w-[calc(50%-4px)] left-0 m-1 rounded-[8px] transition-all duration-200 ease-in"
+                  style={{
+                    transform: isAccount
+                      ? 'translateX(0%)'
+                      : 'translateX(100%)',
+                  }}
+                ></div>
+              </>
+            )}
           </div>
           <div>
             <section
@@ -93,36 +93,52 @@ export default function Parameters() {
                     loadUser={loadUser}
                     user={user}
                     userToSignIn={userToUpdate}
-                    setUserToUpdate={setUserToUpdate}
+                    setUserToSignIn={setUserToUpdate}
+                    setIsAccount={setIsAccount}
                   />
-                  <Button
-                    className="mb-4"
-                    onClick={() => {
-                      localStorage.removeItem('userId');
-                      loadUser();
-                    }}
-                  >
-                    Disconnect
-                  </Button>
                 </>
               ) : (
                 <>
                   {!user?.username ? (
-                    <UpdateUser
-                      loadUser={loadUser}
-                      user={user}
-                      signup={true}
-                      userToUpdate={userToUpdate}
-                      setUserToUpdate={setUserToUpdate}
-                    />
+                    <>
+                      <UpdateUser
+                        loadUser={loadUser}
+                        user={user}
+                        signup={true}
+                        userToUpdate={userToUpdate}
+                        setUserToUpdate={setUserToUpdate}
+                      />
+                      <Button
+                        className="mb-4"
+                        onClick={() => {
+                          localStorage.removeItem('userId');
+                          loadUser();
+                          handleClick();
+                        }}
+                      >
+                        Reset
+                      </Button>
+                    </>
                   ) : (
-                    <UpdateUser
-                      loadUser={loadUser}
-                      user={user}
-                      signup={false}
-                      userToUpdate={userToUpdate}
-                      setUserToUpdate={setUserToUpdate}
-                    />
+                    <>
+                      <UpdateUser
+                        loadUser={loadUser}
+                        user={user}
+                        signup={false}
+                        userToUpdate={userToUpdate}
+                        setUserToUpdate={setUserToUpdate}
+                      />
+                      <Button
+                        className="mb-4"
+                        onClick={() => {
+                          localStorage.removeItem('userId');
+                          loadUser();
+                          handleClick();
+                        }}
+                      >
+                        Disconnect
+                      </Button>
+                    </>
                   )}
                 </>
               )}
