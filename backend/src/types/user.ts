@@ -13,6 +13,7 @@ export const UserSchema = z.object({
   prestigesBought: z.array(PrestigeBoughtSchema),
   lastSeen: z.date(),
   emeralds: z.string(),
+  latestBalance: z.string(),
 });
 
 export type IUser = z.infer<typeof UserSchema>;

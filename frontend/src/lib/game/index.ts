@@ -11,7 +11,13 @@ const memoizedHighestPrestige = memoizeOne(
   },
 );
 
-export const getUserBalance = (user: IUser | null, date?: Date) => {
+export const getUserBalance = (
+  user: Pick<
+    IUser,
+    'moneyFromClick' | 'prestigesBought' | 'itemsBought' | 'moneyUsed'
+  > | null,
+  date?: Date,
+) => {
   if (!user) return Decimal.fromString('0');
   const baseDate = date?.getTime() || Date.now();
   const moneyFromClick = user.moneyFromClick;

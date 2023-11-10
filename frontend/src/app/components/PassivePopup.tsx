@@ -11,6 +11,7 @@ import {
 } from '../../../../backend/src/lib/constant';
 import Button from './ui/Button';
 import { useBalance } from '@/contexts/balance/BalanceUtils';
+import { popupMinOfflineTime } from '@/lib/constant';
 
 export default function PassivePopup() {
   const user = useUserStore((state) => state.user);
@@ -41,8 +42,9 @@ export default function PassivePopup() {
 
     //? If the user has been offline for more than 1 minute, show a popup
     if (
-      // now - parseInt(lastBalanceTime || '0') > popupMinOfflineTime &&
-      inactiveTimeNow.getTime() - inactiveTime.getTime() > 0 &&
+      inactiveTimeNow.getTime() - inactiveTime.getTime() >
+        popupMinOfflineTime &&
+      // inactiveTimeNow.getTime() - inactiveTime.getTime() > 0 &&
       lastBalance
     ) {
       const oldBalance = getUserBalance(user, inactiveTime);

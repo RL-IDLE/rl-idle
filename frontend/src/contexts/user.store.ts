@@ -37,8 +37,8 @@ interface UserState {
   buyItem: (id: string) => void;
   buyPrestige: (id: string) => void;
   loadUser: () => Promise<string | undefined>;
-  updateUser: (user: IUser) => Promise<unknown>;
-  signIn: (user: IUser) => Promise<unknown>;
+  addTokenBonus: (id: string, amount: Decimal) => Promise<void>;
+  addEmeraldBonus: (id: string, amount: Decimal) => Promise<void>;
 
   /** TEST COMMANDS */
   reset: () => Promise<void>;
@@ -294,9 +294,44 @@ export const useUserStore = create<UserState>()(
                 },
                 createdAt: new Date(prestigeBought.createdAt),
               })),
+              latestBalance: Decimal.fromString(user.latestBalance),
             },
           });
           return user.id;
+        },
+        async addTokenBonus(id: string, amount: Decimal) {
+          set((state) => {
+            const user = state.user;
+            if (!user) {
+              logger.error('User not found');
+              return;
+            }
+            user.moneyFromClick = user.moneyFromClick.add(amount);
+
+            const eventBody: IWsEvent['addTokenBonus']['body'] = {
+              userId: user.id,
+              id,
+              type: 'addTokenBonus',
+            };
+            socket.emit('events', eventBody);
+          });
+        },
+        async addEmeraldBonus(id: string, amount: Decimal) {
+          set((state) => {
+            const user = state.user;
+            if (!user) {
+              logger.error('User not found');
+              return;
+            }
+            user.emeralds = user.emeralds.add(amount);
+
+            const eventBody: IWsEvent['addEmeraldBonus']['body'] = {
+              userId: user.id,
+              id,
+              type: 'addEmeraldBonus',
+            };
+            socket.emit('events', eventBody);
+          });
         },
         async reset() {
           const oldUser = get().user;
@@ -347,6 +382,7 @@ export const useUserStore = create<UserState>()(
                 },
                 createdAt: new Date(prestigeBought.createdAt),
               })),
+              latestBalance: Decimal.fromString(user.latestBalance),
             },
           });
           return;

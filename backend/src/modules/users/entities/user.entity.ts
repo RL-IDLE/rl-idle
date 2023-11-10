@@ -60,6 +60,11 @@ export class User extends Timestamp implements IUser {
     default: false,
   })
   passiveNotificationSent: boolean;
+
+  @Column({
+    default: '0',
+  })
+  latestBalance: string; //? Used for ranking
 }
 
 @Entity('subscription')

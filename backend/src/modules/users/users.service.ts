@@ -78,12 +78,15 @@ export class UsersService {
     //* Max passive income
     //? Get the time difference between the last time the user was seen and now
     const lastSeen = new Date(user.lastSeen as unknown as string);
+    //? add livelinessProbeInterval to the last seen date
     const timeDiff = Math.abs(curDate.getTime() - lastSeen.getTime());
+    if (timeDiff < 1000 * 60) return user;
     const endOfInterval = new Date(
       lastSeen.getTime() + maxPassiveIncomeInterval,
     );
     const userBalanceLastSeen = getUserBalance(user, lastSeen);
     const userBalance = getUserBalance(user);
+    if (userBalanceLastSeen.gte(userBalance)) return user;
     let overflow: null | Decimal = null;
     if (timeDiff > maxPassiveIncomeInterval) {
       const userBalanceWithMaxPassiveIncome = getUserBalance(
@@ -265,6 +268,7 @@ export class UsersService {
     //? Reset user money/items
     user.moneyFromClick = '0';
     user.moneyPerClick = '1';
+    user.latestBalance = '0';
     user.itemsBought = [];
 
     await saveOneData({
@@ -506,5 +510,33 @@ export class UsersService {
     });
 
     return { success: true };
+  }
+
+  /**
+   * RANKING
+   */
+  async getTop20Users() {
+    const top20UsersRequest = this.usersRepository
+      .createQueryBuilder('user')
+      .limit(20)
+      .leftJoin('user.prestigesBought', 'prestigesBought')
+      //? Order by the numner of prestiges bought first, then by the latestBalance
+      .addSelect('COUNT("prestigesBought"."userId") AS prestige_count')
+      .groupBy(
+        '"user".id, "user"."createdAt", "user"."updatedAt", "user"."deletedAt"',
+      )
+      .orderBy('"prestige_count"', 'DESC')
+      .addOrderBy('user.latestBalance', 'DESC');
+    const top20Users = await top20UsersRequest.getMany();
+    const top20UsersFilled = await Promise.all(
+      top20Users.map(async (user) => {
+        return getOneData({
+          databaseRepository: this.usersRepository,
+          id: user.id,
+          key: 'users',
+        });
+      }),
+    );
+    return top20UsersFilled;
   }
 }

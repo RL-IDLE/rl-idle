@@ -13,4 +13,5 @@ export type IUser = {
   itemsBought: IItemBought[];
   prestigesBought: IPrestigeBought[];
   emeralds: Decimal;
+  latestBalance: Decimal;
 };
