@@ -1,4 +1,4 @@
-FROM node:18-alpine as build
+FROM node:20-alpine as build
 
 RUN mkdir -p /usr/src/app
 
@@ -19,7 +19,7 @@ COPY . .
 
 RUN npm run build -w backend
 
-FROM node:18-alpine as backend
+FROM node:20-alpine as backend
 
 COPY --from=build /usr/src/app /usr/src/app
 
