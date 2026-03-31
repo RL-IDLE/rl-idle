@@ -18,7 +18,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@stripe/react-stripe-js": "^2.3.1",
     "@stripe/stripe-js": "^2.1.11",
-    "@t3-oss/env-core": "^0.7.0",
+    "@t3-oss/env-core": "^0.13.0",
     "@types/memoizee": "^0.4.11",
     "@types/node": "^20.8.5",
     "@types/react": "^18.2.28",
