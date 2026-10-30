@@ -64,7 +64,7 @@
     "stripe": "^14.3.0",
     "typeorm": "^0.3.17",
     "web-push": "^3.6.6",
-    "zod": "^3.22.4"
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@nestjs/schematics": "^10.0.2",
